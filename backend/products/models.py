@@ -7,7 +7,7 @@ class Product(models.Model):
     category = models.CharField(max_length=100)
     price = models.FloatField()
     quantity = models.IntegerField()
-    image = models.ImageField(upload_to='products/')
+    image = models.ImageField(upload_to="products/", null=True, blank=True)
     freshness_score = models.FloatField(null=True, blank=True)
 
     def __str__(self):

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import API from "../services/api";
-import "../styles/Pages.css";
+import "../styles/Chatbot.css";
 
 function Chatbot() {
   const [messages, setMessages] = useState([]);
@@ -12,11 +12,10 @@ function Chatbot() {
 
   useEffect(() => {
     fetchIntents();
-    // Add welcome message
     setMessages([
       {
         id: 1,
-        text: "👋 Hello! I'm your farming assistant. How can I help you today?",
+        text: "👋 Hello! I'm your AI farming assistant. Ask me anything about pricing, logistics, or demand.",
         sender: "bot",
         timestamp: new Date(),
       },
@@ -34,9 +33,15 @@ function Chatbot() {
   const fetchIntents = async () => {
     try {
       const response = await API.get("chatbot/intents/");
-      if (response.data.intents) {
-        setIntents(response.data.intents);
-      }
+      if (response.data.available_intents) {
+  const formattedIntents = Object.entries(response.data.available_intents)
+    .map(([key, value]) => ({
+      name: key,
+      description: value.description,
+    }));
+
+  setIntents(formattedIntents);
+}
     } catch (err) {
       console.error("Failed to fetch intents", err);
     }
@@ -45,9 +50,8 @@ function Chatbot() {
   const sendMessage = async () => {
     if (!input.trim()) return;
 
-    // Add user message
     const userMessage = {
-      id: messages.length + 1,
+      id: Date.now(),
       text: input,
       sender: "user",
       timestamp: new Date(),
@@ -59,11 +63,11 @@ function Chatbot() {
 
     try {
       const response = await API.post("chatbot/message/", {
-        message: input,
+        message: userMessage.text,
       });
 
       const botMessage = {
-        id: messages.length + 2,
+        id: Date.now() + 1,
         text: response.data.response,
         sender: "bot",
         intent: response.data.intent,
@@ -73,53 +77,59 @@ function Chatbot() {
 
       setMessages((prev) => [...prev, botMessage]);
     } catch (err) {
-      const errorMessage = {
-        id: messages.length + 2,
-        text: "Sorry, I couldn't process your message. Please try again.",
-        sender: "bot",
-        timestamp: new Date(),
-      };
-      setMessages((prev) => [...prev, errorMessage]);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now() + 1,
+          text: "⚠️ Sorry, something went wrong. Please try again.",
+          sender: "bot",
+          timestamp: new Date(),
+        },
+      ]);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleQuickMessage = (text) => {
-    setInput(text);
-  };
-
   const quickMessages = [
     "How do I price my products?",
     "How do deliveries work?",
-    "What's today's market demand?",
-    "How do I check product freshness?",
+    "What is current demand?",
+    "How to improve freshness score?",
   ];
 
   return (
-    <div className="page-container">
-      <div className="page-header">
-        <h1>💬 Farming Assistant Chatbot</h1>
-        <p>Get instant help with questions about farming, pricing, and logistics</p>
+    <div className="chatbot-wrapper">
+
+      {/* HEADER */}
+      <div className="chatbot-header">
+        <h1>🤖 AI Farming Assistant</h1>
+        <p>Your smart agriculture advisor</p>
       </div>
 
-      <div className="chatbot-container">
-        <div className="chat-box">
+      <div className="chatbot-layout">
+
+        {/* CHAT AREA */}
+        <div className="chat-container">
+
           <div className="chat-messages">
             {messages.map((msg) => (
               <div
                 key={msg.id}
-                className={`message ${msg.sender === "user" ? "user" : "bot"}`}
+                className={`chat-bubble ${msg.sender}`}
               >
-                <div className="message-content">
+                <div className="bubble-content">
                   {msg.text}
+
                   {msg.intent && (
                     <div className="message-meta">
-                      <small>Intent: {msg.intent} (Confidence: {(msg.confidence * 100).toFixed(0)}%)</small>
+                      Intent: {msg.intent} | Confidence:{" "}
+                      {(msg.confidence * 100).toFixed(0)}%
                     </div>
                   )}
                 </div>
-                <span className="message-time">
+
+                <span className="timestamp">
                   {msg.timestamp.toLocaleTimeString([], {
                     hour: "2-digit",
                     minute: "2-digit",
@@ -127,76 +137,65 @@ function Chatbot() {
                 </span>
               </div>
             ))}
+
             {loading && (
-              <div className="message bot loading">
-                <div className="message-content">
-                  <span className="typing-indicator">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                  </span>
+              <div className="chat-bubble bot">
+                <div className="bubble-content typing">
+                  <span></span>
+                  <span></span>
+                  <span></span>
                 </div>
               </div>
             )}
+
             <div ref={messagesEndRef} />
           </div>
 
-          <div className="chat-input-section">
-            {messages.length <= 1 && (
-              <div className="quick-messages">
-                <p>Quick questions:</p>
-                {quickMessages.map((msg, idx) => (
-                  <button
-                    key={idx}
-                    className="quick-message-btn"
-                    onClick={() => handleQuickMessage(msg)}
-                  >
-                    {msg}
-                  </button>
-                ))}
-              </div>
-            )}
-
-            <div className="chat-input-wrapper">
-              <input
-                type="text"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyPress={(e) => {
-                  if (e.key === "Enter") sendMessage();
-                }}
-                placeholder="Type your question..."
-                disabled={loading}
-              />
-              <button
-                className="send-button"
-                onClick={sendMessage}
-                disabled={loading || !input.trim()}
-              >
-                {loading ? "..." : "Send"}
-              </button>
-              <button
-                className="intents-button"
-                onClick={() => setShowIntents(!showIntents)}
-                title="View available topics"
-              >
-                📋
-              </button>
+          {/* QUICK SUGGESTIONS */}
+          {messages.length <= 1 && (
+            <div className="quick-suggestions">
+              {quickMessages.map((q, idx) => (
+                <button key={idx} onClick={() => setInput(q)}>
+                  {q}
+                </button>
+              ))}
             </div>
+          )}
+
+          {/* INPUT */}
+          <div className="chat-input">
+            <input
+              type="text"
+              placeholder="Ask your question..."
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+              disabled={loading}
+            />
+
+            <button onClick={sendMessage} disabled={loading || !input.trim()}>
+              {loading ? "..." : "➤"}
+            </button>
+
+            <button
+              className="intents-toggle"
+              onClick={() => setShowIntents(!showIntents)}
+            >
+              📋
+            </button>
           </div>
         </div>
 
+        {/* INTENTS PANEL */}
         {showIntents && (
           <div className="intents-panel">
-            <h3>📚 Available Topics</h3>
-            <div className="intents-grid">
-              {intents.map((intent, idx) => (
-                <div key={idx} className="intent-card">
-                  <h4>{intent.name}</h4>
-                  <p>{intent.description}</p>
-                </div>
-              ))}
-            </div>
+            <h3>Available Topics</h3>
+            {intents.map((intent, idx) => (
+              <div key={idx} className="intent-card">
+                <strong>{intent.name}</strong>
+                <p>{intent.description}</p>
+              </div>
+            ))}
           </div>
         )}
       </div>

@@ -1,71 +1,95 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import "../styles/Forms.css";
+import "../styles/Login.css";
 
 function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
   const navigate = useNavigate();
 
   const loginUser = async () => {
-    try {
-      setError("");
-      const res = await axios.post("http://127.0.0.1:8000/api/token/", {
+  try {
+    const res = await axios.post(
+      "http://127.0.0.1:8000/api/auth/login/",
+      {
         username,
         password,
-      });
+      }
+    );
 
-      localStorage.setItem("token", res.data.access);
-      alert("Login Successful");
-      navigate("/dashboard");
-    } catch (err) {
-      console.error("Error:", err.response?.data);
-      setError(err.response?.data?.detail || "Invalid credentials");
-    }
-  };
+    localStorage.setItem("access_token", res.data.access);
+    localStorage.setItem("refresh_token", res.data.refresh);
+
+    // ✅ VERY IMPORTANT
+    localStorage.setItem("user_role", res.data.role);
+
+    navigate("/dashboard");
+
+  } catch (err) {
+    setError("Invalid credentials");
+  }
+};
 
   return (
-    <div className="form-container">
-      <div className="form-card">
-        <h2>🔐 Login</h2>
+    <div className="login-wrapper">
 
-        <div className="form-group">
+      <div className="login-card">
+        <h2 className="login-title">🔐 Welcome Back</h2>
+        <p className="login-subtitle">
+          Login to access your dashboard
+        </p>
+
+        <div className="input-group">
           <label>Username</label>
           <input
             type="text"
-            placeholder="Enter your username"
+            placeholder="Enter username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
           />
         </div>
 
-        <div className="form-group">
+        <div className="input-group">
           <label>Password</label>
           <input
             type="password"
-            placeholder="Enter your password"
+            placeholder="Enter password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
         </div>
 
-        {error && <div className="error-message">{error}</div>}
+        {error && <div className="error-box">{error}</div>}
 
-        <button className="form-button" onClick={loginUser}>
-          Login
+        <button
+          className="login-button"
+          onClick={loginUser}
+          disabled={loading}
+        >
+          {loading ? "Logging in..." : "Login"}
         </button>
 
-        <div className="form-link">
-          Don't have an account?{" "}
-          <a onClick={() => navigate("/register")}>Register here</a>
-        </div>
+        <div className="login-footer">
+          <button
+            className="link-button"
+            onClick={() => navigate("/register")}
+          >
+            Don't have an account? Register
+          </button>
 
-        <div className="form-link">
-          <a onClick={() => navigate("/")}>← Back to Home</a>
+          <button
+            className="link-button"
+            onClick={() => navigate("/")}
+          >
+            ← Back to Home
+          </button>
         </div>
       </div>
+
     </div>
   );
 }

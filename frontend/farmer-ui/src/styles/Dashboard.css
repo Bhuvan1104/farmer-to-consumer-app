@@ -1,134 +1,120 @@
-/* Dashboard Styles */
+/* Main Container */
 .dashboard-container {
   min-height: 100vh;
-  background: #f5f7fa;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(to right, #e8f5e9, #f1f8e9);
+  padding: 20px;
+  font-family: 'Segoe UI', sans-serif;
 }
 
-.navbar {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 15px 30px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+/* Header */
+.dashboard-header {
+  background: linear-gradient(135deg, #2e7d32, #66bb6a);
+  color: white;
+  padding: 25px 40px;
+  border-radius: 12px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
 }
 
-.navbar h1 {
-  color: white;
-  margin: 0;
-  font-size: 1.5rem;
+.subtitle {
+  margin-top: 5px;
+  font-size: 0.95rem;
+  opacity: 0.9;
 }
 
-.navbar button {
+/* Logout Button */
+.logout-btn {
   background: white;
-  color: #667eea;
+  color: #2e7d32;
   border: none;
-  padding: 8px 20px;
-  border-radius: 5px;
+  padding: 10px 18px;
+  border-radius: 25px;
+  font-weight: bold;
   cursor: pointer;
-  font-weight: 600;
-  transition: all 0.3s ease;
+  transition: 0.3s ease;
 }
 
-.navbar button:hover {
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-  transform: translateY(-2px);
+.logout-btn:hover {
+  background: #f44336;
+  color: white;
 }
 
+/* Welcome */
 .dashboard-content {
-  padding: 30px;
-  max-width: 1200px;
-  margin: 0 auto;
+  margin-top: 30px;
 }
 
-.dashboard-title {
-  color: #333;
-  font-size: 2rem;
-  margin-bottom: 30px;
+.welcome-text {
+  margin-bottom: 20px;
+  font-size: 1.6rem;
+  color: #2e7d32;
 }
 
+/* Grid */
 .dashboard-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 20px;
 }
 
+/* Cards */
 .dashboard-card {
   background: white;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s ease;
+  padding: 25px;
+  border-radius: 14px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+  text-align: center;
+  transition: 0.3s ease;
+  position: relative;
 }
 
 .dashboard-card:hover {
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-  transform: translateY(-5px);
+  transform: translateY(-8px);
+  box-shadow: 0 15px 30px rgba(0,0,0,0.15);
 }
 
 .dashboard-card h3 {
-  color: #667eea;
-  margin-top: 0;
-  font-size: 1.3rem;
+  margin: 10px 0;
+  color: #2e7d32;
 }
 
 .dashboard-card p {
-  color: #666;
-  margin: 10px 0;
+  font-size: 0.9rem;
+  color: #555;
 }
 
+.dashboard-card small {
+  font-size: 0.8rem;
+  color: #888;
+}
+
+/* Icons */
+.icon {
+  font-size: 2.5rem;
+}
+
+/* Stats */
 .card-stat {
-  font-size: 1.8rem;
-  font-weight: 700;
-  color: #667eea;
+  font-size: 2rem;
+  font-weight: bold;
   margin: 10px 0;
+  color: #388e3c;
 }
 
-.action-button {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+/* Buttons */
+.dashboard-card button {
+  margin-top: 12px;
+  padding: 8px 16px;
+  border-radius: 20px;
   border: none;
-  padding: 10px 20px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  display: inline-block;
-  margin-top: 10px;
-}
-
-.action-button:hover {
-  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-  transform: translateY(-2px);
-}
-
-.secondary-button {
-  background: white;
-  color: #667eea;
-  border: 2px solid #667eea;
-}
-
-.secondary-button:hover {
-  background: #667eea;
+  background: #2e7d32;
   color: white;
+  cursor: pointer;
+  transition: 0.3s;
 }
 
-@media (max-width: 768px) {
-  .navbar {
-    flex-direction: column;
-    gap: 15px;
-  }
-
-  .dashboard-content {
-    padding: 20px;
-  }
-
-  .dashboard-title {
-    font-size: 1.5rem;
-  }
-
-  .dashboard-grid {
-    grid-template-columns: 1fr;
-  }
+.dashboard-card button:hover {
+  background: #1b5e20;
 }

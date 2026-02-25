@@ -1,0 +1,87 @@
+.delivery-wrapper {
+  min-height: 100vh;
+  padding: 30px;
+  background: linear-gradient(135deg, #e8f5e9, #f1f8e9);
+  font-family: "Segoe UI", sans-serif;
+}
+
+.delivery-header {
+  background: linear-gradient(135deg, #2e7d32, #66bb6a);
+  color: white;
+  padding: 25px;
+  border-radius: 16px;
+  margin-bottom: 30px;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+}
+
+.delivery-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 25px;
+}
+
+.delivery-card {
+  background: white;
+  padding: 25px;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+  transition: 0.3s ease;
+}
+
+.delivery-card:hover {
+  transform: translateY(-5px);
+}
+
+.form-group {
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group input,
+.form-group select {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  margin-top: 5px;
+}
+
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+.result-row {
+  display: flex;
+  justify-content: space-between;
+  margin: 10px 0;
+}
+
+.risk-bar {
+  height: 8px;
+  background: #eee;
+  border-radius: 6px;
+  margin: 10px 0;
+  overflow: hidden;
+}
+
+.risk-fill {
+  height: 100%;
+  transition: width 0.5s ease;
+}
+
+.recommendation-box {
+  margin-top: 15px;
+  padding: 10px;
+  background: #f1f8e9;
+  border-radius: 8px;
+}
+
+.error-box {
+  background: #f8d7da;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}

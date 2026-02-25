@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../services/api";
 import "../styles/Products.css";
+import { isFarmer } from "../utils/auth";
 
 function Products() {
   const [products, setProducts] = useState([]);
@@ -9,64 +10,131 @@ function Products() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const res = await API.get("products/");
-        setProducts(res.data);
-      } catch (err) {
-        console.error("Error fetching products:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchProducts();
   }, []);
 
+  const fetchProducts = async () => {
+    try {
+      const res = await API.get("products/");
+      setProducts(res.data);
+    } catch (err) {
+      console.error("Error fetching products:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this product?"
+    );
+    if (!confirmDelete) return;
+
+    try {
+      await API.delete(`products/${id}/`);
+
+      // Remove from UI without refetching
+      setProducts((prev) =>
+        prev.filter((product) => product.id !== id)
+      );
+    } catch (err) {
+      console.error("Delete failed:", err);
+      alert("Failed to delete product.");
+    }
+  };
+
+  const categoryIcons = {
+    vegetables: "🥬",
+    fruits: "🍎",
+    dairy: "🥛",
+    meats: "🥩",
+    herbs: "🌿",
+    berries: "🫐",
+  };
+
+  if (loading) {
+    return (
+      <div className="products-wrapper">
+        <p className="loading-text">Loading products...</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="products-container">
+    <div className="products-wrapper">
       <div className="products-header">
-        <h1>📦 Products</h1>
-        <button className="back-button" onClick={() => navigate("/dashboard")}>
-          ← Back to Dashboard
-        </button>
+        <div>
+          <h1>📦 Products</h1>
+          <p>Manage and monitor your product inventory</p>
+        </div>
+
+        {isFarmer() && (
+  <button
+    className="primary-button"
+    onClick={() => navigate("/add-product")}
+  >
+    + Add Product
+  </button>
+)}
       </div>
 
-      <div className="products-content">
-        {loading ? (
-          <div className="empty-message">
-            <h3>Loading products...</h3>
-          </div>
-        ) : products.length === 0 ? (
-          <div className="empty-message">
-            <h3>No products available</h3>
-            <p>Start by adding a product!</p>
-            <button
-              className="add-product-btn"
-              onClick={() => navigate("/add-product")}
-            >
-              Add First Product
-            </button>
-          </div>
-        ) : (
-          <div className="products-grid">
-            {products.map((product) => (
-              <div key={product.id} className="product-card">
-                <div className="product-image">🌾</div>
-                <div className="product-info">
-                  <h3 className="product-name">{product.name}</h3>
-                  <p className="product-category">{product.category}</p>
-                  <div className="product-details">
-                    <div className="product-price">₹{product.price}</div>
-                    <div className="product-quantity">
-                      Qty: {product.quantity}
-                    </div>
+      <div className="products-grid">
+        {products.map((product) => {
+          const icon =
+            categoryIcons[product.category?.toLowerCase()] || "🌾";
+
+          return (
+            <div key={product.id} className="product-card">
+
+              {/* IMAGE OR ICON */}
+              <div className="product-thumbnail">
+                {product.image ? (
+                  <img
+                    src={product.image}
+                    alt={product.name}
+                    className="product-image"
+                  />
+                ) : (
+                  <div className="product-icon-fallback">
+                    {icon}
                   </div>
-                </div>
+                )}
               </div>
-            ))}
-          </div>
-        )}
+
+              <h3>{product.name}</h3>
+              <p className="category">{product.category}</p>
+
+              <div className="product-meta">
+                <span>₹{product.price}</span>
+                <span>Stock: {product.quantity}</span>
+              </div>
+
+              <div className="product-actions">
+
+                <button
+                  className="secondary-button"
+                  onClick={() =>
+                    navigate(`/products/${product.id}`)
+                  }
+                >
+                  View
+                </button>
+
+               
+
+                <button
+                  className="delete-button"
+                  onClick={() =>
+                    handleDelete(product.id)
+                  }
+                >
+                  🗑 Delete
+                </button>
+
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

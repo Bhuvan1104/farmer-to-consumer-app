@@ -12,6 +12,7 @@ import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.pipeline import Pipeline
+from sklearn.exceptions import NotFittedError
 import warnings
 
 warnings.filterwarnings('ignore')
@@ -290,15 +291,27 @@ class FarmerChatbot:
         """
         try:
             if not self.is_trained:
-                raise ValueError("Chatbot model not trained")
-            
+                # attempt to train if not trained
+                self._train_model()
+
             # Classify intent
             message_lower = user_message.lower().strip()
-            predicted_intent = self.model.predict([message_lower])[0]
-            
-            # Get confidence
-            probabilities = self.model.predict_proba([message_lower])[0]
-            confidence = float(max(probabilities))
+            try:
+                predicted_intent = self.model.predict([message_lower])[0]
+                # Get confidence
+                probabilities = self.model.predict_proba([message_lower])[0]
+                confidence = float(max(probabilities))
+            except (NotFittedError, Exception) as inner_exc:
+                # If model not fitted or other model error, attempt retrain once
+                logger.warning(f"Model inference error, retraining: {inner_exc}")
+                try:
+                    self._train_model()
+                    predicted_intent = self.model.predict([message_lower])[0]
+                    probabilities = self.model.predict_proba([message_lower])[0]
+                    confidence = float(max(probabilities))
+                except Exception as retry_exc:
+                    logger.error(f"Retry training/inference failed: {retry_exc}")
+                    raise retry_exc
             
             # Get response
             responses = self.intents[predicted_intent]['responses']

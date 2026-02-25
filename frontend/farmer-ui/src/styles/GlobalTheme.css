@@ -1,0 +1,159 @@
+/* ============================= */
+/* 🌾 GLOBAL AGRI PREMIUM THEME */
+/* ============================= */
+
+:root {
+  --primary: #2e7d32;
+  --primary-dark: #1b5e20;
+  --accent: #66bb6a;
+  --bg-gradient: linear-gradient(135deg, #e8f5e9, #f1f8e9);
+  --card-bg: rgba(255, 255, 255, 0.85);
+  --shadow-soft: 0 8px 25px rgba(0, 0, 0, 0.08);
+  --shadow-hover: 0 15px 35px rgba(0, 0, 0, 0.15);
+}
+
+/* Page Container */
+.page-container,
+.container {
+  min-height: 100vh;
+  background: var(--bg-gradient);
+  padding: 30px;
+  font-family: "Segoe UI", sans-serif;
+}
+
+/* Page Header */
+.page-header {
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  color: white;
+  padding: 25px 30px;
+  border-radius: 14px;
+  margin-bottom: 25px;
+  box-shadow: var(--shadow-soft);
+}
+
+.page-header h1 {
+  margin: 0;
+}
+
+.page-header p {
+  margin-top: 5px;
+  opacity: 0.9;
+}
+
+/* Cards */
+.card,
+.form-card,
+.profile-card,
+.result-card,
+.order-card,
+.dashboard-card {
+  background: var(--card-bg);
+  backdrop-filter: blur(10px);
+  border-radius: 14px;
+  padding: 25px;
+  box-shadow: var(--shadow-soft);
+  transition: 0.3s ease;
+}
+
+.card:hover,
+.form-card:hover,
+.order-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-hover);
+}
+
+/* Buttons */
+.primary-button,
+.form-button,
+.action-button {
+  background: var(--primary);
+  border: none;
+  padding: 10px 20px;
+  border-radius: 25px;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.primary-button:hover,
+.form-button:hover,
+.action-button:hover {
+  background: var(--primary-dark);
+  transform: scale(1.05);
+}
+
+/* Secondary Button */
+.secondary-button {
+  background: #f5f5f5;
+  border-radius: 25px;
+  padding: 8px 18px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.secondary-button:hover {
+  background: #e0e0e0;
+}
+
+/* Danger Button */
+.danger-button {
+  background: #e53935;
+  color: white;
+  border-radius: 25px;
+  padding: 8px 18px;
+  border: none;
+  cursor: pointer;
+}
+
+.danger-button:hover {
+  background: #c62828;
+}
+
+/* Inputs */
+input,
+select {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  margin-top: 5px;
+  transition: 0.2s;
+}
+
+input:focus,
+select:focus {
+  border-color: var(--primary);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(46, 125, 50, 0.2);
+}
+
+/* Status Badge */
+.badge,
+.status-badge {
+  padding: 5px 12px;
+  border-radius: 15px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  color: white;
+}
+
+/* Success & Error */
+.success-message {
+  background: #d4edda;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.error-message {
+  background: #f8d7da;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+/* Smooth animation */
+* {
+  transition: 0.2s ease-in-out;
+}

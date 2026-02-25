@@ -10,41 +10,61 @@ function AddProduct() {
     price: "",
     quantity: "",
   });
+  const [image, setImage] = useState(null);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const addProduct = async () => {
-    try {
-      setError("");
-      setSuccess("");
+  try {
+    console.log('AddProduct: submit clicked');
+    setError("");
+    setSuccess("");
+    setLoading(true);
 
-      if (!product.name || !product.category || !product.price || !product.quantity) {
-        setError("All fields are required");
-        return;
-      }
+   if (
+  !product.name ||
+  !product.category ||
+  !product.price ||
+  !product.quantity
+) {
+  setError("All fields are required");
+  return;
+}
 
-      await API.post("products/", {
-        ...product,
-        price: parseFloat(product.price),
-        quantity: parseInt(product.quantity),
-      });
-
-      setSuccess("Product added successfully! Redirecting...");
-      setTimeout(() => navigate("/products"), 2000);
-    } catch (err) {
-      console.error("Error:", err.response?.data);
-      const errors = err.response?.data;
-      if (typeof errors === "object") {
-        const errorMessages = Object.values(errors)
-          .flat()
-          .join(", ");
-        setError(errorMessages);
-      } else {
-        setError(err.response?.data?.detail || "Failed to add product");
-      }
+    const formData = new FormData();
+    formData.append("name", product.name);
+    formData.append("category", product.category);
+    formData.append("price", parseFloat(product.price));
+    formData.append("quantity", parseInt(product.quantity));
+    if (image) {
+      formData.append("image", image);
     }
-  };
+
+    const res = await API.post("products/", formData);
+    console.log('AddProduct: response', res);
+    setSuccess("Product added successfully! Redirecting...");
+    setTimeout(() => navigate("/products"), 2000);
+
+  } catch (err) {
+    console.error("AddProduct error:", err);
+    const errors = err.response?.data;
+    if (typeof errors === "object") {
+      const errorMessages = Object.values(errors)
+        .flat()
+        .join(", ");
+      setError(errorMessages);
+    } else {
+      setError(err.response?.data?.detail || err.message || "Failed to add product");
+    }
+  }
+  
+  // ensure loading state cleared
+  finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="add-product-container">
@@ -123,9 +143,17 @@ function AddProduct() {
               }
             />
           </div>
+          <div className="form-group">
+  <label>Product Image</label>
+  <input
+    type="file"
+    accept="image/*"
+    onChange={(e) => setImage(e.target.files[0])}
+  />
+</div>
 
-          <button className="submit-button" onClick={addProduct}>
-            Add Product
+          <button className="submit-button" onClick={addProduct} disabled={loading}>
+            {loading ? 'Adding...' : 'Add Product'}
           </button>
         </div>
       </div>

@@ -3,7 +3,7 @@ from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from .models import Product
 from .serializers import ProductSerializer
-from users.permissions import FarmerCanCreateOrUpdate, IsOwnerOrAdmin
+from users.permissions import FarmerCanCreateOrUpdate, IsFarmer, IsOwnerOrAdmin
 
 
 class ProductViewSet(viewsets.ModelViewSet):
@@ -16,6 +16,10 @@ class ProductViewSet(viewsets.ModelViewSet):
         Set the farmer field to the current user when creating a product.
         """
         serializer.save(farmer=self.request.user)
+    def get_permissions(self):
+        if self.action in ['create', 'update', 'partial_update', 'destroy']:
+            return [IsAuthenticated(), IsFarmer()]
+        return [IsAuthenticated()]
     
     def get_queryset(self):
         """

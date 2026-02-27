@@ -1,30 +1,52 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import API from "../services/api";
-import "../styles/Pages.css";
+import "../styles/ChatHistory.css";
 
 function ChatHistory() {
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
-  const [responses, setResponses] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const addMessage = () => {
-    if (!text.trim()) return;
-    setMessages((m) => [...m, { role: "user", content: text.trim() }]);
-    setText("");
-  };
+  const chatEndRef = useRef(null);
 
-  const sendConversation = async () => {
-    if (messages.length === 0) return setError("Add at least one message");
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  const sendMessage = async () => {
+    if (!text.trim()) return;
+
+    const newMessage = { role: "user", content: text.trim() };
+
+    // Add user message immediately
+    const updatedMessages = [...messages, newMessage];
+    setMessages(updatedMessages);
+    setText("");
     setLoading(true);
     setError("");
-    setResponses([]);
+
     try {
-      const response = await API.post("chatbot/conversation/", { messages });
-      setResponses(response.data.responses || []);
+      const response = await API.post("chatbot/conversation/", {
+        messages: updatedMessages,
+      });
+
+      const botResponses = response.data.responses || [];
+
+      // Append all bot replies
+      const assistantMessages = botResponses.map((r) => ({
+        role: "assistant",
+        content: r.response || r.text || JSON.stringify(r),
+      }));
+
+      setMessages((prev) => [...prev, ...assistantMessages]);
+
     } catch (err) {
-      setError(err.response?.data?.detail || err.response?.data?.error || "Failed to send conversation");
+      setError(
+        err.response?.data?.detail ||
+        err.response?.data?.error ||
+        "Failed to send message"
+      );
     } finally {
       setLoading(false);
     }
@@ -32,68 +54,68 @@ function ChatHistory() {
 
   const clearAll = () => {
     setMessages([]);
-    setResponses([]);
     setError("");
   };
 
   return (
-    <div className="page-container">
-      <div className="page-header">
-        <h1>🗂️ Chat Conversation</h1>
-        <p>Compose multi-turn conversation and get batched responses</p>
+    <div className="chat-wrapper">
+
+      <div className="chat-header">
+        <h1>🤖 AI Conversation</h1>
+        <p>Interactive multi-turn chatbot</p>
       </div>
 
       {error && <div className="error-message">{error}</div>}
 
-      <div className="form-section">
-        <div className="form-row">
+      <div className="chat-container">
+
+        {/* Messages */}
+        <div className="chat-messages">
+          {messages.map((m, i) => (
+            <div
+              key={i}
+              className={`chat-bubble ${
+                m.role === "user" ? "user" : "bot"
+              }`}
+            >
+              {m.content}
+            </div>
+          ))}
+
+          {loading && (
+            <div className="chat-bubble bot">
+              Typing...
+            </div>
+          )}
+
+          <div ref={chatEndRef}></div>
+        </div>
+
+        {/* Input */}
+        <div className="chat-input">
           <input
             type="text"
             value={text}
             onChange={(e) => setText(e.target.value)}
-            placeholder="Type a user message to add to the conversation"
-            onKeyPress={(e) => { if (e.key === 'Enter') addMessage(); }}
+            placeholder="Type your message..."
+            onKeyDown={(e) => e.key === "Enter" && sendMessage()}
           />
-          <button className="primary-button" onClick={addMessage}>Add</button>
-        </div>
-
-        <div className="messages-list">
-          <h3>Messages</h3>
-          {messages.length === 0 ? (
-            <p className="empty-message">No messages yet.</p>
-          ) : (
-            <ol>
-              {messages.map((m, i) => (
-                <li key={i}>{m.role}: {m.content}</li>
-              ))}
-            </ol>
-          )}
-        </div>
-
-        <div className="form-actions">
-          <button className="primary-button" onClick={sendConversation} disabled={loading || messages.length===0}>
-            {loading ? "Sending..." : "Send Conversation"}
+          <button
+  className="send-button"
+  onClick={sendMessage}
+  disabled={loading}
+>
+  ➤ Send
+</button>
+          <button
+            className="danger-button"
+            onClick={clearAll}
+          >
+            Clear
           </button>
-          <button className="back-button" onClick={clearAll}>Clear</button>
         </div>
-      </div>
 
-      {responses.length > 0 && (
-        <div className="result-card success">
-          <h3>Responses</h3>
-          <div className="result-grid">
-            {responses.map((r, idx) => (
-              <div className="result-item" key={idx}>
-                <div className="label">Response {idx + 1}</div>
-                <div className="value">
-                  <p>{r.response || r.text || JSON.stringify(r)}</p>
-                  {r.intent && <small>Intent: {r.intent} (conf {Math.round((r.confidence||0)*100)}%)</small>}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+      </div>
     </div>
   );
 }

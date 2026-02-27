@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { useEffect } from "react";
 
 import Navbar from "./components/Navbar";
-
+import FarmerOrders from "./pages/FarmerOrders";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -57,7 +57,14 @@ function AppWrapper() {
             </ProtectedRoute>
           }
         />
-
+        <Route
+              path="/farmer-orders"
+              element={
+                <ProtectedRoute allowedRoles={["farmer"]}>
+                  <FarmerOrders />
+                </ProtectedRoute>
+              }
+            />
         <Route
           path="/products/:id"
           element={

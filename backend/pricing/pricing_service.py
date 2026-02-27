@@ -260,12 +260,13 @@ class DynamicPricingCalculator:
                 
                 # Factor details
                 "freshness_factor": {
-                    "score": round(freshness_score, 2),
-                    "category": freshness_factor["category"],
-                    "multiplier": freshness_factor["multiplier"],
-                    "discount": freshness_factor["discount"],
-                    "impact": f"Freshness: {freshness_factor['category']} ({freshness_factor['discount']}% discount)"
-                },
+    "score": round(freshness_score, 2),
+    "category": freshness_factor["category"],
+    "multiplier": freshness_factor["multiplier"],
+    "discount": freshness_factor["discount"],
+    "percentage_change": round((freshness_factor["multiplier"] - 1.0) * 100, 1),  # ✅ ADD THIS
+    "impact": f"Freshness: {freshness_factor['category']} ({freshness_factor['discount']}% discount)"
+},
                 
                 "demand_factor": {
                     "index": demand_factor["demand_index"],

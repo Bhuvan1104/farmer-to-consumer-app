@@ -1,0 +1,1002 @@
+[
+{
+  "model": "contenttypes.contenttype",
+  "fields": {
+    "app_label": "admin",
+    "model": "logentry"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "fields": {
+    "app_label": "auth",
+    "model": "permission"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "fields": {
+    "app_label": "auth",
+    "model": "group"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "fields": {
+    "app_label": "contenttypes",
+    "model": "contenttype"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "fields": {
+    "app_label": "sessions",
+    "model": "session"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "fields": {
+    "app_label": "users",
+    "model": "user"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "fields": {
+    "app_label": "products",
+    "model": "product"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "fields": {
+    "app_label": "orders",
+    "model": "order"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "j7hv5n7hfoivrh869wniyywi6468e6ds",
+  "fields": {
+    "session_data": ".eJxVjMsOwiAQRf-FtSG8oS7d-w1khgGpGkhKuzL-uzbpQrf3nHNfLMK21riNvMSZ2JlJdvrdENIjtx3QHdqt89TbuszId4UfdPBrp_y8HO7fQYVRv7W2EqEIr0whQ5MNhbIKKmmvwSPogMFrJaSzVAiUUAGdSSTQggtJTuz9AeHeN8g:1vtRpv:pfXAzTO9Q0ybAargrOqbtRDYbnD15ePtpZf0dDa0XeI",
+    "expire_date": "2026-03-06T14:50:31.239Z"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can add log entry",
+    "content_type": [
+      "admin",
+      "logentry"
+    ],
+    "codename": "add_logentry"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can change log entry",
+    "content_type": [
+      "admin",
+      "logentry"
+    ],
+    "codename": "change_logentry"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can delete log entry",
+    "content_type": [
+      "admin",
+      "logentry"
+    ],
+    "codename": "delete_logentry"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can view log entry",
+    "content_type": [
+      "admin",
+      "logentry"
+    ],
+    "codename": "view_logentry"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can add permission",
+    "content_type": [
+      "auth",
+      "permission"
+    ],
+    "codename": "add_permission"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can change permission",
+    "content_type": [
+      "auth",
+      "permission"
+    ],
+    "codename": "change_permission"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can delete permission",
+    "content_type": [
+      "auth",
+      "permission"
+    ],
+    "codename": "delete_permission"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can view permission",
+    "content_type": [
+      "auth",
+      "permission"
+    ],
+    "codename": "view_permission"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can add group",
+    "content_type": [
+      "auth",
+      "group"
+    ],
+    "codename": "add_group"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can change group",
+    "content_type": [
+      "auth",
+      "group"
+    ],
+    "codename": "change_group"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can delete group",
+    "content_type": [
+      "auth",
+      "group"
+    ],
+    "codename": "delete_group"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can view group",
+    "content_type": [
+      "auth",
+      "group"
+    ],
+    "codename": "view_group"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can add content type",
+    "content_type": [
+      "contenttypes",
+      "contenttype"
+    ],
+    "codename": "add_contenttype"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can change content type",
+    "content_type": [
+      "contenttypes",
+      "contenttype"
+    ],
+    "codename": "change_contenttype"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can delete content type",
+    "content_type": [
+      "contenttypes",
+      "contenttype"
+    ],
+    "codename": "delete_contenttype"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can view content type",
+    "content_type": [
+      "contenttypes",
+      "contenttype"
+    ],
+    "codename": "view_contenttype"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can add session",
+    "content_type": [
+      "sessions",
+      "session"
+    ],
+    "codename": "add_session"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can change session",
+    "content_type": [
+      "sessions",
+      "session"
+    ],
+    "codename": "change_session"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can delete session",
+    "content_type": [
+      "sessions",
+      "session"
+    ],
+    "codename": "delete_session"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can view session",
+    "content_type": [
+      "sessions",
+      "session"
+    ],
+    "codename": "view_session"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can add user",
+    "content_type": [
+      "users",
+      "user"
+    ],
+    "codename": "add_user"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can change user",
+    "content_type": [
+      "users",
+      "user"
+    ],
+    "codename": "change_user"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can delete user",
+    "content_type": [
+      "users",
+      "user"
+    ],
+    "codename": "delete_user"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can view user",
+    "content_type": [
+      "users",
+      "user"
+    ],
+    "codename": "view_user"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can add product",
+    "content_type": [
+      "products",
+      "product"
+    ],
+    "codename": "add_product"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can change product",
+    "content_type": [
+      "products",
+      "product"
+    ],
+    "codename": "change_product"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can delete product",
+    "content_type": [
+      "products",
+      "product"
+    ],
+    "codename": "delete_product"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can view product",
+    "content_type": [
+      "products",
+      "product"
+    ],
+    "codename": "view_product"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can add order",
+    "content_type": [
+      "orders",
+      "order"
+    ],
+    "codename": "add_order"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can change order",
+    "content_type": [
+      "orders",
+      "order"
+    ],
+    "codename": "change_order"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can delete order",
+    "content_type": [
+      "orders",
+      "order"
+    ],
+    "codename": "delete_order"
+  }
+},
+{
+  "model": "auth.permission",
+  "fields": {
+    "name": "Can view order",
+    "content_type": [
+      "orders",
+      "order"
+    ],
+    "codename": "view_order"
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "pbkdf2_sha256$260000$5FjHSFzbB8Y51DRFmv8EsZ$QE3N+3i3SLov54kVVsvQ/vHNREhaJe+31LGygapAWPo=",
+    "last_login": "2026-02-20T14:50:31.236Z",
+    "is_superuser": true,
+    "username": "bhuvan",
+    "first_name": "",
+    "last_name": "",
+    "email": "bhuvanbodapatla@gmail.com",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2026-02-20T14:46:29.549Z",
+    "role": "",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "pbkdf2_sha256$260000$7x9gq5Sa03jLP1a4HhW5Cp$hMWxKDn7o7OW7UXb0ggO5/tySzt86HYhLK4exntPaiA=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "Bhuvan",
+    "first_name": "",
+    "last_name": "",
+    "email": "bhuvanbodapatla04@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-02-23T15:31:09.224Z",
+    "role": "consumer",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "pbkdf2_sha256$600000$g6gZKVr0jP7G0CaZIi8rHq$Pqw5aeWAEk4fMeZvHFYyx0j4i0PaPC3w50RIAEt8/w0=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "testuser",
+    "first_name": "",
+    "last_name": "",
+    "email": "test@example.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-02-23T16:16:34.273Z",
+    "role": "consumer",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "pbkdf2_sha256$260000$tpd55E70Ni6mLp3J9Vk24u$lM56HTRaN7D+xoko4sK/OrRvb2ahmvpAi3Am4RoD/b8=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "farmer_9549",
+    "first_name": "",
+    "last_name": "",
+    "email": "farmer@example.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-02-23T16:16:43.509Z",
+    "role": "farmer",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "pbkdf2_sha256$260000$eX3B7RgNvGiai0LPKhaH1j$sG8Qb2tmdkszq8BtmibM36+nRf20Be7V3y0GGtOyum0=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "debug_user_1722008504",
+    "first_name": "",
+    "last_name": "",
+    "email": "debug@test.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-02-23T16:18:26.403Z",
+    "role": "consumer",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "pbkdf2_sha256$260000$c9aFW5xqoRV2HZB9HI9O42$yf+ZnGNY3TshXO8Q93e6FjGgDf8138rt5fmlOE1xywQ=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "test_tc0een",
+    "first_name": "",
+    "last_name": "",
+    "email": "test_tc0een@example.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-02-23T16:20:36.575Z",
+    "role": "consumer",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "pbkdf2_sha256$260000$7juW1EhHKN8JqrgM5SVpub$+a2ffeDSQT3hdxgqQLZ+u4G/jKpz8cpCVgT9ry8Pi9E=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "test_9116",
+    "first_name": "",
+    "last_name": "",
+    "email": "test_9116@example.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-02-23T16:21:52.540Z",
+    "role": "consumer",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "pbkdf2_sha256$260000$dCK5Sxz4kMG025PorJfel8$cgsFsLopLtBtrkBJ/jBq/d+gF4s01hKSHgwx2mXorVQ=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "test_3527",
+    "first_name": "",
+    "last_name": "",
+    "email": "test_3527@example.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-02-23T16:25:56.132Z",
+    "role": "consumer",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "pbkdf2_sha256$260000$mSKNJf1OLqDfps2SlaNo0W$te+F5o4pFtrti7gxQ4TYRm4gPWGqgRhbS/j6S//Pl+I=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "test_184595251",
+    "first_name": "",
+    "last_name": "",
+    "email": "test@example.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-02-23T16:30:25.072Z",
+    "role": "consumer",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "pbkdf2_sha256$600000$h9u9f1YZY89h7wdvQ29kMy$eGLsYlHihuYZfOEZ3GqbxPQmeGSOpCfPkla7mHBpthY=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "Rahul",
+    "first_name": "",
+    "last_name": "",
+    "email": "rahulvigrahala@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-02-23T16:31:08.393Z",
+    "role": "consumer",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "pbkdf2_sha256$260000$CR6kTR1DUnej8GvIvgshBq$0O8pskg+NjdTPrvQvBrKSGq2KnGLxMMEDo6SVjrdiMk=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "Anand",
+    "first_name": "",
+    "last_name": "",
+    "email": "anandyadav@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-02-23T16:32:34.062Z",
+    "role": "farmer",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "pbkdf2_sha256$600000$fueCpSgQIKDwS6tuuovKgc$6B/r9pMZVO6IlgSuViU8eT91khBFIg/3ecGfAK1ZAvs=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "anand",
+    "first_name": "",
+    "last_name": "",
+    "email": "anandyadav@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-02-24T17:03:32.280Z",
+    "role": "consumer",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "pbkdf2_sha256$600000$GCUm0olkFGagYbB9AUPQBd$FoizQev712xlM+7lapz1ulisXRUGGMcm/4XXX9/4U34=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "Anandyadav",
+    "first_name": "",
+    "last_name": "",
+    "email": "anandyadav@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-02-24T17:04:37.604Z",
+    "role": "consumer",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "pbkdf2_sha256$600000$Iu9HqEwEaErNOnbckNFIei$aur0QbQRnLurt8PmGuKXl9S4Y42HTWYwGjJntc7wIMI=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "mamba",
+    "first_name": "",
+    "last_name": "",
+    "email": "mamba@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-02-24T17:05:57.622Z",
+    "role": "farmer",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "pbkdf2_sha256$600000$yim5pk3tqOagyOks6id1nV$CtMMif1i3tbW9lzcxvsceJ4h1+yh0Z/ugNopxX6cA9w=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "BhuvanB",
+    "first_name": "",
+    "last_name": "",
+    "email": "bhuvanbodapatla@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-02-24T17:35:29.803Z",
+    "role": "farmer",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "pbkdf2_sha256$600000$Nr0T4UZhq6ebkvIeQ2r9uY$82CiD/tsbErCc+MDBu0gBpeT3h+5Z2wPRnbyatAY0Lw=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "bittu",
+    "first_name": "",
+    "last_name": "",
+    "email": "bittu@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-02-24T17:36:45.018Z",
+    "role": "farmer",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "pbkdf2_sha256$600000$8BxkEtZR3MWAWMs3DTAZYL$4mI+aSVhcOY8LNqzRAr6ZektsbKaGLfioh73MATYz6o=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "farmer1",
+    "first_name": "",
+    "last_name": "",
+    "email": "farmer1@example.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-02-24T17:58:55.179Z",
+    "role": "farmer",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "pbkdf2_sha256$600000$IcxRTizAPuenRi4phPrK3q$Hu8L3kDnvZCZSXisWh6OXAo1c94UQWuqeHeD5+18u9w=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "shivani",
+    "first_name": "",
+    "last_name": "",
+    "email": "shivani@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-02-25T08:41:18.697Z",
+    "role": "farmer",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "products.product",
+  "pk": 2,
+  "fields": {
+    "farmer": [
+      "mamba"
+    ],
+    "name": "potatoes",
+    "category": "Vegetables",
+    "price": 100.0,
+    "quantity": 5,
+    "image": "products/potatoes.jpg",
+    "freshness_score": null,
+    "description": "null"
+  }
+},
+{
+  "model": "products.product",
+  "pk": 3,
+  "fields": {
+    "farmer": [
+      "mamba"
+    ],
+    "name": "mangoes",
+    "category": "fruits",
+    "price": 10.0,
+    "quantity": 8,
+    "image": "products/raw_meat_in_noida.webp",
+    "freshness_score": null,
+    "description": null
+  }
+},
+{
+  "model": "products.product",
+  "pk": 4,
+  "fields": {
+    "farmer": [
+      "mamba"
+    ],
+    "name": "apples",
+    "category": "Fruits",
+    "price": 10.0,
+    "quantity": 100,
+    "image": "products/1800ss_getty_rf_apples.webp",
+    "freshness_score": null,
+    "description": null
+  }
+},
+{
+  "model": "products.product",
+  "pk": 6,
+  "fields": {
+    "farmer": [
+      "mamba"
+    ],
+    "name": "beetroot",
+    "category": "Vegetables",
+    "price": 45.0,
+    "quantity": 100,
+    "image": "products/images.jpg",
+    "freshness_score": null,
+    "description": null
+  }
+},
+{
+  "model": "products.product",
+  "pk": 7,
+  "fields": {
+    "farmer": [
+      "shivani"
+    ],
+    "name": "tomatoes",
+    "category": "Vegetables",
+    "price": 40.0,
+    "quantity": 100,
+    "image": "products/tomatoes-1296x728-feature.jpg",
+    "freshness_score": null,
+    "description": ""
+  }
+},
+{
+  "model": "orders.order",
+  "pk": 1,
+  "fields": {
+    "consumer": [
+      "Rahul"
+    ],
+    "product": 2,
+    "quantity": 1,
+    "subtotal": 100.0,
+    "shipping_cost": 0.0,
+    "tax": 5.0,
+    "total_price": 105.0,
+    "status": "cancelled",
+    "created_at": "2026-02-26T10:39:19.770Z",
+    "updated_at": "2026-02-26T11:05:13.424Z"
+  }
+},
+{
+  "model": "orders.order",
+  "pk": 2,
+  "fields": {
+    "consumer": [
+      "Rahul"
+    ],
+    "product": 3,
+    "quantity": 1,
+    "subtotal": 10.0,
+    "shipping_cost": 0.0,
+    "tax": 0.5,
+    "total_price": 10.5,
+    "status": "cancelled",
+    "created_at": "2026-02-26T10:57:12.059Z",
+    "updated_at": "2026-02-26T11:09:10.183Z"
+  }
+},
+{
+  "model": "orders.order",
+  "pk": 3,
+  "fields": {
+    "consumer": [
+      "Rahul"
+    ],
+    "product": 6,
+    "quantity": 1,
+    "subtotal": 0.0,
+    "shipping_cost": 0.0,
+    "tax": 0.0,
+    "total_price": 0.0,
+    "status": "cancelled",
+    "created_at": "2026-02-26T11:07:58.005Z",
+    "updated_at": "2026-02-26T11:08:02.580Z"
+  }
+},
+{
+  "model": "orders.order",
+  "pk": 4,
+  "fields": {
+    "consumer": [
+      "Rahul"
+    ],
+    "product": 3,
+    "quantity": 1,
+    "subtotal": 0.0,
+    "shipping_cost": 0.0,
+    "tax": 0.0,
+    "total_price": 0.0,
+    "status": "cancelled",
+    "created_at": "2026-02-26T11:12:47.222Z",
+    "updated_at": "2026-02-26T11:12:51.041Z"
+  }
+},
+{
+  "model": "orders.order",
+  "pk": 5,
+  "fields": {
+    "consumer": [
+      "Rahul"
+    ],
+    "product": 3,
+    "quantity": 1,
+    "subtotal": 0.0,
+    "shipping_cost": 0.0,
+    "tax": 0.0,
+    "total_price": 0.0,
+    "status": "cancelled",
+    "created_at": "2026-02-26T11:19:08.159Z",
+    "updated_at": "2026-02-26T11:19:37.746Z"
+  }
+},
+{
+  "model": "orders.order",
+  "pk": 6,
+  "fields": {
+    "consumer": [
+      "Rahul"
+    ],
+    "product": 2,
+    "quantity": 1,
+    "subtotal": 0.0,
+    "shipping_cost": 0.0,
+    "tax": 0.0,
+    "total_price": 0.0,
+    "status": "cancelled",
+    "created_at": "2026-02-26T11:19:23.712Z",
+    "updated_at": "2026-02-26T11:19:31.796Z"
+  }
+},
+{
+  "model": "orders.order",
+  "pk": 7,
+  "fields": {
+    "consumer": [
+      "Rahul"
+    ],
+    "product": 3,
+    "quantity": 1,
+    "subtotal": 0.0,
+    "shipping_cost": 0.0,
+    "tax": 0.0,
+    "total_price": 0.0,
+    "status": "cancelled",
+    "created_at": "2026-02-26T11:19:46.662Z",
+    "updated_at": "2026-02-26T16:36:35.468Z"
+  }
+},
+{
+  "model": "orders.order",
+  "pk": 8,
+  "fields": {
+    "consumer": [
+      "Rahul"
+    ],
+    "product": 4,
+    "quantity": 1,
+    "subtotal": 0.0,
+    "shipping_cost": 0.0,
+    "tax": 0.0,
+    "total_price": 0.0,
+    "status": "cancelled",
+    "created_at": "2026-02-26T15:35:23.911Z",
+    "updated_at": "2026-02-26T15:35:33.205Z"
+  }
+},
+{
+  "model": "orders.order",
+  "pk": 9,
+  "fields": {
+    "consumer": [
+      "Rahul"
+    ],
+    "product": 6,
+    "quantity": 1,
+    "subtotal": 45.0,
+    "shipping_cost": 50.0,
+    "tax": 2.25,
+    "total_price": 97.25,
+    "status": "pending",
+    "created_at": "2026-02-26T16:24:12.052Z",
+    "updated_at": "2026-02-26T16:24:12.052Z"
+  }
+},
+{
+  "model": "orders.order",
+  "pk": 10,
+  "fields": {
+    "consumer": [
+      "Rahul"
+    ],
+    "product": 2,
+    "quantity": 1,
+    "subtotal": 100.0,
+    "shipping_cost": 50.0,
+    "tax": 5.0,
+    "total_price": 155.0,
+    "status": "pending",
+    "created_at": "2026-02-26T16:24:57.816Z",
+    "updated_at": "2026-02-26T16:24:57.816Z"
+  }
+}
+]

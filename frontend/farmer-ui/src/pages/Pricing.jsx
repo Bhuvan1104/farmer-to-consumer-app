@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import API from "../services/api";
-import "../styles/Pages.css";
+import "../styles/Pricing.css";
 
 function Pricing() {
   const [activeTab, setActiveTab] = useState("dynamic");
@@ -132,44 +132,30 @@ function Pricing() {
   };
 
   return (
-    <div className="page-container">
+    <div className="pricing-page">
+  <div className="pricing-container">
       <div className="page-header">
         <h1>💰 Pricing Calculator</h1>
-        <p>Calculate and predict product prices dynamically</p>
+        <p >Calculate and predict product prices dynamically</p>
       </div>
 
-      <div className="tabs-container">
-        <button
-          className={`tab-button ${activeTab === "dynamic" ? "active" : ""}`}
-          onClick={() => setActiveTab("dynamic")}
-        >
-          📊 Dynamic Pricing
-        </button>
-        <button
-          className={`tab-button ${activeTab === "advanced" ? "active" : ""}`}
-          onClick={() => setActiveTab("advanced")}
-        >
-          ⚙️ Advanced Pricing
-        </button>
-        <button
-          className={`tab-button ${activeTab === "ml" ? "active" : ""}`}
-          onClick={() => setActiveTab("ml")}
-        >
-          🤖 ML Price Prediction
-        </button>
-        <button
-          className={`tab-button ${activeTab === "freshness" ? "active" : ""}`}
-          onClick={() => setActiveTab("freshness")}
-        >
-          🖼️ Freshness (Image)
-        </button>
-        <button
-          className={`tab-button ${activeTab === "shelf" ? "active" : ""}`}
-          onClick={() => setActiveTab("shelf")}
-        >
-          🧪 Shelf Life
-        </button>
-      </div>
+      <div className="pricing-tabs">
+  {[
+    { key: "dynamic", label: "📊 Dynamic" },
+    { key: "advanced", label: "⚙️ Advanced" },
+    { key: "ml", label: "🤖 ML Prediction" },
+    { key: "freshness", label: "🖼️ Freshness AI" },
+    { key: "shelf", label: "🧪 Shelf Life" },
+  ].map(tab => (
+    <button
+      key={tab.key}
+      className={`pricing-tab ${activeTab === tab.key ? "active" : ""}`}
+      onClick={() => setActiveTab(tab.key)}
+    >
+      {tab.label}
+    </button>
+  ))}
+</div>
 
       {error && <div className="error-message">{error}</div>}
 
@@ -182,7 +168,7 @@ function Pricing() {
           </p>
 
           <div className="form-group">
-            <label>Base Price ($):</label>
+            <label>Base Price (₹):</label>
             <input
               type="number"
               value={formData.base_price}
@@ -266,32 +252,55 @@ function Pricing() {
           </button>
 
           {result && (
-            <div className="result-card success">
-              <h3>✅ Calculated Price</h3>
-              <div className="result-grid">
-                <div className="result-item">
-                  <span className="label">Recommended Price:</span>
-                  <span className="value">${result.calculated_price?.toFixed(2)}</span>
-                </div>
-                <div className="result-item">
-                  <span className="label">Base Price:</span>
-                  <span className="value">${result.base_price?.toFixed(2)}</span>
-                </div>
-                <div className="result-item">
-                  <span className="label">Freshness Impact:</span>
-                  <span className="value">{result.freshness_impact?.toFixed(2)}%</span>
-                </div>
-                <div className="result-item">
-                  <span className="label">Demand Impact:</span>
-                  <span className="value">{result.demand_impact?.toFixed(2)}%</span>
-                </div>
-                <div className="result-item">
-                  <span className="label">Seasonal Impact:</span>
-                  <span className="value">{result.seasonal_impact?.toFixed(2)}%</span>
-                </div>
-              </div>
-            </div>
-          )}
+  <div className="result-card success">
+    <h3>✅ Calculated Price</h3>
+
+    <div className="result-grid">
+
+      <div className="result-item">
+        <span className="label">Recommended Price:</span>
+        <span className="value">
+          ₹{result.calculated_price?.toFixed(2)}
+        </span>
+      </div>
+
+      <div className="result-item">
+        <span className="label">Base Price:</span>
+        <span className="value">
+          ₹{result.base_price?.toFixed(2)}
+        </span>
+      </div>
+
+      <div className="result-item">
+        <span className="label">Freshness Impact:</span>
+        <span className="value">
+          {result.freshness_impact?.toFixed(2)}%
+        </span>
+      </div>
+
+      {/* Demand Impact – only show if exists */}
+      {typeof result?.demand_impact === "number" && (
+        <div className="result-item">
+          <span className="label">Demand Impact:</span>
+          <span className="value">
+            {result.demand_impact.toFixed(2)}%
+          </span>
+        </div>
+      )}
+
+      {/* Seasonal Impact – only show if exists */}
+      {typeof result?.seasonal_impact === "number" && (
+        <div className="result-item">
+          <span className="label">Seasonal Impact:</span>
+          <span className="value">
+            {result.seasonal_impact.toFixed(2)}%
+          </span>
+        </div>
+      )}
+
+    </div>
+  </div>
+)}
         </div>
       )}
 
@@ -302,7 +311,7 @@ function Pricing() {
           <p className="help-text">Include demand, season and range options</p>
 
           <div className="form-group">
-            <label>Base Price ($):</label>
+            <label>Base Price (₹):</label>
             <input
               type="number"
               value={formData.base_price}
@@ -390,12 +399,12 @@ function Pricing() {
           </div>
 
           {result && (
-            <div className="result-card success">
+            <div className="pricing-result-card">
               <h3>✅ Advanced Price Result</h3>
               <div className="result-grid">
                 <div className="result-item">
                   <span className="label">Suggested Price:</span>
-                  <span className="value">${result.suggested_price?.toFixed(2) || result.suggested_price}</span>
+                  <span className="value">₹{result.suggested_price?.toFixed(2) || result.suggested_price}</span>
                 </div>
                 <div className="result-item">
                   <span className="label">Price Change:</span>
@@ -411,7 +420,7 @@ function Pricing() {
                 <div className="price-range">
                   <strong>Price Range:</strong>
                   <p>
-                    Min: ${result.price_range.minimum_price?.toFixed(2)} — Suggested: ${result.price_range.suggested_price?.toFixed(2)} — Max: ${result.price_range.maximum_price?.toFixed(2)}
+                    Min: ₹{result.price_range.minimum_price?.toFixed(2)} — Suggested: ₹{result.price_range.suggested_price?.toFixed(2)} — Max: ₹{result.price_range.maximum_price?.toFixed(2)}
                   </p>
                 </div>
               )}
@@ -498,7 +507,7 @@ function Pricing() {
           </p>
 
           <div className="form-group">
-            <label>Base Price ($):</label>
+            <label>Base Price (₹):</label>
             <input
               type="number"
               value={mlFormData.base_price}
@@ -587,11 +596,11 @@ function Pricing() {
               <div className="result-grid">
                 <div className="result-item">
                   <span className="label">Predicted Price:</span>
-                  <span className="value">${mlResult.predicted_price?.toFixed(2)}</span>
+                  <span className="value">₹{mlResult.predicted_price?.toFixed(2)}</span>
                 </div>
                 <div className="result-item">
                   <span className="label">Base Price:</span>
-                  <span className="value">${mlResult.base_price?.toFixed(2)}</span>
+                  <span className="value">₹{mlResult.base_price?.toFixed(2)}</span>
                 </div>
                 <div className="result-item">
                   <span className="label">Price Change:</span>
@@ -625,7 +634,8 @@ function Pricing() {
           )}
         </div>
       )}
-    </div>
+      </div>
+</div>
   );
 }
 

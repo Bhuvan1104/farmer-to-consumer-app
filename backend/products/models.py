@@ -9,6 +9,6 @@ class Product(models.Model):
     quantity = models.IntegerField()
     image = models.ImageField(upload_to="products/", null=True, blank=True)
     freshness_score = models.FloatField(null=True, blank=True)
-
+    description = models.TextField(blank=True, null=True)
     def __str__(self):
         return self.name

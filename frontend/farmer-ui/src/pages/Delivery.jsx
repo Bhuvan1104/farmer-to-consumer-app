@@ -51,28 +51,29 @@ function Delivery() {
     { value: "berries", label: "🫐 Berries" },
   ];
 
-  return (
-    <div className="delivery-wrapper">
+ return (
+  <div className="delivery-page">
+    <div className="delivery-container">
 
       {/* HEADER */}
       <div className="delivery-header">
-        <h1>🚚 Delivery & Logistics Intelligence</h1>
-        <p>AI-powered distance & spoilage prediction system</p>
+        <h1>Delivery & Logistics Intelligence</h1>
+        <p>AI-powered spoilage prediction & distance optimization</p>
       </div>
 
-      {error && <div className="error-box">{error}</div>}
+      {error && <div className="alert error">{error}</div>}
 
       <div className="delivery-grid">
 
-        {/* LEFT SIDE – FORM */}
+        {/* FORM CARD */}
         <div className="delivery-card">
-          <h2>📍 Delivery Details</h2>
+          <h2>Delivery Inputs</h2>
 
           <div className="form-group">
             <label>Farmer Location</label>
             <input
               type="text"
-              placeholder="Address or coordinates"
+              placeholder="Enter address"
               value={formData.farmer_location}
               onChange={(e) =>
                 setFormData({ ...formData, farmer_location: e.target.value })
@@ -84,7 +85,7 @@ function Delivery() {
             <label>Customer Location</label>
             <input
               type="text"
-              placeholder="Address or coordinates"
+              placeholder="Enter address"
               value={formData.customer_location}
               onChange={(e) =>
                 setFormData({ ...formData, customer_location: e.target.value })
@@ -138,11 +139,11 @@ function Delivery() {
                 })
               }
             />
-            <label>🌡 Temperature Controlled Vehicle</label>
+            <label>Temperature Controlled Vehicle</label>
           </div>
 
           <button
-            className="primary-button"
+            className="btn-primary full-width"
             onClick={calculateDeliveryMetrics}
             disabled={
               loading ||
@@ -150,28 +151,26 @@ function Delivery() {
               !formData.customer_location
             }
           >
-            {loading ? "Analyzing..." : "Calculate Metrics"}
+            {loading ? "Analyzing..." : "Run AI Analysis"}
           </button>
         </div>
 
-        {/* RIGHT SIDE – RESULT */}
+        {/* RESULT CARD */}
         {result && (
-          <div className="delivery-card result-card">
-            <h2>📊 Delivery Analysis</h2>
+          <div className="delivery-card analytics-card">
+            <h2>Delivery Insights</h2>
 
-            <div className="result-row">
+            <div className="metric">
               <span>Distance</span>
               <strong>{result.distance_km?.toFixed(2)} km</strong>
             </div>
 
-            <div className="result-row">
+            <div className="metric">
               <span>Estimated Time</span>
-              <strong>
-                {result.estimated_delivery_hours?.toFixed(1)} hrs
-              </strong>
+              <strong>{result.estimated_delivery_hours?.toFixed(1)} hrs</strong>
             </div>
 
-            <div className="result-row">
+            <div className="metric">
               <span>Spoilage Risk</span>
               <strong
                 style={{
@@ -182,7 +181,6 @@ function Delivery() {
               </strong>
             </div>
 
-            {/* Risk Bar */}
             <div className="risk-bar">
               <div
                 className="risk-fill"
@@ -193,20 +191,20 @@ function Delivery() {
               />
             </div>
 
-            <div className="result-row">
+            <div className="metric">
               <span>Risk Category</span>
               <strong>{result.spoilage_category}</strong>
             </div>
 
-            <div className="result-row">
+            <div className="metric">
               <span>Delivery Viable</span>
               <strong>
-                {result.is_viable ? "✅ Yes" : "❌ No"}
+                {result.is_viable ? "Yes" : "No"}
               </strong>
             </div>
 
             {result.recommendation && (
-              <div className="recommendation-box">
+              <div className="recommendation">
                 💡 {result.recommendation}
               </div>
             )}
@@ -214,7 +212,8 @@ function Delivery() {
         )}
       </div>
     </div>
-  );
+  </div>
+);
 }
 
 export default Delivery;

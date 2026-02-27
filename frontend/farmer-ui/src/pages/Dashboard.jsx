@@ -42,16 +42,17 @@ function Dashboard() {
   </div>
 
   {/* Farmer Only */}
-  {isFarmer() && (
-    <div className="dashboard-card">
-      <div className="icon">➕</div>
-      <h3>Add Product</h3>
-      <p>Add new product to inventory</p>
-      <button onClick={() => navigate('/add-product')}>
-        Add Product
-      </button>
-    </div>
-  )}
+  {/* Farmer Orders */}
+{isFarmer() && (
+  <div className="dashboard-card">
+    <div className="icon">📋</div>
+    <h3>Incoming Orders</h3>
+    <p>View orders placed by consumers</p>
+    <button onClick={() => navigate('/farmer-orders')}>
+      View Orders
+    </button>
+  </div>
+)}
 
   {/* Consumer Only */}
   {isConsumer() && (

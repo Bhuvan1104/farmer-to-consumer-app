@@ -8,56 +8,81 @@ function Home() {
     <div className="home-wrapper">
 
       {/* HERO SECTION */}
-      <div className="home-hero-card">
-        <h1 className="home-title">🌾 Farmer to Consumer</h1>
-        <p className="home-subtitle">
-          AI-Powered Direct Marketplace Connecting Farmers & Consumers
-        </p>
+      <section className="home-hero">
+        <div className="home-hero-content">
+          <h1 className="home-title">
+            🌾 Farmer to Consumer Marketplace
+          </h1>
 
-        <div className="home-buttons">
-          <button
-            className="primary-button large"
-            onClick={() => navigate("/login")}
-          >
-            Login
-          </button>
+          <p className="home-subtitle">
+            Connecting farmers and consumers through 
+            <span className="highlight"> AI-powered pricing</span> 
+            and transparent direct trade.
+          </p>
 
-          <button
-            className="secondary-button large"
-            onClick={() => navigate("/register")}
-          >
-            Register
-          </button>
+          <div className="home-buttons">
+            <button
+              className="primary-button large"
+              onClick={() => navigate("/login")}
+            >
+              Get Started
+            </button>
+
+            <button
+              className="outline-button large"
+              onClick={() => navigate("/register")}
+            >
+              Create Account
+            </button>
+          </div>
         </div>
-      </div>
+
+        <div className="home-hero-badge">
+          <span>🚀 Smart Agriculture Platform</span>
+        </div>
+      </section>
 
       {/* FEATURES SECTION */}
-      <div className="home-features-grid">
+      <section className="home-features">
+        <h2 className="section-title">Why Choose Our Platform?</h2>
 
-        <div className="home-feature-card">
-          <div className="feature-icon">🚜</div>
-          <h3>For Farmers</h3>
-          <p>Sell fresh produce directly without middlemen</p>
+        <div className="home-features-grid">
+
+          <div className="home-feature-card">
+            <div className="feature-icon">🚜</div>
+            <h3>Empowering Farmers</h3>
+            <p>
+              Eliminate middlemen and maximize profits through 
+              direct market access.
+            </p>
+          </div>
+
+          <div className="home-feature-card">
+            <div className="feature-icon">🛒</div>
+            <h3>Trusted Consumers</h3>
+            <p>
+              Access fresh, organic produce directly from 
+              verified local farms.
+            </p>
+          </div>
+
+          <div className="home-feature-card">
+            <div className="feature-icon">🤖</div>
+            <h3>AI-Driven Pricing</h3>
+            <p>
+              Dynamic pricing powered by freshness detection, 
+              demand analysis, and seasonal insights.
+            </p>
+          </div>
+
         </div>
-
-        <div className="home-feature-card">
-          <div className="feature-icon">🛒</div>
-          <h3>For Consumers</h3>
-          <p>Buy organic products directly from trusted farms</p>
-        </div>
-
-        <div className="home-feature-card">
-          <div className="feature-icon">🤖</div>
-          <h3>AI Powered Pricing</h3>
-          <p>Smart pricing based on freshness & demand</p>
-        </div>
-
-      </div>
+      </section>
 
       {/* FOOTER */}
-      <div className="home-footer">
-        <p>🌱 Empowering local agriculture with technology</p>
-      </div>
+      <footer className="home-footer">
+        <p>🌱 Empowering sustainable agriculture with technology</p>
+        <span>© 2026 Farmer to Consumer. All rights reserved.</span>
+      </footer>
 
     </div>
   );

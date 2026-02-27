@@ -61,21 +61,23 @@ function Products() {
   }
 
   return (
-    <div className="products-wrapper">
+  <div className="products-page">
+    <div className="products-container">
+
       <div className="products-header">
         <div>
-          <h1>📦 Products</h1>
-          <p>Manage and monitor your product inventory</p>
+          <h1>Product Inventory</h1>
+          <p>Manage and monitor your marketplace products</p>
         </div>
 
         {isFarmer() && (
-  <button
-    className="primary-button"
-    onClick={() => navigate("/add-product")}
-  >
-    + Add Product
-  </button>
-)}
+          <button
+            className="btn-primary"
+            onClick={() => navigate("/add-product")}
+          >
+            + Add Product
+          </button>
+        )}
       </div>
 
       <div className="products-grid">
@@ -84,60 +86,68 @@ function Products() {
             categoryIcons[product.category?.toLowerCase()] || "🌾";
 
           return (
-            <div key={product.id} className="product-card">
-
-              {/* IMAGE OR ICON */}
-              <div className="product-thumbnail">
+            <div
+              key={product.id}
+              className="product-card"
+              onClick={() => navigate(`/products/${product.id}`)}
+            >
+              <div className="product-image-wrapper">
                 {product.image ? (
                   <img
                     src={product.image}
                     alt={product.name}
-                    className="product-image"
                   />
                 ) : (
-                  <div className="product-icon-fallback">
+                  <div className="product-icon">
                     {icon}
                   </div>
                 )}
               </div>
 
-              <h3>{product.name}</h3>
-              <p className="category">{product.category}</p>
+              <div className="product-content">
+                <h3>{product.name}</h3>
+                <span className="category-badge">
+                  {product.category}
+                </span>
 
-              <div className="product-meta">
-                <span>₹{product.price}</span>
-                <span>Stock: {product.quantity}</span>
-              </div>
+                <div className="product-footer">
+                  <div className="price">
+                    ₹{product.price}
+                  </div>
 
-              <div className="product-actions">
+                  <div
+                    className={`stock ${
+                      product.quantity > 0
+                        ? "in-stock"
+                        : "out-stock"
+                    }`}
+                  >
+                    {product.quantity > 0
+                      ? `In Stock (${product.quantity})`
+                      : "Out of Stock"}
+                  </div>
+                </div>
 
-                <button
-                  className="secondary-button"
-                  onClick={() =>
-                    navigate(`/products/${product.id}`)
-                  }
-                >
-                  View
-                </button>
-
-               
-
-                <button
-                  className="delete-button"
-                  onClick={() =>
-                    handleDelete(product.id)
-                  }
-                >
-                  🗑 Delete
-                </button>
-
+                {isFarmer() && (
+                  <button
+                    className="btn-danger small"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDelete(product.id);
+                    }}
+                  >
+                    Delete
+                  </button>
+                )}
               </div>
             </div>
           );
         })}
       </div>
+
     </div>
-  );
+  </div>
+);
 }
 
 export default Products;

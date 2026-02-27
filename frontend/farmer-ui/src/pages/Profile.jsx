@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../services/api";
-import "../styles/Pages.css";
+import "../styles/Profile.css";
 
 function Profile() {
   const [profile, setProfile] = useState(null);
@@ -64,124 +64,125 @@ function Profile() {
   if (loading) return <div className="page-container"><p>Loading profile...</p></div>;
 
   return (
-    <div className="page-container">
-      <div className="page-header">
-        <h1>👤 My Profile</h1>
-        <p>Manage your account information</p>
-      </div>
-
-      {error && <div className="error-message">{error}</div>}
-      {success && <div className="success-message">{success}</div>}
-
-      {profile && (
-        <div className="profile-card">
-          <div className="profile-header">
-            <div className="profile-avatar">
-              {profile.first_name?.[0]?.toUpperCase() || profile.username?.[0]?.toUpperCase()}
-            </div>
-            <div className="profile-info">
-              <h2>{profile.first_name} {profile.last_name}</h2>
-              <p className="username">@{profile.username}</p>
-              <span className={`role-badge ${profile.role}`}>{profile.role?.toUpperCase()}</span>
-            </div>
+  <div className="page-container">
+    <div className="profile-wrapper">
+      <div className="profile-card">
+        
+        <div className="profile-header">
+          <div className="profile-avatar">
+            {profile?.first_name?.[0]?.toUpperCase() || 
+             profile?.username?.[0]?.toUpperCase()}
           </div>
 
-          <div className="profile-details">
-            <h3>Account Information</h3>
-
-            {editMode ? (
-              <div className="edit-form">
-                <div className="form-group">
-                  <label>First Name:</label>
-                  <input
-                    type="text"
-                    value={formData.first_name || ""}
-                    onChange={(e) =>
-                      setFormData({ ...formData, first_name: e.target.value })
-                    }
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>Last Name:</label>
-                  <input
-                    type="text"
-                    value={formData.last_name || ""}
-                    onChange={(e) =>
-                      setFormData({ ...formData, last_name: e.target.value })
-                    }
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>Email:</label>
-                  <input
-                    type="email"
-                    value={formData.email || ""}
-                    onChange={(e) =>
-                      setFormData({ ...formData, email: e.target.value })
-                    }
-                  />
-                </div>
-
-                <div className="form-actions">
-                  <button className="primary-button" onClick={handleUpdate}>
-                    Save Changes
-                  </button>
-                  <button
-                    className="secondary-button"
-                    onClick={() => {
-                      setEditMode(false);
-                      setFormData(profile);
-                    }}
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div className="profile-view">
-                <div className="detail-item">
-                  <span className="label">Username:</span>
-                  <span className="value">{profile.username}</span>
-                </div>
-
-                <div className="detail-item">
-                  <span className="label">Email:</span>
-                  <span className="value">{profile.email}</span>
-                </div>
-
-                <div className="detail-item">
-                  <span className="label">Role:</span>
-                  <span className="value">{profile.role}</span>
-                </div>
-
-                <div className="detail-item">
-                  <span className="label">Member Since:</span>
-                  <span className="value">
-                    {new Date(profile.date_joined).toLocaleDateString()}
-                  </span>
-                </div>
-
-                <button
-                  className="primary-button"
-                  onClick={() => setEditMode(true)}
-                >
-                  Edit Profile
-                </button>
-              </div>
-            )}
-          </div>
-
-          <div className="profile-actions">
-            <button className="danger-button" onClick={handleLogout}>
-              🚪 Logout
-            </button>
+          <div className="profile-info">
+            <h2>{profile?.first_name} {profile?.last_name}</h2>
+            <p>@{profile?.username}</p>
+            <span className={`role-badge ${profile?.role}`}>
+              {profile?.role?.toUpperCase()}
+            </span>
           </div>
         </div>
-      )}
+
+        {error && <div className="alert error">{error}</div>}
+        {success && <div className="alert success">{success}</div>}
+
+        <div className="profile-body">
+          <h3>Account Information</h3>
+
+          {editMode ? (
+            <div className="edit-form">
+              <div className="form-group">
+                <label>First Name</label>
+                <input
+                  type="text"
+                  value={formData.first_name || ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, first_name: e.target.value })
+                  }
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Last Name</label>
+                <input
+                  type="text"
+                  value={formData.last_name || ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, last_name: e.target.value })
+                  }
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Email</label>
+                <input
+                  type="email"
+                  value={formData.email || ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, email: e.target.value })
+                  }
+                />
+              </div>
+
+              <div className="form-actions">
+                <button className="btn-primary" onClick={handleUpdate}>
+                  Save Changes
+                </button>
+                <button
+                  className="btn-secondary"
+                  onClick={() => {
+                    setEditMode(false);
+                    setFormData(profile);
+                  }}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="profile-view">
+              <div className="detail-item">
+                <span>Username</span>
+                <strong>{profile?.username}</strong>
+              </div>
+
+              <div className="detail-item">
+                <span>Email</span>
+                <strong>{profile?.email}</strong>
+              </div>
+
+              <div className="detail-item">
+                <span>Role</span>
+                <strong>{profile?.role}</strong>
+              </div>
+
+              <div className="detail-item">
+                <span>Member Since</span>
+                <strong>
+                  {new Date(profile?.date_joined).toLocaleDateString()}
+                </strong>
+              </div>
+
+              <button
+                className="btn-primary"
+                onClick={() => setEditMode(true)}
+              >
+                Edit Profile
+              </button>
+            </div>
+          )}
+        </div>
+
+        <div className="profile-footer">
+          <button className="btn-danger" onClick={handleLogout}>
+            Logout
+          </button>
+        </div>
+
+      </div>
     </div>
-  );
+  </div>
+);
 }
 
 export default Profile;

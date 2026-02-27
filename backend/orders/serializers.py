@@ -2,14 +2,36 @@ from rest_framework import serializers
 from .models import Order
 
 
+from rest_framework import serializers
+from .models import Order
+
+
 class OrderSerializer(serializers.ModelSerializer):
-    consumer_username = serializers.CharField(source='consumer.username', read_only=True)
-    product_name = serializers.CharField(source='product.name', read_only=True)
-    
+    consumer_username = serializers.CharField(
+        source='consumer.username',
+        read_only=True
+    )
+    product_name = serializers.CharField(
+        source='product.name',
+        read_only=True
+    )
+    farmer_username = serializers.CharField(
+        source='product.farmer.username',
+        read_only=True
+    )
+
     class Meta:
         model = Order
-        fields = ['id', 'consumer', 'consumer_username', 'product', 'product_name', 'quantity', 'total_price', 'status']
-        read_only_fields = ['id', 'consumer', 'consumer_username', 'product_name']
+        fields = "__all__"
+        read_only_fields = [
+            "consumer",
+            "subtotal",
+            "shipping_cost",
+            "tax",
+            "total_price",
+            "created_at",
+            "updated_at"
+        ]
 
 
 class DeliveryMetricsSerializer(serializers.Serializer):

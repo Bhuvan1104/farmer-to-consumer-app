@@ -1,11 +1,12 @@
 import os
 import tempfile
 import logging
+from unittest import result
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
-#from .model_service import FreshnessPredictor
+from .model_service import FreshnessPredictor
 from .pricing_service import DynamicPricingCalculator
 from .serializers import (
     FreshnessUploadSerializer,
@@ -36,7 +37,7 @@ def predict_freshness_from_image(request):
     """
     try:
         # Validate request
-        serializer = FreshnessUploadSerializer(data=request.FILES)
+        serializer = FreshnessUploadSerializer(data=request.data)
         
         if not serializer.is_valid():
             return Response(
@@ -63,6 +64,8 @@ def predict_freshness_from_image(request):
         try:
             # Load model and make prediction
             prediction = FreshnessPredictor.predict(tmp_path)
+
+            
             
             # Validate result with serializer
             result_serializer = FreshnessResultSerializer(prediction)
@@ -137,7 +140,12 @@ def dynamic_price(request):
         }
         
         # Validate result with serializer
-        result_serializer = DynamicPriceResultSerializer(result)
+        result_serializer = DynamicPriceResultSerializer({
+    "base_price": result["base_price"],
+    "freshness_score": result["freshness_score"],
+    "suggested_price": result["suggested_price"],
+    "discount_percentage": result["discount_percentage"]
+})
         
         return Response(
             result_serializer.data,
@@ -259,6 +267,7 @@ def advanced_dynamic_price(request):
             season=season
         )
         
+       
         # Add price range if requested
         if include_range:
             price_range = calculator.calculate_price_range(

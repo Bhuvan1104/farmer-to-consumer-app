@@ -1,219 +1,182 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import API from "../services/api";
-import "../styles/Pages.css";
+import "../styles/orderdetail.css";
 
 function OrderDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [deliveryMetrics, setDeliveryMetrics] = useState(null);
 
   useEffect(() => {
     fetchOrderDetail();
   }, [id]);
 
+  const fetchDeliveryMetrics = async () => {
+    try {
+      const response = await API.post("orders/calculate-delivery-metrics/", {
+        farmer_location: "17.3850,78.4867",
+        customer_location: "17.4500,78.3800",
+        freshness_score: 0.8,
+        temperature_controlled: true,
+        product_type: "vegetables",
+      });
+
+      setDeliveryMetrics(response.data);
+    } catch (err) {
+      console.error("Delivery metrics error:", err);
+    }
+  };
+
   const fetchOrderDetail = async () => {
     try {
-      setLoading(true);
       const response = await API.get(`orders/${id}/`);
       setOrder(response.data);
+      fetchDeliveryMetrics();
     } catch (err) {
-      if (err.response?.status === 401) {
-        navigate("/login");
-      } else if (err.response?.status === 404) {
-        setError("Order not found");
-      } else {
-        setError("Failed to load order details");
-      }
+      navigate("/login");
     } finally {
       setLoading(false);
     }
   };
 
-  const getStatusTimeline = () => {
-    const statuses = [
-      { status: "pending", label: "Pending", icon: "📋" },
-      { status: "confirmed", label: "Confirmed", icon: "✅" },
-      { status: "shipped", label: "Shipped", icon: "🚚" },
-      { status: "delivered", label: "Delivered", icon: "📦" },
-    ];
-
-    return statuses;
+  const cancelOrder = async () => {
+    try {
+      await API.patch(`orders/${id}/`, { status: "cancelled" });
+      navigate("/orders");
+    } catch (err) {
+      alert("Failed to cancel order.");
+    }
   };
 
-  const isStatusCompleted = (checkStatus, currentStatus) => {
-    const order_flow = ["pending", "confirmed", "shipped", "delivered"];
-    return (
-      order_flow.indexOf(checkStatus) <= order_flow.indexOf(currentStatus)
-    );
-  };
+  const steps = ["pending", "confirmed", "shipped", "delivered"];
 
-  if (loading) return <div className="page-container"><p>Loading order...</p></div>;
-  if (error) return <div className="page-container"><div className="error-message">{error}</div></div>;
-
-  if (!order) return <div className="page-container"><p>Order not found</p></div>;
-
-  const timeline = getStatusTimeline();
+  if (loading) return <div className="loading">Loading...</div>;
+  if (!order) return null;
 
   return (
-    <div className="page-container">
-      <button className="back-button" onClick={() => navigate("/orders")}>
-        ← Back to Orders
-      </button>
+    <div className="order-page">
 
-      <div className="page-header">
-        <h1>📦 Order #{order.id}</h1>
-        <p>Track your order status and details</p>
+      {/* HEADER */}
+      <div className="order-header">
+        <div className="left-section">
+          <button className="back-btn" onClick={() => navigate("/orders")}>
+            ← Back
+          </button>
+
+          <div className="order-title">
+            <h2>Order #{order.id}</h2>
+            <span className={`status ${order.status}`}>
+              {order.status}
+            </span>
+          </div>
+        </div>
       </div>
 
-      <div className="order-detail-container">
-        {/* Status Timeline */}
-        <div className="timeline-section">
-          <h3>📍 Order Timeline</h3>
-          <div className="timeline">
-            {timeline.map((item, index) => (
-              <div key={item.status} className="timeline-item">
+      {/* PROGRESS STEPPER */}
+      <div className="progress-container">
+        {steps.map((step, index) => {
+          const activeIndex = steps.indexOf(order.status);
+          return (
+            <div key={step} className="step-wrapper">
+              <div
+                className={`step-circle ${
+                  index <= activeIndex ? "active" : ""
+                }`}
+              >
+                {index + 1}
+              </div>
+              <span className="step-label">{step}</span>
+              {index !== steps.length - 1 && (
                 <div
-                  className={`timeline-dot ${
-                    isStatusCompleted(item.status, order.status)
-                      ? "completed"
-                      : ""
-                  } ${item.status === order.status ? "current" : ""}`}
-                >
-                  {item.icon}
-                </div>
-                <div className="timeline-label">
-                  <h4>{item.label}</h4>
-                  {item.status === order.status && (
-                    <p className="current-status">Current Status</p>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Order Information */}
-        <div className="info-section">
-          <h3>📋 Order Information</h3>
-          <div className="info-grid">
-            <div className="info-item">
-              <span className="label">Order ID:</span>
-              <span className="value">#{order.id}</span>
-            </div>
-
-            <div className="info-item">
-              <span className="label">Status:</span>
-              <span className="value badge">{order.status?.toUpperCase()}</span>
-            </div>
-
-            <div className="info-item">
-              <span className="label">Order Date:</span>
-              <span className="value">
-                {new Date(order.created_at).toLocaleDateString()}
-              </span>
-            </div>
-
-            <div className="info-item">
-              <span className="label">Updated:</span>
-              <span className="value">
-                {new Date(order.updated_at).toLocaleDateString()}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Product Details */}
-        <div className="info-section">
-          <h3>🛍️ Product Details</h3>
-          {order.product && (
-            <div className="product-info">
-              <div className="product-header">
-                <h4>{order.product.name}</h4>
-              </div>
-
-              <div className="info-grid">
-                <div className="info-item">
-                  <span className="label">Category:</span>
-                  <span className="value">{order.product.category}</span>
-                </div>
-
-                <div className="info-item">
-                  <span className="label">Price per Unit:</span>
-                  <span className="value">${order.product.price?.toFixed(2)}</span>
-                </div>
-
-                <div className="info-item">
-                  <span className="label">Quantity:</span>
-                  <span className="value">{order.quantity}</span>
-                </div>
-
-                <div className="info-item">
-                  <span className="label">Freshness:</span>
-                  <span className="value">
-                    {(order.product.freshness_score * 100).toFixed(0)}%
-                  </span>
-                </div>
-              </div>
-
-              {order.product.description && (
-                <p className="description">{order.product.description}</p>
+                  className={`step-line ${
+                    index < activeIndex ? "active-line" : ""
+                  }`}
+                />
               )}
             </div>
-          )}
-        </div>
+          );
+        })}
+      </div>
 
-        {/* Pricing Summary */}
-        <div className="info-section">
-          <h3>💰 Pricing Summary</h3>
-          <div className="pricing-summary">
-            <div className="price-row">
-              <span className="label">Subtotal:</span>
-              <span className="value">${order.subtotal?.toFixed(2)}</span>
-            </div>
+      {/* MAIN GRID */}
+      <div className="order-grid">
 
-            <div className="price-row">
-              <span className="label">Shipping:</span>
-              <span className="value">${order.shipping_cost?.toFixed(2) || "0.00"}</span>
-            </div>
+        {/* LEFT */}
+        <div className="left-column">
 
-            <div className="price-row">
-              <span className="label">Tax:</span>
-              <span className="value">${order.tax?.toFixed(2) || "0.00"}</span>
-            </div>
-
-            <div className="price-row total">
-              <span className="label">Total:</span>
-              <span className="value">${order.total_price?.toFixed(2)}</span>
+          <div className="card">
+            <h3>Product Details</h3>
+            <div className="product-box">
+              {order.product?.image && (
+                <img src={order.product.image} alt="product" />
+              )}
+              <div>
+                <h4>{order.product?.name}</h4>
+                <p>Category: {order.product?.category}</p>
+                <p>Quantity: {order.quantity}</p>
+                <p>₹{order.product?.price} / unit</p>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Delivery Information */}
-        {order.delivery_address && (
-          <div className="info-section">
-            <h3>🚚 Delivery Information</h3>
-            <div className="delivery-info">
+          {order.delivery_address && (
+            <div className="card">
+              <h3>Delivery Address</h3>
               <p>{order.delivery_address}</p>
-              {order.estimated_delivery && (
-                <p className="delivery-date">
-                  📅 Estimated Delivery:{" "}
-                  {new Date(order.estimated_delivery).toLocaleDateString()}
-                </p>
-              )}
+            </div>
+          )}
+
+          {deliveryMetrics && (
+            <div className="card">
+              <h3>Delivery Metrics</h3>
+              <p>Distance: {deliveryMetrics.distance_km} km</p>
+              <p>Estimated Time: {deliveryMetrics.estimated_delivery_hours} hrs</p>
+              <p>Spoilage Risk: {deliveryMetrics.spoilage_risk_percentage}%</p>
+              <p>
+                Viable:{" "}
+                {deliveryMetrics.is_viable ? "✅ Yes" : "❌ No"}
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* RIGHT */}
+        <div className="right-column">
+
+          <div className="card">
+            <h3>Price Breakdown</h3>
+            <div className="price-row">
+              <span>Subtotal</span>
+              <span>₹{order.subtotal}</span>
+            </div>
+            <div className="price-row">
+              <span>Shipping</span>
+              <span>₹{order.shipping_cost}</span>
+            </div>
+            <div className="price-row">
+              <span>Tax</span>
+              <span>₹{order.tax}</span>
+            </div>
+            <div className="price-row total">
+              <span>Total</span>
+              <span>₹{order.total_price}</span>
             </div>
           </div>
-        )}
 
-        {/* Actions */}
-        <div className="actions-section">
+          <div className="card">
+            <h3>Order Info</h3>
+            <p>Created: {new Date(order.created_at).toLocaleString()}</p>
+            <p>Updated: {new Date(order.updated_at).toLocaleString()}</p>
+          </div>
+
           {order.status === "pending" && (
-            <button className="danger-button">Cancel Order</button>
-          )}
-          {order.status === "delivered" && (
-            <button className="primary-button">Leave Review</button>
+            <button className="cancel-btn" onClick={cancelOrder}>
+              Cancel Order
+            </button>
           )}
         </div>
       </div>

@@ -3,8 +3,12 @@ from .models import Product
 
 
 class ProductSerializer(serializers.ModelSerializer):
-    farmer_username = serializers.CharField(source='farmer.username', read_only=True)
+    farmer_username = serializers.CharField(
+        source='farmer.username',
+        read_only=True
+    )
 
     class Meta:
         model = Product
         fields = "__all__"
+        read_only_fields = ["farmer"]   # ✅ ADD THIS LINE

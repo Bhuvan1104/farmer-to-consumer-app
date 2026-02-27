@@ -1,42 +1,96 @@
+/* NAVBAR WRAPPER */
 .navbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #2e7d32;
-  padding: 10px 20px;
-  color: white;
+
+  padding: 14px 40px;
+  background: white;
+  border-bottom: 1px solid #e5e7eb;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
 }
 
-.navbar a {
-  color: white;
-  text-decoration: none;
-  margin: 0 10px;
-  font-weight: 500;
-}
-
-.navbar a:hover {
-  text-decoration: underline;
-}
-
+/* LOGO */
 .logo {
-  font-size: 18px;
-  font-weight: bold;
+  font-size: 20px;
+  font-weight: 700;
+  color: #14532d;
+  text-decoration: none;
 }
 
+.logo span {
+  margin-left: 6px;
+}
+
+/* NAV LINKS */
 .navbar-links {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+}
+
+/* NAV ITEM */
+.nav-item {
+  text-decoration: none;
+  color: #374151;
+  font-weight: 500;
+  position: relative;
+  transition: color 0.3s ease;
+}
+
+.nav-item:hover {
+  color: #16a34a;
+}
+
+/* Active link */
+.nav-item.active {
+  color: #16a34a;
+  font-weight: 600;
+}
+
+/* Underline animation */
+.nav-item::after {
+  content: "";
+  position: absolute;
+  width: 0%;
+  height: 2px;
+  bottom: -6px;
+  left: 0;
+  background-color: #16a34a;
+  transition: width 0.3s ease;
+}
+
+.nav-item:hover::after {
+  width: 100%;
+}
+
+.nav-item.active::after {
+  width: 100%;
+}
+
+/* RIGHT SIDE */
+.navbar-right {
   display: flex;
   align-items: center;
 }
 
+/* LOGOUT BUTTON */
 .logout-btn {
-  background: #c62828;
-  border: none;
-  padding: 6px 12px;
+  background: linear-gradient(135deg, #16a34a, #22c55e);
   color: white;
-  border-radius: 6px;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 600;
   cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 .logout-btn:hover {
-  background: #b71c1c;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(22, 163, 74, 0.25);
 }

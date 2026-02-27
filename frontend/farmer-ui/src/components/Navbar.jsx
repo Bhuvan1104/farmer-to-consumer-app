@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { isFarmer, isConsumer } from "../utils/auth";
 import "./Navbar.css";
 
@@ -15,38 +15,38 @@ function Navbar() {
   return (
     <nav className="navbar">
 
+      {/* LEFT */}
       <div className="navbar-left">
-        <Link to="/dashboard" className="logo">
-          🌾 FarmDirect
-        </Link>
+        <NavLink to="/dashboard" className="logo">
+          🌾 <span>FarmDirect</span>
+        </NavLink>
       </div>
 
+      {/* CENTER LINKS */}
       <div className="navbar-links">
 
-        {/* Visible to both */}
-        <Link to="/products">Products</Link>
-        <Link to="/profile">Profile</Link>
-        <Link to="/chatbot">Chatbot</Link>
+        <NavLink to="/products" className="nav-item">Products</NavLink>
+        <NavLink to="/profile" className="nav-item">Profile</NavLink>
+        <NavLink to="/chatbot" className="nav-item">Chatbot</NavLink>
 
-        {/* Farmer Only */}
         {isFarmer() && (
           <>
-            <Link to="/add-product">Add Product</Link>
-            <Link to="/delivery">Delivery</Link>
-            <Link to="/pricing">Pricing</Link>
+            <NavLink to="/add-product" className="nav-item">Add Product</NavLink>
+            <NavLink to="/delivery" className="nav-item">Delivery</NavLink>
+            <NavLink to="/pricing" className="nav-item">Pricing</NavLink>
           </>
         )}
 
-        {/* Consumer Only */}
         {isConsumer() && (
           <>
-            <Link to="/orders">Orders</Link>
-            <Link to="/chat-history">Chat History</Link>
+            <NavLink to="/orders" className="nav-item">Orders</NavLink>
+            <NavLink to="/chat-history" className="nav-item">Chat History</NavLink>
           </>
         )}
 
       </div>
 
+      {/* RIGHT */}
       <div className="navbar-right">
         <button className="logout-btn" onClick={logout}>
           Logout

@@ -1,0 +1,149 @@
+/* Page Layout */
+.farmer-orders-page {
+  padding: 40px;
+  background: #f4f9f6;
+  min-height: 100vh;
+}
+
+/* Header */
+.orders-header h1 {
+  font-size: 28px;
+  color: #14532d;
+  margin-bottom: 5px;
+}
+
+.orders-header p {
+  color: #4b5563;
+  margin-bottom: 30px;
+}
+
+/* Grid Layout */
+.orders-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 25px;
+}
+
+/* Order Card */
+.order-card {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 8px 20px rgba(0, 128, 0, 0.08);
+  transition: transform 0.2s ease;
+}
+
+.order-card:hover {
+  transform: translateY(-4px);
+}
+
+/* Top Section */
+.order-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.order-top h3 {
+  font-size: 18px;
+  color: #065f46;
+}
+
+/* Status Badge */
+.status {
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  text-transform: capitalize;
+  font-weight: 600;
+}
+
+.status.pending {
+  background: #fef9c3;
+  color: #a16207;
+}
+
+.status.confirmed {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.status.cancelled {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.status.delivered {
+  background: #dcfce7;
+  color: #166534;
+}
+
+/* Details */
+.order-details p {
+  margin: 5px 0;
+  color: #374151;
+}
+
+.price {
+  font-size: 20px;
+  font-weight: bold;
+  color: #15803d;
+  margin-top: 10px;
+}
+
+/* Buttons */
+.order-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.btn {
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.2s ease;
+}
+
+.btn.accept {
+  background: #16a34a;
+  color: white;
+}
+
+.btn.accept:hover {
+  background: #15803d;
+}
+
+.btn.reject {
+  background: #ef4444;
+  color: white;
+}
+
+.btn.reject:hover {
+  background: #dc2626;
+}
+
+/* Empty State */
+.empty-state {
+  background: white;
+  padding: 40px;
+  border-radius: 16px;
+  text-align: center;
+  box-shadow: 0 8px 20px rgba(0, 128, 0, 0.08);
+}
+
+.empty-state h3 {
+  color: #065f46;
+}
+
+/* Loading */
+.loading {
+  text-align: center;
+  padding: 50px;
+  font-size: 18px;
+  color: #166534;
+}

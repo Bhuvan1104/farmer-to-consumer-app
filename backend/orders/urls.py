@@ -1,10 +1,10 @@
+from .views import OrderViewSet
 from rest_framework.routers import DefaultRouter
-from django.urls import path
-from .views import OrderViewSet, calculate_delivery_metrics
+from django.urls import path, include
 
 router = DefaultRouter()
-router.register('', OrderViewSet, basename='order')
+router.register(r'', OrderViewSet, basename='orders')
 
-urlpatterns = router.urls + [
-	path('delivery/calculate/', calculate_delivery_metrics, name='calculate-delivery-metrics'),
+urlpatterns = [
+    path('', include(router.urls)),
 ]

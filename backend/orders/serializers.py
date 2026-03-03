@@ -1,9 +1,5 @@
 from rest_framework import serializers
-from .models import Order
-
-
-from rest_framework import serializers
-from .models import Order
+from .models import Order, CartItem
 
 
 class OrderSerializer(serializers.ModelSerializer):
@@ -34,44 +30,60 @@ class OrderSerializer(serializers.ModelSerializer):
         ]
 
 
+class CartItemSerializer(serializers.ModelSerializer):
+    product_name = serializers.CharField(
+        source='product.name',
+        read_only=True
+    )
+    product_price = serializers.DecimalField(
+        source='product.price',
+        max_digits=10,
+        decimal_places=2,
+        read_only=True
+    )
+
+    class Meta:
+        model = CartItem
+        fields = [
+            "id",
+            "product",
+            "product_name",
+            "product_price",
+            "quantity"
+        ]
+
+
+# Delivery Metrics Serializers remain unchanged
+# =============================
+# DELIVERY METRICS SERIALIZERS
+# =============================
+
 class DeliveryMetricsSerializer(serializers.Serializer):
-    """Serializer for delivery metrics calculation request."""
-    farmer_location = serializers.CharField(
-        required=True,
-        help_text="Farmer's location (address or 'latitude,longitude')"
-    )
-    customer_location = serializers.CharField(
-        required=True,
-        help_text="Customer's location (address or 'latitude,longitude')"
-    )
+    farmer_location = serializers.CharField(required=True)
+    customer_location = serializers.CharField(required=True)
     freshness_score = serializers.FloatField(
         required=False,
         default=0.8,
         min_value=0,
-        max_value=1,
-        help_text="Product freshness score"
+        max_value=1
     )
     temperature_controlled = serializers.BooleanField(
         required=False,
-        default=True,
-        help_text="Whether delivery has temperature control"
+        default=True
     )
     product_type = serializers.ChoiceField(
         required=False,
         default='vegetables',
-        choices=['vegetables', 'fruits', 'dairy', 'meats', 'herbs', 'berries'],
-        help_text="Type of product being delivered"
+        choices=['vegetables', 'fruits', 'dairy', 'meats', 'herbs', 'berries']
     )
 
 
 class CoordinatesSerializer(serializers.Serializer):
-    """Serializer for coordinates."""
     latitude = serializers.FloatField()
     longitude = serializers.FloatField()
 
 
 class DeliveryMetricsResultSerializer(serializers.Serializer):
-    """Serializer for delivery metrics results."""
     distance_km = serializers.FloatField()
     distance_miles = serializers.FloatField()
     estimated_delivery_hours = serializers.FloatField()

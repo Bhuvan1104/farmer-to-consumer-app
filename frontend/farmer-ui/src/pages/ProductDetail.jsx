@@ -8,13 +8,10 @@ import ReactMarkdown from "react-markdown";
 function ProductDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [showFull, setShowFull] = useState(false);
+
   const [product, setProduct] = useState(null);
-  const [form, setForm] = useState({});
-  const [newImage, setNewImage] = useState(null);
-  const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [editMode, setEditMode] = useState(false);
+  const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
     fetchProduct();
@@ -24,7 +21,6 @@ function ProductDetail() {
     try {
       const res = await API.get(`products/${id}/`);
       setProduct(res.data);
-      setForm(res.data);
     } catch (err) {
       console.error(err);
     } finally {
@@ -32,271 +28,120 @@ function ProductDetail() {
     }
   };
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    setNewImage(file);
-    setPreview(URL.createObjectURL(file));
-  };
-
-  const handleUpdate = async () => {
-    try {
-      const formData = new FormData();
-
-      formData.append("name", form.name);
-      formData.append("category", form.category);
-      formData.append("price", form.price);
-      formData.append("quantity", form.quantity);
-      formData.append("description", form.description);
-
-      if (newImage) {
-        formData.append("image", newImage);
-      }
-
-      const res = await API.patch(
-        `products/${id}/`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-
-      setProduct(res.data);
-      setForm(res.data);
-      setNewImage(null);
-      setPreview(null);
-      setEditMode(false);
-
-    } catch (err) {
-      console.error("Update failed:", err.response?.data);
-      alert("Failed to update product.");
-    }
-  };
-
-  const handleDelete = async () => {
-  const confirmDelete = window.confirm(
-    "Are you sure you want to delete this product?"
-  );
-  if (!confirmDelete) return;
-
+  const addToCart = async () => {
   try {
-    await API.delete(`products/${id}/`);
-    navigate("/products");
-  } catch (err) {
-    console.error("Delete failed:", err);
-    alert("Failed to delete product.");
-  }
-};
-
-const handleBuyNow = async () => {
-  try {
-    const response = await API.post("orders/", {
-      product: product.id,
-      quantity: 1,
+    await API.post("orders/cart/add/", {
+      product_id: product.id,
+      quantity: quantity,
     });
 
-    alert("Order placed successfully!");
-    navigate(`/orders/${response.data.id}`);
+    // 🔥 Trigger global cart update event
+    window.dispatchEvent(new Event("cartUpdated"));
 
+    alert("Added to Cart");
   } catch (err) {
-    console.error("Order error:", err.response?.data);
-    alert("Failed to place order.");
+    console.error(err);
   }
 };
 
+  const buyNow = async () => {
+    try {
+      await API.post("orders/cart/add/", {
+        product_id: product.id,
+        quantity: quantity,
+      });
+      navigate("/cart");
+    } catch (err) {
+      alert("Failed to proceed");
+    }
+  };
+
   if (loading) return <div>Loading...</div>;
+  if (!product) return <div>Product not found</div>;
 
   return (
-  <div className="detail-page">
-    <div className="detail-wrapper">
+  <div className="product-page">
+    <div className="product-container">
 
-      <div className="detail-card">
+      {/* LEFT - IMAGE */}
+      <div className="product-image">
+        {product.image ? (
+          <img src={product.image} alt={product.name} />
+        ) : (
+          <div className="image-placeholder">🌾</div>
+        )}
+      </div>
 
-        {/* LEFT - IMAGE */}
-        <div className="detail-image-section">
-          {!editMode ? (
-            product.image ? (
-              <img
-                src={product.image}
-                alt={product.name}
-                className="detail-image"
-              />
-            ) : (
-              <div className="image-placeholder">🌾</div>
-            )
+      {/* RIGHT - DETAILS */}
+      <div className="product-details">
+
+        <h1 className="product-title">{product.name}</h1>
+
+        <div className="product-meta">
+          <span className="category">{product.category}</span>
+          <span className="price">₹{product.price}</span>
+        </div>
+
+        <div className="description">
+          <ReactMarkdown>
+            {product.description || "No description available."}
+          </ReactMarkdown>
+        </div>
+
+        <div className="stock-info">
+          {product.quantity > 0 ? (
+            <span className="in-stock">
+              ✔ In Stock ({product.quantity})
+            </span>
           ) : (
-            <div className="image-edit-wrapper">
-              <img
-                src={preview || product.image}
-                alt="Preview"
-                className="detail-image"
-              />
-              <label className="upload-btn">
-                Change Image
-                <input
-                  type="file"
-                  accept="image/*"
-                  hidden
-                  onChange={handleImageChange}
-                />
-              </label>
+            <span className="out-stock">
+              ✖ Out of Stock
+            </span>
+          )}
+        </div>
+
+        {isConsumer() && product.quantity > 0 && (
+          <>
+            <div className="quantity-selector">
+              <button
+                onClick={() =>
+                  setQuantity(Math.max(1, quantity - 1))
+                }
+              >
+                -
+              </button>
+
+              <span>{quantity}</span>
+
+              <button
+                onClick={() =>
+                  setQuantity(
+                    Math.min(product.quantity, quantity + 1)
+                  )
+                }
+              >
+                +
+              </button>
             </div>
-          )}
-        </div>
 
-        {/* RIGHT - INFO */}
-        <div className="detail-info-section">
+            <div className="action-buttons">
+              <button className="add-btn" onClick={addToCart}>
+                🛒 Add to Cart
+              </button>
 
-          {!editMode ? (
-            <>
-              <h1 className="product-title">{product.name}</h1>
-              <span className="category-badge">{product.category}</span>
+              <button className="buy-btn" onClick={buyNow}>
+                ⚡ Buy Now
+              </button>
+            </div>
+          </>
+        )}
 
-              <div className="price-tag">₹{product.price}</div>
-
-              <div className="product-description">
-  <h4>About this product</h4>
-
-  {product.description ? (
-    <div className="markdown-content">
-      <ReactMarkdown>
-        {showFull ? product.description : product.description.slice(0, 150)}
-      </ReactMarkdown>
-    </div>
-  ) : (
-    <p>No description available.</p>
-  )}
-
-  {product.description?.length > 150 && (
-    <button
-      className="read-more-btn"
-      onClick={() => setShowFull(!showFull)}
-    >
-      {showFull ? "Show Less" : "Read More"}
-    </button>
-  )}
-</div>
-<br></br>
-<br></br>
-
-              <div className="stock-status">
-                {product.quantity > 0 ? (
-                  <span className="in-stock">
-                    ● In Stock ({product.quantity})
-                  </span>
-                ) : (
-                  <span className="out-stock">
-                    ● Out of Stock
-                  </span>
-                )}
-              </div>
-
-              <div className="action-buttons">
-                {isFarmer() && (
-                  <>
-                    <button
-                      className="btn-primary"
-                      onClick={() => setEditMode(true)}
-                    >
-                      Edit
-                    </button>
-
-                    <button
-                      className="btn-danger"
-                      onClick={handleDelete}
-                    >
-                      Delete
-                    </button>
-                  </>
-                )}
-
-                {isConsumer() && (
-                  <button className="btn-primary" onClick={handleBuyNow}>
-  🛒 Buy Now
-</button>
-                )}
-
-                <button
-                  className="btn-secondary"
-                  onClick={() => navigate("/products")}
-                >
-                  ← Back
-                </button>
-              </div>
-            </>
-          ) : (
-            <>
-              <h2>Edit Product</h2>
-
-              <div className="form-group">
-                <input
-                  type="text"
-                  value={form.name || ""}
-                  onChange={(e) =>
-                    setForm({ ...form, name: e.target.value })
-                  }
-                  placeholder="Product Name"
-                />
-              </div>
-
-              <div className="form-group">
-                <input
-                  type="text"
-                  value={form.category || ""}
-                  onChange={(e) =>
-                    setForm({ ...form, category: e.target.value })
-                  }
-                  placeholder="Category"
-                />
-              </div>
-              <div className="form-group">
-  <textarea
-    value={form.description || ""}
-    onChange={(e) =>
-      setForm({ ...form, description: e.target.value })
-    }
-    placeholder="Enter product description"
-  />
-</div>
-
-              <div className="form-row">
-                <input
-                  type="number"
-                  value={form.price || ""}
-                  onChange={(e) =>
-                    setForm({ ...form, price: e.target.value })
-                  }
-                  placeholder="Price"
-                />
-
-                <input
-                  type="number"
-                  value={form.quantity || ""}
-                  onChange={(e) =>
-                    setForm({ ...form, quantity: e.target.value })
-                  }
-                  placeholder="Quantity"
-                />
-              </div>
-
-              <div className="action-buttons">
-                <button className="btn-primary" onClick={handleUpdate}>
-                  Save Changes
-                </button>
-                <button
-                  className="btn-secondary"
-                  onClick={() => setEditMode(false)}
-                >
-                  Cancel
-                </button>
-              </div>
-            </>
-          )}
-
-        </div>
+        <button
+          className="back-btn"
+          onClick={() => navigate("/products")}
+        >
+          ← Back to Products
+        </button>
 
       </div>
     </div>

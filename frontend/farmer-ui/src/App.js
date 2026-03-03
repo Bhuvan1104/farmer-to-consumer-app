@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { useEffect } from "react";
-
+import Cart from "./pages/Cart";
 import Navbar from "./components/Navbar";
 import FarmerOrders from "./pages/FarmerOrders";
 import Home from "./pages/Home";
@@ -70,6 +70,15 @@ function AppWrapper() {
           element={
             <ProtectedRoute>
               <ProductDetail />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/cart"
+          element={
+            <ProtectedRoute>
+              <Cart />
             </ProtectedRoute>
           }
         />

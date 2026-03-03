@@ -1,9 +1,13 @@
 import { NavLink, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import API from "../services/api";
 import { isFarmer, isConsumer } from "../utils/auth";
 import "./Navbar.css";
 
+
 function Navbar() {
   const navigate = useNavigate();
+  const [cartCount, setCartCount] = useState(0);
 
   const logout = () => {
     localStorage.removeItem("access_token");
@@ -11,6 +15,31 @@ function Navbar() {
     localStorage.removeItem("user_role");
     navigate("/");
   };
+
+  useEffect(() => {
+  fetchCartCount();
+
+  const updateHandler = () => {
+    fetchCartCount();
+  };
+
+  window.addEventListener("cartUpdated", updateHandler);
+
+  return () => {
+    window.removeEventListener("cartUpdated", updateHandler);
+  };
+}, []);
+
+  const fetchCartCount = async () => {
+  try {
+    const res = await API.get("orders/cart/count/");
+    setCartCount(res.data.count);
+  } catch (err) {
+    console.error("Cart count error:", err);
+  }
+};
+
+
 
   return (
     <nav className="navbar">
@@ -43,6 +72,20 @@ function Navbar() {
             <NavLink to="/chat-history" className="nav-item">Chat History</NavLink>
           </>
         )}
+
+        {isConsumer() && (
+  <button
+    className="nav-cart-btn"
+    onClick={() => navigate("/cart")}
+  >
+    <span className="cart-icon">🛒</span>
+    <span className="cart-text">Cart</span>
+
+    {cartCount > 0 && (
+      <span className="cart-badge">{cartCount}</span>
+    )}
+  </button>
+)}
 
       </div>
 

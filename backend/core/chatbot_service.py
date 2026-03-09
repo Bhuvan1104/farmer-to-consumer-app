@@ -9,6 +9,7 @@ import json
 import pickle
 import logging
 import numpy as np
+from googletrans import Translator
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.pipeline import Pipeline
@@ -30,178 +31,159 @@ class FarmerChatbot:
     
     # Intent definitions
     INTENTS = {
+
         'greeting': {
-            'patterns': [
-                'hello', 'hi', 'hey', 'good morning', 'good afternoon',
-                'greetings', 'what is up', 'sup', 'howdy'
-            ],
-            'responses': [
-                'Hello! Welcome to the Farmer App. How can I help you today?',
-                'Hi there! What can I assist you with?',
-                'Greetings! What do you need help with?',
-                'Hey! Ready to help with your farming needs.'
-            ]
+        'patterns': [
+        'hello','hi','hey','good morning','good afternoon','good evening',
+        'how are you','is anyone there','can you help me','hello assistant',
+        'hi chatbot','start chat','talk to assistant'
+        ],
+        'responses': [
+        'Hello! 👋 I am your AI Farming Assistant. How can I help you today?',
+        'Hi farmer! I can help with pricing, delivery, demand, freshness scoring and more.',
+        'Welcome! Ask me anything about selling products, delivery logistics or market demand.',
+        'Hello! Feel free to ask about pricing, orders, freshness or product management.'
+        ]
         },
+
         'pricing': {
-            'patterns': [
-                'how to price product', 'pricing strategy', 'set price',
-                'how much should I charge', 'price calculation', 'dynamic pricing',
-                'what price', 'pricing help', 'price recommendation'
-            ],
-            'responses': [
-                'Our dynamic pricing system considers freshness, demand, and seasonal factors. Use the pricing calculator in your dashboard!',
-                'To price your products optimally, upload an image for freshness analysis, then use our AI pricing tool.',
-                'The system suggests prices based on market conditions. You can always adjust manually.',
-                'For best pricing results, update your product freshness and current market demand index.'
-            ]
+        'patterns': [
+        'how to price my product','how should I price vegetables','what price should I sell for',
+        'how much should I charge','best price for tomatoes','suggest price for my crop',
+        'how to decide product price','pricing strategy','price recommendation',
+        'market price suggestion','dynamic pricing system','calculate selling price',
+        'what is best selling price','how to set price for vegetables'
+        ],
+        'responses': [
+        'Our AI pricing tool suggests prices based on freshness, demand and seasonal trends.',
+        'Upload a product image for freshness analysis and then use the pricing calculator.',
+        'Higher demand and fresher produce allow you to set premium prices.',
+        'You can check the pricing section in the dashboard for AI-based price suggestions.'
+        ]
         },
+
         'freshness': {
-            'patterns': [
-                'freshness score', 'how fresh', 'product quality', 'analyze image',
-                'freshness check', 'quality analysis', 'product condition',
-                'produce quality', 'freshness analysis'
-            ],
-            'responses': [
-                'Upload a photo of your product to get an instant freshness score (0-1 scale).',
-                'Our ML model analyzes images to determine freshness categories: Excellent, Good, Fair, Poor, or Not Fresh.',
-                'Freshness directly impacts pricing - fresher products get premium prices!',
-                'Take a clear photo under good lighting for best freshness analysis results.'
-            ]
+        'patterns': [
+        'how to check freshness','freshness score','product freshness analysis',
+        'is my vegetable fresh','quality analysis','freshness detection',
+        'analyze my product image','check product quality','how fresh is my crop'
+        ],
+        'responses': [
+        'Upload a photo of your product to calculate its freshness score using AI.',
+        'Freshness analysis categorizes produce as Excellent, Good, Fair, Poor or Not Fresh.',
+        'Fresher products usually sell at higher prices and lower spoilage risk.',
+        'Make sure your image is clear and taken in good lighting for best analysis.'
+        ]
         },
+
         'orders': {
-            'patterns': [
-                'create order', 'new order', 'place order', 'order management',
-                'view orders', 'order status', 'track order', 'my orders'
-            ],
-            'responses': [
-                'Orders are managed in your dashboard. Click "Orders" to view and manage.',
-                'To track an order, go to the Orders section and view the delivery status.',
-                'You can view all your orders and their status in the dashboard.',
-                'Need to manage orders? Visit the Orders tab in your account.'
-            ]
+        'patterns': [
+        'how to place order','create order','view my orders','order status',
+        'track my order','order details','show my orders','where are my orders'
+        ],
+        'responses': [
+        'You can view and manage orders in the Orders section of your dashboard.',
+        'To track an order, open Orders and check the delivery status.',
+        'All orders placed by consumers are visible in your Orders page.',
+        'You can monitor order progress including pending, shipped and delivered.'
+        ]
         },
+
         'delivery': {
-            'patterns': [
-                'delivery time', 'shipping', 'how long delivery', 'delivery cost',
-                'delivery risk', 'spoilage', 'shipping time', 'when delivered'
-            ],
-            'responses': [
-                'Delivery time depends on distance. Use our logistics calculator to estimate.',
-                'Spoilage risk is calculated based on distance, freshness, and product type.',
-                'Temperature-controlled delivery minimizes spoilage risk for sensitive products.',
-                'The system estimates delivery time and shows spoilage risk before confirming orders.'
-            ]
+        'patterns': [
+        'delivery time','shipping time','how long delivery takes',
+        'delivery cost','logistics calculation','spoilage risk',
+        'transport risk','delivery distance','delivery estimate'
+        ],
+        'responses': [
+        'Delivery time depends on distance between farmer and consumer.',
+        'The system estimates spoilage risk based on distance and freshness score.',
+        'Temperature-controlled transport can reduce spoilage risk.',
+        'Check the logistics calculator to estimate delivery time and cost.'
+        ]
         },
-        'payment': {
-            'patterns': [
-                'payment', 'how to pay', 'payment methods', 'transactions',
-                'billing', 'invoice', 'charge', 'payment processing'
-            ],
-            'responses': [
-                'We support multiple payment methods including credit cards and digital wallets.',
-                'Payments are processed securely through our platform.',
-                'For payment issues, contact our support team.',
-                'You can view all transactions in your account history.'
-            ]
-        },
-        'profile': {
-            'patterns': [
-                'update profile', 'change profile', 'profile settings',
-                'account settings', 'edit profile', 'update information'
-            ],
-            'responses': [
-                'Visit the Profile section in your dashboard to update your information.',
-                'Your profile includes farm details, location, and product preferences.',
-                'Make sure your location is accurate for better delivery estimates.',
-                'Update your profile regularly to maintain accurate farm information.'
-            ]
-        },
+
         'products': {
-            'patterns': [
-                'add product', 'create product', 'list product', 'new product',
-                'manage products', 'product listing', 'upload product'
-            ],
-            'responses': [
-                'To add a product, go to "Add Product" and fill in the details.',
-                'Upload product images for freshness analysis and better listings.',
-                'Include harvesting date and storage conditions for accurate freshness analysis.',
-                'Your products appear in the marketplace once added to your dashboard.'
-            ]
+        'patterns': [
+        'how to add product','create new product','list product for sale',
+        'upload product','add vegetables to marketplace',
+        'manage my products','edit product details'
+        ],
+        'responses': [
+        'You can add products by clicking the Add Product button in your dashboard.',
+        'Upload product images, price, quantity and description when listing a product.',
+        'Better images and descriptions improve visibility in the marketplace.',
+        'Keep product information updated to attract more buyers.'
+        ]
         },
+
         'demand': {
-            'patterns': [
-                'demand index', 'market demand', 'how much demand',
-                'current demand', 'adjust demand', 'demand level'
-            ],
-            'responses': [
-                'Demand index (1-10) reflects current market interest. Monitor order volume to estimate it.',
-                'Higher demand (8-10) justifies premium pricing. Lower demand (1-3) may need discounts.',
-                'Check recent orders to gauge demand for your products.',
-                'The system suggests discounts during low demand periods.'
-            ]
+        'patterns': [
+        'market demand','demand forecast','how much demand for vegetables',
+        'current market demand','demand level','product demand',
+        'demand prediction'
+        ],
+        'responses': [
+        'The demand index reflects current customer interest for a product.',
+        'Higher demand allows higher pricing opportunities.',
+        'Monitoring demand trends helps farmers adjust production and pricing.',
+        'The system analyzes order data to estimate demand levels.'
+        ]
         },
+
         'seasonal': {
-            'patterns': [
-                'seasonal', 'season', 'off season', 'peak season',
-                'seasonal pricing', 'time of year'
-            ],
-            'responses': [
-                'Seasonal factors affect pricing. Peak seasons justify price increases.',
-                'Off-season products may require discounts due to supply abundance.',
-                'The system automatically adjusts for seasonal factors.',
-                'Plan your harvesting around seasonal demand patterns for better profits.'
-            ]
+        'patterns': [
+        'seasonal demand','peak season','off season vegetables',
+        'seasonal pricing','crop season demand','harvest season'
+        ],
+        'responses': [
+        'Seasonal factors influence both demand and price.',
+        'Peak seasons usually bring higher demand and better prices.',
+        'Off-season crops may require discounts or promotions.',
+        'Understanding seasonal trends helps maximize farmer profit.'
+        ]
         },
+
+        'payment': {
+        'patterns': [
+        'payment methods','how will i get paid','payment options',
+        'upi payment','card payment','online payment','transaction history'
+        ],
+        'responses': [
+        'The platform supports UPI, card payments and cash-on-delivery.',
+        'All transactions can be tracked in the Orders or Payment history section.',
+        'Payments are processed securely through the platform.',
+        'You can view completed transactions in your account dashboard.'
+        ]
+        },
+
         'support': {
-            'patterns': [
-                'help', 'support', 'issue', 'problem', 'need help',
-                'bug', 'not working', 'error', 'trouble'
-            ],
-            'responses': [
-                'I\'m here to help! What specific issue are you facing?',
-                'For technical issues, please contact our support team with details.',
-                'Try refreshing the page or clearing your browser cache.',
-                'If you continue experiencing issues, please report them to our support team.'
-            ]
+        'patterns': [
+        'i need help','technical issue','website not working',
+        'bug in system','problem with app','error occurred'
+        ],
+        'responses': [
+        'I will try to help. Please describe the issue you are facing.',
+        'If the problem continues, please contact the support team.',
+        'Sometimes refreshing the page or clearing cache fixes the issue.',
+        'Please provide details of the error so we can assist you.'
+        ]
         },
-        'location': {
-            'patterns': [
-                'location', 'address', 'farm location', 'where', 'coordinates',
-                'GPS', 'region', 'area'
-            ],
-            'responses': [
-                'Your location is crucial for delivery calculation and customer discovery.',
-                'Enter your farm\'s exact address or coordinates for accurate logistics.',
-                'Customers search based on proximity, so an accurate location is important.',
-                'You can update your location in the Profile settings.'
-            ]
-        },
-        'feedback': {
-            'patterns': [
-                'feedback', 'suggestion', 'feature request', 'improvement',
-                'review', 'rate', 'rating'
-            ],
-            'responses': [
-                'We love feedback! Please share your suggestions with our support team.',
-                'Your reviews help us improve the platform for all users.',
-                'Feature requests are always welcome - send them to our development team.',
-                'Rate your experience to help us provide better service.'
-            ]
-        },
+
         'farewell': {
-            'patterns': [
-                'bye', 'goodbye', 'see you', 'thanks', 'thank you',
-                'that\'s all', 'done', 'exit'
-            ],
-            'responses': [
-                'Goodbye! Happy farming! 😊',
-                'Thank you for using Farmer App. See you soon!',
-                'Have a great day! Feel free to reach out anytime.',
-                'Bye! Good luck with your harvest!'
-            ]
+        'patterns': [
+        'bye','goodbye','see you','thank you','thanks','that is all'
+        ],
+        'responses': [
+        'Goodbye! Happy farming! 🌱',
+        'Thank you for using the Farmer Assistant.',
+        'See you soon. Wishing you a great harvest!',
+        'Take care and feel free to return anytime.'
+        ]
         }
-    }
-    
+
+        }
+            
     MODEL_PATH = os.path.join(
         os.path.dirname(__file__),
         'models',
@@ -220,6 +202,7 @@ class FarmerChatbot:
         self.vectorizer = None
         self.intents = self.INTENTS
         self.is_trained = False
+        self.translator = Translator()
         self._load_model()
     
     def _load_model(self):
@@ -239,31 +222,43 @@ class FarmerChatbot:
             self._train_model()
     
     def _train_model(self):
-        """Train chatbot model on intents."""
-        logger.info("Training chatbot model...")
-        
-        # Prepare training data
+        """Train improved chatbot model."""
+        logger.info("Training improved chatbot model...")
+
         training_patterns = []
         training_labels = []
-        
+
         for intent_name, intent_data in self.intents.items():
             for pattern in intent_data['patterns']:
                 training_patterns.append(pattern.lower())
                 training_labels.append(intent_name)
-        
-        # Create pipeline
+
+                # 🔥 Automatically create variations
+                training_patterns.append(pattern.lower() + " please")
+                training_labels.append(intent_name)
+
+                training_patterns.append("can you " + pattern.lower())
+                training_labels.append(intent_name)
+
+                training_patterns.append("tell me about " + pattern.lower())
+                training_labels.append(intent_name)
+
+        # 🔥 Improved pipeline
         self.model = Pipeline([
-            ('tfidf', TfidfVectorizer(lowercase=True, stop_words='english')),
-            ('classifier', MultinomialNB())
+            ('tfidf', TfidfVectorizer(
+                lowercase=True,
+                stop_words='english',
+                ngram_range=(1, 2),   # 🔥 BIGRAM SUPPORT
+                max_features=3000
+            )),
+            ('classifier', MultinomialNB(alpha=0.1))
         ])
-        
-        # Train model
+
         self.model.fit(training_patterns, training_labels)
         self.is_trained = True
-        
-        logger.info(f"Chatbot trained on {len(self.intents)} intents")
-        
-        # Save model
+
+        logger.info("Improved chatbot trained successfully")
+
         self._save_model()
     
     def _save_model(self):
@@ -280,64 +275,67 @@ class FarmerChatbot:
             logger.error(f"Error saving model: {str(e)}")
     
     def get_response(self, user_message):
-        """
-        Get chatbot response to user message.
-        
-        Args:
-            user_message: User's input message
-        
-        Returns:
-            Dict with response, intent, and confidence
-        """
         try:
             if not self.is_trained:
-                # attempt to train if not trained
                 self._train_model()
 
-            # Classify intent
-            message_lower = user_message.lower().strip()
-            try:
-                predicted_intent = self.model.predict([message_lower])[0]
-                # Get confidence
-                probabilities = self.model.predict_proba([message_lower])[0]
-                confidence = float(max(probabilities))
-            except (NotFittedError, Exception) as inner_exc:
-                # If model not fitted or other model error, attempt retrain once
-                logger.warning(f"Model inference error, retraining: {inner_exc}")
-                try:
-                    self._train_model()
-                    predicted_intent = self.model.predict([message_lower])[0]
-                    probabilities = self.model.predict_proba([message_lower])[0]
-                    confidence = float(max(probabilities))
-                except Exception as retry_exc:
-                    logger.error(f"Retry training/inference failed: {retry_exc}")
-                    raise retry_exc
-            
-            # Get response
+            original_message = user_message.strip()
+
+            # 🔥 Detect language
+            detected = self.translator.detect(original_message)
+            user_lang = detected.lang
+
+            # 🔥 Translate to English if not English
+            if user_lang != "en":
+                translated = self.translator.translate(original_message, dest="en")
+                message_for_model = translated.text.lower()
+            else:
+                message_for_model = original_message.lower()
+
+            # Predict intent
+            predicted_intent = self.model.predict([message_for_model])[0]
+            probabilities = self.model.predict_proba([message_for_model])[0]
+            confidence = float(max(probabilities))
+
             responses = self.intents[predicted_intent]['responses']
-            response = np.random.choice(responses)
-            
-            # Check if confidence is too low (might be off-topic)
-            if confidence < 0.3:
-                response = "I'm not sure I understand. Can you rephrase that? I can help with pricing, delivery, orders, products, and more!"
-                predicted_intent = 'unknown'
-            
+            response_text = np.random.choice(responses)
+
+            # 🔥 Low confidence fallback
+            if confidence < 0.15:
+                response_text = (
+                    "I may not fully understand, but I can help with:\n"
+                    "• Pricing strategy\n"
+                    "• Delivery logistics\n"
+                    "• Demand forecasting\n"
+                    "• Freshness scoring\n"
+                    "• Order management\n\n"
+                    "Could you rephrase your question?"
+                )
+                predicted_intent = "unknown"
+
+            # 🔥 Translate back to user's language
+            if user_lang != "en":
+                translated_back = self.translator.translate(
+                    response_text, dest=user_lang
+                )
+                response_text = translated_back.text
+
             return {
-                'response': response,
-                'intent': predicted_intent,
-                'confidence': round(confidence, 2),
-                'user_message': user_message,
-                'timestamp': str(np.datetime64('now'))
+                "response": response_text,
+                "intent": predicted_intent,
+                "confidence": round(confidence, 2),
+                "language": user_lang,
+                "user_message": user_message,
+                "timestamp": str(np.datetime64("now"))
             }
-        
+
         except Exception as e:
             logger.error(f"Error in get_response: {str(e)}")
             return {
-                'response': "Sorry, I encountered an error. Please try again or contact support.",
-                'intent': 'error',
-                'confidence': 0.0,
-                'user_message': user_message,
-                'error': str(e)
+                "response": "Sorry, something went wrong. Please try again.",
+                "intent": "error",
+                "confidence": 0.0,
+                "error": str(e)
             }
     
     def get_available_intents(self):

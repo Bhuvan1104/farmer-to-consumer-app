@@ -11,21 +11,30 @@ function OrderDetail() {
   const [loading, setLoading] = useState(true);
   const [deliveryMetrics, setDeliveryMetrics] = useState(null);
 
-  useEffect(() => {
-    fetchOrderDetail();
-  }, [id]);
+useEffect(() => {
+  const token = localStorage.getItem("access_token");
 
-  const fetchDeliveryMetrics = async () => {
+  if (!token) {
+    navigate("/login");
+    return;
+  }
+
+  fetchOrderDetail();
+}, [id]);
+
+  const fetchDeliveryMetrics = async (orderData) => {
     try {
-      const response = await API.post("orders/calculate-delivery-metrics/", {
+
+      const response = await API.post("orders/delivery/calculate/", {
         farmer_location: "17.3850,78.4867",
-        customer_location: "17.4500,78.3800",
+        customer_location: orderData.delivery_address || "17.4500,78.3800",
         freshness_score: 0.8,
         temperature_controlled: true,
         product_type: "vegetables",
       });
 
       setDeliveryMetrics(response.data);
+
     } catch (err) {
       console.error("Delivery metrics error:", err);
     }
@@ -34,8 +43,9 @@ function OrderDetail() {
   const fetchOrderDetail = async () => {
     try {
       const response = await API.get(`orders/${id}/`);
-      setOrder(response.data);
-      fetchDeliveryMetrics();
+      const orderData = response.data;
+      setOrder(orderData);
+      fetchDeliveryMetrics(orderData);
     } catch (err) {
       navigate("/login");
     } finally {
@@ -110,17 +120,31 @@ function OrderDetail() {
 
           <div className="card">
             <h3>Product Details</h3>
-            <div className="product-box">
-              {order.product?.image && (
-                <img src={order.product.image} alt="product" />
-              )}
-              <div>
-                <h4>{order.product?.name}</h4>
-                <p>Category: {order.product?.category}</p>
-                <p>Quantity: {order.quantity}</p>
-                <p>₹{order.product?.price} / unit</p>
-              </div>
-            </div>
+                <div className="product-box">
+
+                  <img
+                    src={order.product_image || "https://via.placeholder.com/120"}
+                    alt="product"
+                    className="product-image"
+                  />
+
+                  <div className="product-info">
+                    <h4>{order.product_name}</h4>
+
+                    <p>
+                      <strong>Quantity:</strong> {order.quantity}
+                    </p>
+
+                    <p>
+                      <strong>Price:</strong> ₹{order.product_price} / unit
+                    </p>
+
+                    <p>
+                      <strong>Total:</strong> ₹{order.total_price}
+                    </p>
+                  </div>
+
+                </div>
           </div>
 
           {order.delivery_address && (
@@ -132,14 +156,29 @@ function OrderDetail() {
 
           {deliveryMetrics && (
             <div className="card">
-              <h3>Delivery Metrics</h3>
-              <p>Distance: {deliveryMetrics.distance_km} km</p>
-              <p>Estimated Time: {deliveryMetrics.estimated_delivery_hours} hrs</p>
-              <p>Spoilage Risk: {deliveryMetrics.spoilage_risk_percentage}%</p>
-              <p>
-                Viable:{" "}
-                {deliveryMetrics.is_viable ? "✅ Yes" : "❌ No"}
-              </p>
+              <h3>🚚 Delivery Metrics</h3>
+
+              <div className="metric-row">
+                <span>Distance</span>
+                <span>{deliveryMetrics.distance_km} km</span>
+              </div>
+
+              <div className="metric-row">
+                <span>Estimated Time</span>
+                <span>{deliveryMetrics.estimated_delivery_hours} hrs</span>
+              </div>
+
+              <div className="metric-row">
+                <span>Spoilage Risk</span>
+                <span>{deliveryMetrics.spoilage_risk_percentage}%</span>
+              </div>
+
+              <div className="metric-row">
+                <span>Delivery Viable</span>
+                <span>
+                  {deliveryMetrics.is_viable ? "✅ Yes" : "❌ No"}
+                </span>
+              </div>
             </div>
           )}
         </div>
@@ -178,6 +217,7 @@ function OrderDetail() {
               Cancel Order
             </button>
           )}
+
         </div>
       </div>
     </div>

@@ -28,8 +28,11 @@ API.interceptors.request.use((config) => {
   const raw = localStorage.getItem("access_token");
   const access = resolveToken(raw);
 
+  if (!config.headers) {
+    config.headers = {};
+  }
+
   if (access) {
-    config.headers = config.headers || {};
     config.headers.Authorization = `Bearer ${access}`;
   }
 

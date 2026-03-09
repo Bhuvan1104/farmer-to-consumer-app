@@ -206,3 +206,24 @@
 .remove-btn:hover {
   background: #dc2626;
 }
+
+.order-progress {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 15px;
+  font-size: 12px;
+}
+
+.step {
+  flex: 1;
+  text-align: center;
+  padding: 6px;
+  border-bottom: 3px solid #ddd;
+  color: #999;
+}
+
+.step.active {
+  border-color: #27ae60;
+  color: #27ae60;
+  font-weight: bold;
+}

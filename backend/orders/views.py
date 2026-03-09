@@ -5,6 +5,8 @@ from rest_framework.response import Response
 from rest_framework.exceptions import PermissionDenied
 from decimal import Decimal
 from django.db.models import Q
+from urllib3 import request
+from django.db import transaction
 
 from products.models import Product
 from .models import Order, CartItem
@@ -67,13 +69,15 @@ class OrderViewSet(viewsets.ModelViewSet):
     # DELIVERY METRICS (ONLY HERE — NOT BELOW)
     @action(detail=False, methods=["post"], url_path="delivery/calculate")
     def calculate_delivery_metrics(self, request):
+
+        from orders.delivery_service import DeliveryOptimizer
+
         serializer = DeliveryMetricsSerializer(data=request.data)
 
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        from .delivery_service import DeliveryOptimizer
-
+        
         optimizer = DeliveryOptimizer()
 
         metrics = optimizer.calculate_delivery_metrics(
@@ -151,6 +155,7 @@ def remove_from_cart(request, item_id):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def checkout(request):
+    address = request.data.get("address")
     payment_method = request.data.get("payment_method")
 
     cart_items = CartItem.objects.filter(user=request.user)

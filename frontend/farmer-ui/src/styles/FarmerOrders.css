@@ -53,30 +53,29 @@
 /* Status Badge */
 .status {
   padding: 5px 10px;
-  border-radius: 20px;
+  border-radius: 6px;
   font-size: 12px;
   text-transform: capitalize;
-  font-weight: 600;
 }
 
 .status.pending {
-  background: #fef9c3;
-  color: #a16207;
+  background: #fff3cd;
+  color: #856404;
 }
 
 .status.confirmed {
-  background: #d1fae5;
-  color: #065f46;
+  background: #d4edda;
+  color: #155724;
 }
 
 .status.cancelled {
-  background: #fee2e2;
-  color: #991b1b;
+  background: #f8d7da;
+  color: #721c24;
 }
 
 .status.delivered {
-  background: #dcfce7;
-  color: #166534;
+  background: #d1ecf1;
+  color: #0c5460;
 }
 
 /* Details */
@@ -146,4 +145,35 @@
   padding: 50px;
   font-size: 18px;
   color: #166534;
+}
+
+.order-progress{
+  display:flex;
+  justify-content:space-between;
+  margin-top:15px;
+  font-size:12px;
+}
+
+.step{
+  flex:1;
+  text-align:center;
+  padding:6px;
+  border-bottom:3px solid #ccc;
+  color:#999;
+}
+
+.step.active{
+  border-color:#2e7d32;
+  color:#2e7d32;
+  font-weight:600;
+}
+
+.btn.next{
+  background:#1976d2;
+  color:white;
+}
+
+.btn.complete{
+  background:#2e7d32;
+  color:white;
 }

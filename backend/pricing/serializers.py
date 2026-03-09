@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from PIL import Image
 
 
 class FreshnessUploadSerializer(serializers.Serializer):
@@ -9,7 +10,7 @@ class FreshnessUploadSerializer(serializers.Serializer):
         required=True,
         help_text="Upload an image of a product for freshness analysis"
     )
-    
+
     def validate_image(self, value):
         """
         Validate the uploaded image.
@@ -19,14 +20,18 @@ class FreshnessUploadSerializer(serializers.Serializer):
             raise serializers.ValidationError(
                 "Image size must not exceed 5MB"
             )
-        
-        # Check file type
-        allowed_formats = ['jpeg', 'jpg', 'png', 'webp']
-        if not any(value.name.lower().endswith(f'.{fmt}') for fmt in allowed_formats):
+
+        # Validate by decoding file content, not only extension.
+        try:
+            value.seek(0)
+            with Image.open(value) as img:
+                img.verify()
+            value.seek(0)
+        except Exception:
             raise serializers.ValidationError(
-                f"Image format must be one of: {', '.join(allowed_formats)}"
+                "Upload a valid image file (JPEG, PNG, WEBP, etc.)"
             )
-        
+
         return value
 
 
@@ -138,12 +143,12 @@ class AdvancedDynamicPriceResultSerializer(serializers.Serializer):
     price_difference = serializers.FloatField()
     percentage_change = serializers.FloatField()
     final_discount_percentage = serializers.FloatField()
-    
+
     # Factor details
     freshness_factor = AdvancedPriceFactorSerializer()
     demand_factor = AdvancedPriceFactorSerializer()
     seasonal_factor = AdvancedPriceFactorSerializer()
-    
+
     # Explanation
     explanation = serializers.CharField()
     calculation_formula = serializers.CharField()

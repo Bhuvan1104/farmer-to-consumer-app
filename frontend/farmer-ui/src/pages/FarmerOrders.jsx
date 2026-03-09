@@ -34,18 +34,24 @@ function FarmerOrders() {
     return Number(value || 0).toFixed(2);
   };
 
-  const getStatusClass = (status) => {
-    switch (status) {
-      case "confirmed":
-        return "status confirmed";
-      case "cancelled":
-        return "status cancelled";
-      case "delivered":
-        return "status delivered";
-      default:
-        return "status pending";
-    }
-  };
+const getStatusClass = (status) => {
+  switch (status) {
+    case "confirmed":
+      return "status confirmed";
+    case "packed":
+      return "status packed";
+    case "shipped":
+      return "status shipped";
+    case "out_for_delivery":
+      return "status out";
+    case "delivered":
+      return "status delivered";
+    case "cancelled":
+      return "status cancelled";
+    default:
+      return "status pending";
+  }
+};
 
   if (loading) return <div className="loading">Loading orders...</div>;
 
@@ -84,22 +90,98 @@ function FarmerOrders() {
                 </p>
               </div>
 
+              <div className="order-progress">
+
+                    <div className={`step ${order.status !== "pending" ? "active" : ""}`}>
+                      Confirmed
+                    </div>
+
+                    <div className={`step ${["packed","shipped","out_for_delivery","delivered"].includes(order.status) ? "active" : ""}`}>
+                      Packed
+                    </div>
+
+                    <div className={`step ${["shipped","out_for_delivery","delivered"].includes(order.status) ? "active" : ""}`}>
+                      Shipped
+                    </div>
+
+                    <div className={`step ${["out_for_delivery","delivered"].includes(order.status) ? "active" : ""}`}>
+                      Delivery
+                    </div>
+
+                    <div className={`step ${order.status === "delivered" ? "active" : ""}`}>
+                      Delivered
+                    </div>
+
+                  </div>
+
               {order.status === "pending" && (
                 <div className="order-actions">
-                  <button
-                    className="btn accept"
-                    onClick={() => updateStatus(order.id, "confirmed")}
-                  >
-                    Accept
-                  </button>
-                  <button
-                    className="btn reject"
-                    onClick={() => updateStatus(order.id, "cancelled")}
-                  >
-                    Reject
-                  </button>
-                </div>
+
+                        {order.status === "pending" && (
+                              <div className="order-actions">
+
+                                <button
+                                  className="btn accept"
+                                  onClick={() => updateStatus(order.id, "confirmed")}
+                                >
+                                  ✔ Accept Order
+                                </button>
+
+                                <button
+                                  className="btn reject"
+                                  onClick={() => updateStatus(order.id, "cancelled")}
+                                >
+                                  ✖ Reject Order
+                                </button>
+
+                              </div>
+                            )}
+
+                        {order.status === "confirmed" && (
+                          <button
+                            className="btn next"
+                            onClick={() => updateStatus(order.id, "packed")}
+                          >
+                            Mark as Packed
+                          </button>
+                        )}
+
+                        {order.status === "packed" && (
+                          <button
+                            className="btn next"
+                            onClick={() => updateStatus(order.id, "shipped")}
+                          >
+                            Mark as Shipped
+                          </button>
+                        )}
+
+                        {order.status === "shipped" && (
+                          <button
+                            className="btn next"
+                            onClick={() => updateStatus(order.id, "out_for_delivery")}
+                          >
+                            Out for Delivery
+                          </button>
+                        )}
+
+                        {order.status === "out_for_delivery" && (
+                          <button
+                            className="btn complete"
+                            onClick={() => updateStatus(order.id, "delivered")}
+                          >
+                            Mark Delivered
+                          </button>
+                        )}
+
+                      </div>
               )}
+              <div className="order-top">
+                <h3>{order.product_name}</h3>
+
+                <span className={getStatusClass(order.status)}>
+                  {order.status === "confirmed" ? "Confirmed by Farmer" : order.status}
+                </span>
+              </div>
             </div>
           ))}
         </div>

@@ -30,7 +30,19 @@ class Order(models.Model):
         default='COD'
     )
 
-    status = models.CharField(max_length=50, default="Pending")
+    status = models.CharField(
+    max_length=50,
+    choices=[
+        ("pending","Pending"),
+        ("confirmed","Confirmed"),
+        ("packed","Packed"),
+        ("shipped","Shipped"),
+        ("out_for_delivery","Out for Delivery"),
+        ("delivered","Delivered"),
+        ("cancelled","Cancelled"),
+    ],
+    default="pending"
+)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

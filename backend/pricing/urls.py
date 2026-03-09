@@ -1,16 +1,34 @@
 from django.urls import path
 from .views import (
-    predict_shelf_life,
-    predict_freshness_from_image,
-    dynamic_price,
-    advanced_dynamic_price,
-    predict_crop_price_ml
+    predict_freshness_view,
+    dynamic_price_view,
+    advanced_price_view,
+    ml_price_view
 )
 
 urlpatterns = [
-    path('predict-shelf-life/', predict_shelf_life, name='predict-shelf-life'),
-    path('predict-freshness/', predict_freshness_from_image, name='predict-freshness'),
-    path('dynamic-price/', dynamic_price, name='dynamic-price'),
-    path('advanced-dynamic-price/', advanced_dynamic_price, name='advanced-dynamic-price'),
-    path('predict-price-ml/', predict_crop_price_ml, name='predict-price-ml'),
+
+    path(
+        'predict-freshness/',
+        predict_freshness_view,
+        name="predict-freshness"
+    ),
+
+    path(
+        'dynamic-price/',
+        dynamic_price_view,
+        name="dynamic-price"
+    ),
+
+    path(
+        'advanced-dynamic-price/',
+        advanced_price_view,
+        name="advanced-price"
+    ),
+
+    path(
+        'predict-price-ml/',
+        ml_price_view,
+        name="ml-price"
+    ),
 ]

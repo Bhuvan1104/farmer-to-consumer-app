@@ -3,6 +3,7 @@ import API from "../services/api";
 import "../styles/ChatHistory.css";
 
 function ChatHistory() {
+
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(false);
@@ -10,112 +11,206 @@ function ChatHistory() {
 
   const chatEndRef = useRef(null);
 
+  /* =========================
+     AUTO SCROLL
+  ========================= */
+
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  }, [messages, loading]);
 
-  const sendMessage = async () => {
-    if (!text.trim()) return;
+  /* =========================
+     SEND MESSAGE
+  ========================= */
 
-    const newMessage = { role: "user", content: text.trim() };
+const sendMessage = async () => {
+  if (!text.trim() || loading) return;
 
-    // Add user message immediately
-    const updatedMessages = [...messages, newMessage];
-    setMessages(updatedMessages);
-    setText("");
-    setLoading(true);
-    setError("");
-
-    try {
-      const response = await API.post("chatbot/conversation/", {
-        messages: updatedMessages,
-      });
-
-      const botResponses = response.data.responses || [];
-
-      // Append all bot replies
-      const assistantMessages = botResponses.map((r) => ({
-        role: "assistant",
-        content: r.response || r.text || JSON.stringify(r),
-      }));
-
-      setMessages((prev) => [...prev, ...assistantMessages]);
-
-    } catch (err) {
-      setError(
-        err.response?.data?.detail ||
-        err.response?.data?.error ||
-        "Failed to send message"
-      );
-    } finally {
-      setLoading(false);
-    }
+  const userMessage = {
+    role: "user",
+    content: text.trim(),
   };
+
+  setMessages((prev) => [...prev, userMessage]);
+  setText("");
+  setLoading(true);
+  setError("");
+
+  try {
+    const response = await API.post("chatbot/conversation/", {
+      messages: [...messages, userMessage],
+    });
+
+    const botResponses = response.data.responses || [];
+
+    if (botResponses.length > 0) {
+      const botMessage = {
+        role: "assistant",
+        content:
+          botResponses[0].response ||
+          botResponses[0].text ||
+          "No response",
+      };
+
+      setMessages((prev) => [...prev, botMessage]);
+    }
+
+  } catch (err) {
+    setError(
+      err.response?.data?.detail ||
+      err.response?.data?.error ||
+      "Failed to send message"
+    );
+  } finally {
+    setLoading(false);
+  }
+};
+
+  /* =========================
+     CLEAR CHAT
+  ========================= */
 
   const clearAll = () => {
     setMessages([]);
     setError("");
   };
 
+  /* =========================
+     HANDLE ENTER KEY
+  ========================= */
+
+  const handleKeyDown = (e) => {
+
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+
+  };
+
+  /* =========================
+     FORMAT TIME
+  ========================= */
+
+  const formatTime = (date) => {
+    if (!date) return "";
+    return new Date(date).toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+  };
+
   return (
     <div className="chat-wrapper">
 
+      {/* HEADER */}
+
       <div className="chat-header">
         <h1>🤖 AI Conversation</h1>
-        <p>Interactive multi-turn chatbot</p>
+        <p>Interactive multi-turn farming assistant</p>
       </div>
 
-      {error && <div className="error-message">{error}</div>}
+      {error && (
+        <div className="error-message">{error}</div>
+      )}
 
       <div className="chat-container">
 
-        {/* Messages */}
+        {/* =========================
+           CHAT MESSAGES
+        ========================= */}
+
         <div className="chat-messages">
-          {messages.map((m, i) => (
+
+          {messages.map((msg, index) => (
+
             <div
-              key={i}
-              className={`chat-bubble ${
-                m.role === "user" ? "user" : "bot"
+              key={index}
+              className={`chat-row ${
+                msg.role === "user" ? "user" : "bot"
               }`}
             >
-              {m.content}
+
+              <div className="avatar">
+                {msg.role === "user" ? "🧑" : "🤖"}
+              </div>
+
+              <div className="message-content">
+
+                <div className="chat-bubble">
+                  {msg.content}
+                </div>
+
+                <div className="timestamp">
+                  {formatTime(msg.time)}
+                </div>
+
+              </div>
+
             </div>
+
           ))}
 
+          {/* Typing indicator */}
+
           {loading && (
-            <div className="chat-bubble bot">
-              Typing...
+
+            <div className="chat-row bot">
+
+              <div className="avatar">🤖</div>
+
+              <div className="message-content">
+                <div className="chat-bubble typing">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+              </div>
+
             </div>
+
           )}
 
           <div ref={chatEndRef}></div>
+
         </div>
 
-        {/* Input */}
+        {/* =========================
+           INPUT SECTION
+        ========================= */}
+
         <div className="chat-input">
-          <input
-            type="text"
+
+          <textarea
             value={text}
             onChange={(e) => setText(e.target.value)}
-            placeholder="Type your message..."
-            onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+            placeholder="Ask about crops, pricing, logistics, demand..."
+            onKeyDown={handleKeyDown}
           />
-          <button
-  className="send-button"
-  onClick={sendMessage}
-  disabled={loading}
->
-  ➤ Send
-</button>
-          <button
-            className="danger-button"
-            onClick={clearAll}
-          >
-            Clear
-          </button>
+
+          <div className="chat-actions">
+
+            <button
+              className="send-button"
+              onClick={sendMessage}
+              disabled={loading || !text.trim()}
+            >
+              ➤ Send
+            </button>
+
+            <button
+              className="danger-button"
+              onClick={clearAll}
+            >
+              Clear
+            </button>
+
+          </div>
+
         </div>
 
       </div>
+
     </div>
   );
 }

@@ -3,18 +3,41 @@ from .models import Order, CartItem
 
 
 class OrderSerializer(serializers.ModelSerializer):
+
     consumer_username = serializers.CharField(
         source='consumer.username',
         read_only=True
     )
+
     product_name = serializers.CharField(
         source='product.name',
         read_only=True
     )
+
+    product_price = serializers.DecimalField(
+        source="product.price",
+        max_digits=10,
+        decimal_places=2,
+        read_only=True
+    )
+
+    product_image = serializers.SerializerMethodField()
+
     farmer_username = serializers.CharField(
         source='product.farmer.username',
         read_only=True
     )
+
+    def get_product_image(self, obj):
+        request = self.context.get("request")
+
+        if obj.product and obj.product.image:
+            url = obj.product.image.url
+            if request:
+                return request.build_absolute_uri(url)
+            return url
+
+        return None
 
     class Meta:
         model = Order
@@ -41,6 +64,8 @@ class CartItemSerializer(serializers.ModelSerializer):
         decimal_places=2,
         read_only=True
     )
+
+    
 
     class Meta:
         model = CartItem

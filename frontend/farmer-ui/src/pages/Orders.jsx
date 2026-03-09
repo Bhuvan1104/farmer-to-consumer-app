@@ -12,9 +12,15 @@ function Orders() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  useEffect(() => {
+useEffect(() => {
+  fetchOrders();
+
+  const interval = setInterval(() => {
     fetchOrders();
-  }, []);
+  }, 5000); // refresh every 5 seconds
+
+  return () => clearInterval(interval);
+}, []);
 
   const fetchOrders = async () => {
     try {
@@ -183,12 +189,50 @@ function Orders() {
                   {new Date(order.created_at).toLocaleDateString()}
                 </p>
 
-                {order.status === "cancelled" && (
-                  <p className="rejected-msg">
-                    ❌ This order was rejected by the farmer.
-                  </p>
-                )}
+                  {order.status === "confirmed" && (
+                    <p className="status-message confirmed-msg">
+                      ✅ Farmer has confirmed your order.
+                    </p>
+                  )}
+
+                  {order.status === "shipped" && (
+                    <p className="status-message shipped-msg">
+                      🚚 Your order is on the way.
+                    </p>
+                  )}
+
+                  {order.status === "delivered" && (
+                    <p className="status-message delivered-msg">
+                      📦 Order successfully delivered.
+                    </p>
+                  )}
+
+                  {order.status === "cancelled" && (
+                    <p className="rejected-msg">
+                      ❌ This order was rejected by the farmer.
+                    </p>
+                  )}
               </div>
+
+              <div className="order-progress">
+
+                  <div className={`step ${["pending","confirmed","shipped","delivered"].includes(order.status) ? "active" : ""}`}>
+                    Order Placed
+                  </div>
+
+                  <div className={`step ${["confirmed","shipped","delivered"].includes(order.status) ? "active" : ""}`}>
+                    Confirmed
+                  </div>
+
+                  <div className={`step ${["shipped","delivered"].includes(order.status) ? "active" : ""}`}>
+                    Shipped
+                  </div>
+
+                  <div className={`step ${order.status === "delivered" ? "active" : ""}`}>
+                    Delivered
+                  </div>
+
+                </div>
 
               <div className="order-footer">
 

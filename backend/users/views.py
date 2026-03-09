@@ -16,6 +16,8 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from rest_framework_simplejwt.backends import TokenBackend
 import json
+from .models import Address
+from .serializers import AddressSerializer
 
 class RegisterView(generics.CreateAPIView):
     queryset = get_user_model().objects.all()
@@ -132,3 +134,28 @@ def validate_token(request):
         # Try to provide clearer detail
         msg = str(e)
         return Response({'valid': False, 'error': msg}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(["GET", "POST"])
+@permission_classes([IsAuthenticated])
+def addresses(request):
+
+    if request.method == "GET":
+
+        data = Address.objects.filter(user=request.user)
+
+        serializer = AddressSerializer(data, many=True)
+
+        return Response(serializer.data)
+
+    if request.method == "POST":
+
+        serializer = AddressSerializer(data=request.data)
+
+        if serializer.is_valid():
+
+            serializer.save(user=request.user)
+
+            return Response(serializer.data)
+
+        return Response(serializer.errors)

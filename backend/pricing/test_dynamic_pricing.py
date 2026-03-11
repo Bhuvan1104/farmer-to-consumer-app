@@ -12,7 +12,18 @@ Make sure you have an authentication token first.
 
 import requests
 import json
+import sys
+from pathlib import Path
+
+# Allow this script to run both from `backend/` and repository root.
+CURRENT_DIR = Path(__file__).resolve().parent
+if str(CURRENT_DIR) not in sys.path:
+    sys.path.insert(0, str(CURRENT_DIR))
+
 from pricing_service import DynamicPricingCalculator
+
+# This is a manual demo script, not a pytest module.
+__test__ = False
 
 
 # Configuration
@@ -429,7 +440,7 @@ def test_pricing_service_locally():
     )
     
     print(f"\nBase Price: $100.0")
-    print(f"Freshness: {result['freshness_factor']['category']} ({result['freshness_score']})")
+    print(f"Freshness: {result['freshness_factor']['category']} ({result['freshness_factor']['score']})")
     print(f"Demand: {result['demand_factor']['level']} ({result['demand_factor']['index']})")
     print(f"Season: {result['seasonal_factor']['season']}")
     print(f"\n→ Suggested Price: ${result['suggested_price']}")
@@ -497,3 +508,4 @@ if __name__ == "__main__":
     else:
         tester = DynamicPricingTester(token=DEMO_TOKEN)
         tester.run_all_tests()
+

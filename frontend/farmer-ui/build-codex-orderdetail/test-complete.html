@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Complete Registration Diagnostic</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container { 
+            max-width: 1000px; 
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        h1 { color: #333; border-bottom: 3px solid #667eea; padding-bottom: 10px; }
+        h2 { color: #667eea; margin-top: 30px; }
+        .section { margin-bottom: 30px; }
+        .test-card { 
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            background: #f9f9f9;
+        }
+        input, select { 
+            padding: 10px; 
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            width: 100%;
+            margin: 5px 0;
+        }
+        button { 
+            padding: 12px 20px; 
+            background: #667eea; 
+            color: white; 
+            border: none; 
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px 10px 0;
+            transition: background 0.3s;
+        }
+        button:hover { background: #764ba2; }
+        .output {
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .status { padding: 10px; border-radius: 5px; margin: 10px 0; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        .warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        label { font-weight: bold; color: #333; display: block; margin-top: 10px; }
+        .diagnostic-row { display: flex; gap: 10px; }
+        .diagnostic-row > div { flex: 1; }
+        .icon { margin-right: 5px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Complete Registration Diagnostic Tool</h1>
+        
+        <!-- Section 1: Connection Tests -->
+        <div class="section">
+            <h2>1️⃣ Connection Tests</h2>
+            
+            <div class="test-card">
+                <button onclick="testBackendConnection()">🌐 Test Backend Connection</button>
+                <div id="backend-result" class="output" style="display:none;"></div>
+            </div>
+            
+            <div class="test-card">
+                <button onclick="testFrontendConfig()">⚙️ Check Frontend Config</button>
+                <div id="frontend-result" class="output" style="display:none;"></div>
+            </div>
+        </div>
+
+        <!-- Section 2: Registration Test -->
+        <div class="section">
+            <h2>2️⃣ Registration Test</h2>
+            
+            <div class="test-card">
+                <label>🧑 Username:</label>
+                <input type="text" id="username" placeholder="Enter username" value="">
+                
+                <label>📧 Email:</label>
+                <input type="email" id="email" placeholder="Enter email" value="">
+                
+                <label>🔐 Password:</label>
+                <input type="password" id="password" placeholder="Enter password" value="">
+                
+                <label>👥 Role:</label>
+                <select id="role">
+                    <option value="consumer">Consumer</option>
+                    <option value="farmer">Farmer</option>
+                </select>
+                
+                <button onclick="testRegistration()">📝 Test Registration</button>
+                <div id="registration-result" class="output" style="display:none;"></div>
+            </div>
+        </div>
+
+        <!-- Section 3: API Validation -->
+        <div class="section">
+            <h2>3️⃣ API Endpoint Validation</h2>
+            
+            <div class="test-card">
+                <button onclick="validateEndpoints()">✅ Validate All Endpoints</button>
+                <div id="validation-result" class="output" style="display:none;"></div>
+            </div>
+        </div>
+
+        <!-- Section 4: Debug Info -->
+        <div class="section">
+            <h2>4️⃣ Debug Information</h2>
+            <div id="debug-info" class="output">
+                Loading system info...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Helper functions
+        function log(element, text, type = 'info') {
+            const el = document.getElementById(element);
+            el.style.display = 'block';
+            const timestamp = new Date().toLocaleTimeString();
+            const icon = {
+                'success': '✅',
+                'error': '❌',
+                'info': 'ℹ️',
+                'warning': '⚠️'
+            }[type] || 'ℹ️';
+            
+            const prefix = `[${timestamp}] ${icon} `;
+            el.textContent = prefix + text + (el.textContent ? '\n' + el.textContent : '');
+            el.className = `output ${type}`;
+        }
+
+        // Test 1: Backend Connection
+        async function testBackendConnection() {
+            const el = 'backend-result';
+            log(el, 'Testing backend...');
+            
+            try {
+                const response = await fetch('http://localhost:8000/api/', {
+                    method: 'GET'
+                });
+                
+                if (response.status === 404) {
+                    // 404 is expected for /api/ root
+                    log(el, '✅ Backend is running and responding! (404 is expected)', 'success');
+                    log(el, `Response Status: ${response.status}`);
+                } else {
+                    log(el, `Response Status: ${response.status}`, response.ok ? 'success' : 'warning');
+                }
+            } catch (error) {
+                log(el, `❌ Cannot connect to backend: ${error.message}`, 'error');
+                log(el, 'Make sure Django server is running: python manage.py runserver 0.0.0.0:8000');
+            }
+        }
+
+        // Test 2: Frontend Config
+        function testFrontendConfig() {
+            const el = 'frontend-result';
+            log(el, 'Frontend Configuration:');
+            log(el, `API Base URL: http://localhost:8000/api/`, 'info');
+            log(el, `Frontend URL: ${window.location.origin}`, 'info');
+            log(el, `Node: ${navigator.userAgent.split(' ').pop()}`, 'info');
+            log(el, '✅ Frontend is configured correctly', 'success');
+        }
+
+        // Test 3: Registration
+        async function testRegistration() {
+            const el = 'registration-result';
+            
+            const username = document.getElementById('username').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const role = document.getElementById('role').value;
+            
+            if (!username || !email || !password) {
+                log(el, 'All fields are required!', 'error');
+                return;
+            }
+            
+            log(el, '📤 Sending registration request...');
+            
+            const payload = { username, email, password, role };
+            
+            try {
+                const response = await fetch('http://localhost:8000/api/auth/register/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && response.status === 201) {
+                    log(el, '✅ Registration successful!', 'success');
+                    log(el, `Username: ${data.username}`);
+                    log(el, `Email: ${data.email}`);
+                    log(el, `Role: ${data.role}`);
+                    log(el, 'You can now login with these credentials!');
+                } else {
+                    log(el, `❌ Registration failed with status ${response.status}`, 'error');
+                    log(el, 'Errors: ' + JSON.stringify(data, null, 2));
+                }
+            } catch (error) {
+                log(el, `❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        // Test 4: Endpoint Validation
+        async function validateEndpoints() {
+            const el = 'validation-result';
+            log(el, 'Validating endpoints...');
+            
+            const endpoints = [
+                { name: 'Register', url: 'http://localhost:8000/api/auth/register/', method: 'POST' },
+                { name: 'Login Token', url: 'http://localhost:8000/api/token/', method: 'POST' },
+                { name: 'Products', url: 'http://localhost:8000/api/products/', method: 'GET' },
+                { name: 'Chatbot Intents', url: 'http://localhost:8000/api/chatbot/intents/', method: 'GET' },
+            ];
+            
+            for (const endpoint of endpoints) {
+                try {
+                    const response = await fetch(endpoint.url, {
+                        method: endpoint.method,
+                        headers: endpoint.method === 'POST' ? {'Content-Type': 'application/json'} : {}
+                    });
+                    
+                    const status = response.status;
+                    const icon = status < 300 ? '✅' : status < 400 ? '⚠️' : '❌';
+                    log(el, `${icon} ${endpoint.name} (${endpoint.method}): ${status}`);
+                    
+                } catch (error) {
+                    log(el, `❌ ${endpoint.name}: ${error.message}`);
+                }
+            }
+        }
+
+        // Load debug info
+        window.addEventListener('load', () => {
+            const debugEl = document.getElementById('debug-info');
+            debugEl.textContent = `
+System Information:
+- Browser: ${navigator.userAgent}
+- Platform: ${navigator.platform}
+- Language: ${navigator.language}
+- Cookies Enabled: ${navigator.cookieEnabled}
+- LocalStorage: ${typeof(Storage) !== 'undefined' ? 'Available' : 'Not Available'}
+- Current URL: ${window.location.href}
+- API Base: http://localhost:8000/api/
+            `.trim();
+            
+            // Auto-generate unique test user
+            const randomId = Math.random().toString(36).substring(7);
+            document.getElementById('username').value = `test_${randomId}`;
+            document.getElementById('email').value = `test_${randomId}@example.com`;
+            document.getElementById('password').value = 'TestPass123!';
+        });
+    </script>
+</body>
+</html>

@@ -1,219 +1,93 @@
-import os
+from pathlib import Path
+
 import numpy as np
-from PIL import Image
 
+try:
+    import cv2
+    from tensorflow.keras.models import load_model
 
-MODEL_PATH = os.path.join(
-    os.path.dirname(os.path.dirname(__file__)),
-    "models",
-    "freshness_model.h5",
-)
-DEFAULT_MODEL_SIZE = (224, 224)
-HEURISTIC_SIZE = (256, 256)
+    _IMPORT_ERROR = None
+except Exception as exc:
+    cv2 = None
+    load_model = None
+    _IMPORT_ERROR = exc
+
+MODEL_PATH = Path(__file__).resolve().parents[1] / "models" / "freshness_model.h5"
+_CLASSES = ["fresh", "medium", "rotten"]
 _model = None
-_recent_model_scores = []
-MODEL_FLAT_STD_THRESHOLD = 0.015
-MODEL_FLAT_MIN_SAMPLES = 6
-SAT_HIGH = 0.995
-SAT_LOW = 0.005
 
 
 def _get_model():
     global _model
-    if _model is not None:
-        return _model
+    if _IMPORT_ERROR is not None:
+        raise RuntimeError(
+            "Freshness model dependencies are missing. Install 'opencv-python' and 'tensorflow'."
+        ) from _IMPORT_ERROR
 
-    try:
-        from tensorflow.keras.models import load_model
+    if _model is None:
+        _model = load_model(str(MODEL_PATH), compile=False)
 
-        _model = load_model(MODEL_PATH)
-        return _model
-    except Exception:
-        return None
+    return _model
 
 
-def _model_input_size(model):
-    if model is None:
-        return DEFAULT_MODEL_SIZE
-
+def _get_model_target_size(model):
     try:
         input_shape = model.input_shape
         if isinstance(input_shape, list):
             input_shape = input_shape[0]
 
-        height = int(input_shape[1]) if input_shape[1] is not None else DEFAULT_MODEL_SIZE[1]
-        width = int(input_shape[2]) if input_shape[2] is not None else DEFAULT_MODEL_SIZE[0]
+        height = int(input_shape[1])
+        width = int(input_shape[2])
 
-        if height <= 0 or width <= 0:
-            return DEFAULT_MODEL_SIZE
-
-        return (width, height)
+        if height > 0 and width > 0:
+            return width, height
     except Exception:
-        return DEFAULT_MODEL_SIZE
+        pass
+
+    return 160, 160
 
 
-def _to_rgb_array(image, size):
-    if image is None:
-        raise ValueError("Image cannot be empty")
+def _heuristic_score(image):
+    rgb = image.astype(np.float32) / 255.0
+    brightness = float(np.mean(rgb))
 
-    if isinstance(image, Image.Image):
-        pil_img = image.convert("RGB")
-    else:
-        arr = np.array(image)
-        if arr.ndim == 2:
-            arr = np.stack([arr, arr, arr], axis=-1)
-        elif arr.ndim == 3 and arr.shape[2] == 4:
-            arr = arr[:, :, :3]
-        elif arr.ndim != 3 or arr.shape[2] != 3:
-            raise ValueError("Unsupported image format")
-        pil_img = Image.fromarray(arr.astype(np.uint8), mode="RGB")
-
-    resized = pil_img.resize(size, Image.BILINEAR)
-    return np.asarray(resized, dtype=np.float32)
-
-
-def _model_score(model, rgb_img):
-    if model is None:
-        return None
-
-    x = rgb_img / 255.0
-    x = np.expand_dims(x, axis=0)
-    pred = model.predict(x, verbose=0)[0][0]
-    return float(pred)
-
-
-def _heuristic_score(rgb_img):
-    x = rgb_img / 255.0
-
-    brightness = float(np.mean(x))
-    channel_max = np.max(x, axis=2)
-    channel_min = np.min(x, axis=2)
+    channel_max = np.max(rgb, axis=2)
+    channel_min = np.min(rgb, axis=2)
     saturation = float(np.mean(channel_max - channel_min))
 
-    gx = np.abs(np.diff(x, axis=1)).mean()
-    gy = np.abs(np.diff(x, axis=0)).mean()
-    edge_density = float((gx + gy) / 2.0)
-    texture = float(np.std(x))
+    dark_ratio = float(np.mean(channel_max < 0.20))
+    dull_ratio = float(np.mean((channel_max - channel_min) < 0.08))
 
-    r = x[:, :, 0]
-    g = x[:, :, 1]
-    b = x[:, :, 2]
-    hue_proxy = float(np.std(np.stack([r - g, g - b, b - r], axis=2)))
-
-    dark_ratio = float(np.mean(channel_max < 0.24))
-    low_sat_ratio = float(np.mean((channel_max - channel_min) < 0.08))
-    brown_ratio = float(
-        np.mean(
-            (r > 0.18)
-            & (g > 0.10)
-            & (b < 0.30)
-            & (r > g)
-            & (g > b)
-            & ((r - b) > 0.10)
-        )
-    )
-
-    vivid_ratio = float(
-        np.mean(
-            (channel_max - channel_min > 0.25)
-            & (channel_max > 0.28)
-            & (channel_max < 0.92)
-        )
-    )
-
-    positive = (
-        0.28 * brightness
-        + 0.24 * saturation
-        + 0.18 * min(edge_density * 6.0, 1.0)
-        + 0.15 * min(texture * 2.0, 1.0)
-        + 0.15 * min(hue_proxy * 2.0, 1.0)
-    )
-
-    penalty = (0.28 * dark_ratio) + (0.22 * brown_ratio) + (0.16 * low_sat_ratio)
-    bonus = 0.10 * vivid_ratio
-
-    # Extra decay for strongly rotten-looking patterns.
-    rot_signal = (0.55 * brown_ratio) + (0.45 * dark_ratio)
-    if rot_signal > 0.22:
-        extra_decay = min(0.22, ((rot_signal - 0.22) * 0.9) + (0.10 * low_sat_ratio))
-    else:
-        extra_decay = 0.0
-
-    proxy = positive - penalty - extra_decay + bonus + 0.10
-    return max(0.0, min(1.0, proxy))
-
-
-def _update_model_stats(score):
-    _recent_model_scores.append(float(score))
-    if len(_recent_model_scores) > 20:
-        _recent_model_scores.pop(0)
-
-
-def _is_model_flat():
-    if len(_recent_model_scores) < MODEL_FLAT_MIN_SAMPLES:
-        return False
-
-    recent = np.array(_recent_model_scores[-MODEL_FLAT_MIN_SAMPLES:], dtype=np.float32)
-    return float(np.std(recent)) < MODEL_FLAT_STD_THRESHOLD
+    score = (0.45 * brightness) + (0.45 * saturation) + 0.20
+    penalty = (0.30 * dark_ratio) + (0.20 * dull_ratio)
+    return max(0.05, min(0.98, score - penalty))
 
 
 def predict_freshness(image):
-    result = predict_freshness_debug(image)
-    return result["freshness_score"]
-
-
-def predict_freshness_debug(image):
     model = _get_model()
+    target_w, target_h = _get_model_target_size(model)
 
-    model_size = _model_input_size(model)
-    model_img = _to_rgb_array(image, model_size)
-    heuristic_img = _to_rgb_array(image, HEURISTIC_SIZE)
+    img = cv2.resize(image, (target_w, target_h))
+    img = img / 255.0
+    img = np.expand_dims(img, axis=0)
 
-    heuristic = _heuristic_score(heuristic_img)
-    model_score = _model_score(model, model_img)
+    prediction = model.predict(img, verbose=0)[0]
+    prediction = np.asarray(prediction, dtype=np.float32)
 
-    if model_score is None:
-        return {
-            "freshness_score": float(heuristic),
-            "model_score": None,
-            "heuristic_score": float(heuristic),
-            "model_flat_detected": None,
-            "model_input_size": list(model_size),
-            "mode": "heuristic_only",
-        }
+    if prediction.shape[0] != len(_CLASSES):
+        raise RuntimeError("Freshness model output does not match expected classes")
 
-    model_score = max(0.0, min(1.0, model_score))
-    _update_model_stats(model_score)
+    fresh_prob, medium_prob, rotten_prob = prediction.tolist()
+    model_score = (fresh_prob * 0.95) + (medium_prob * 0.55) + (rotten_prob * 0.10)
 
-    if model_score >= SAT_HIGH or model_score <= SAT_LOW:
-        return {
-            "freshness_score": float(heuristic),
-            "model_score": float(model_score),
-            "heuristic_score": float(heuristic),
-            "model_flat_detected": True,
-            "model_input_size": list(model_size),
-            "mode": "heuristic_saturated_model_bypass",
-        }
+    heuristic_score = _heuristic_score(cv2.resize(image, (160, 160)))
+    confidence = float(np.max(prediction))
 
-    model_flat = _is_model_flat()
-    if model_flat:
-        return {
-            "freshness_score": float(heuristic),
-            "model_score": float(model_score),
-            "heuristic_score": float(heuristic),
-            "model_flat_detected": True,
-            "model_input_size": list(model_size),
-            "mode": "heuristic_flat_model_fallback",
-        }
+    if confidence < 0.65:
+        freshness_score = (0.45 * model_score) + (0.55 * heuristic_score)
+    else:
+        freshness_score = (0.75 * model_score) + (0.25 * heuristic_score)
 
-    final = (0.35 * model_score) + (0.65 * heuristic)
-    final_score = max(0.0, min(1.0, float(final)))
-
-    return {
-        "freshness_score": final_score,
-        "model_score": float(model_score),
-        "heuristic_score": float(heuristic),
-        "model_flat_detected": False,
-        "model_input_size": list(model_size),
-        "mode": "weighted_hybrid",
-    }
+    freshness_score = max(0.05, min(0.98, float(freshness_score)))
+    label = _CLASSES[int(np.argmax(prediction))]
+    return freshness_score, label

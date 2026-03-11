@@ -15,13 +15,11 @@ class FreshnessUploadSerializer(serializers.Serializer):
         """
         Validate the uploaded image.
         """
-        # Check file size (max 5MB)
         if value.size > 5 * 1024 * 1024:
             raise serializers.ValidationError(
                 "Image size must not exceed 5MB"
             )
 
-        # Validate by decoding file content, not only extension.
         try:
             value.seek(0)
             with Image.open(value) as img:
@@ -65,6 +63,11 @@ class DynamicPriceSerializer(serializers.Serializer):
         max_value=1,
         help_text="Freshness score between 0 and 1"
     )
+    estimated_remaining_days = serializers.IntegerField(
+        required=False,
+        min_value=0,
+        help_text="Estimated remaining shelf life in days"
+    )
 
 
 class DynamicPriceResultSerializer(serializers.Serializer):
@@ -91,6 +94,11 @@ class AdvancedDynamicPriceSerializer(serializers.Serializer):
         min_value=0,
         max_value=1,
         help_text="Freshness score between 0 and 1"
+    )
+    estimated_remaining_days = serializers.IntegerField(
+        required=False,
+        min_value=0,
+        help_text="Estimated remaining shelf life in days"
     )
     demand_index = serializers.IntegerField(
         required=True,
@@ -143,13 +151,9 @@ class AdvancedDynamicPriceResultSerializer(serializers.Serializer):
     price_difference = serializers.FloatField()
     percentage_change = serializers.FloatField()
     final_discount_percentage = serializers.FloatField()
-
-    # Factor details
     freshness_factor = AdvancedPriceFactorSerializer()
     demand_factor = AdvancedPriceFactorSerializer()
     seasonal_factor = AdvancedPriceFactorSerializer()
-
-    # Explanation
     explanation = serializers.CharField()
     calculation_formula = serializers.CharField()
 
@@ -168,6 +172,11 @@ class MLPricePredictionSerializer(serializers.Serializer):
         min_value=0,
         max_value=1,
         help_text="Freshness score between 0 and 1"
+    )
+    estimated_remaining_days = serializers.IntegerField(
+        required=False,
+        min_value=0,
+        help_text="Estimated remaining shelf life in days"
     )
     demand_index = serializers.IntegerField(
         required=True,

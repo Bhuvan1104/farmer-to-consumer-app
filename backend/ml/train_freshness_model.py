@@ -1,10 +1,10 @@
 import tensorflow as tf
-from keras.preprocessing.image import ImageDataGenerator
-from keras.applications import MobileNetV2
-from keras.layers import Dense, GlobalAveragePooling2D
-from keras.models import Model
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras.applications import MobileNetV2
+from tensorflow.keras.layers import Dense, GlobalAveragePooling2D
+from tensorflow.keras.models import Model
 
-IMG_SIZE = 224
+IMG_SIZE = 160
 
 train_datagen = ImageDataGenerator(
     rescale=1./255,
@@ -15,18 +15,18 @@ train_datagen = ImageDataGenerator(
 )
 
 train_generator = train_datagen.flow_from_directory(
-    "dataset/train",
+    "../dataset/freshness",
     target_size=(IMG_SIZE, IMG_SIZE),
     batch_size=32,
-    class_mode="binary",
+    class_mode="categorical",
     subset="training"
 )
 
 val_generator = train_datagen.flow_from_directory(
-    "dataset/train",
+    "../dataset/freshness",
     target_size=(IMG_SIZE, IMG_SIZE),
     batch_size=32,
-    class_mode="binary",
+    class_mode="categorical",
     subset="validation"
 )
 
@@ -36,26 +36,27 @@ base_model = MobileNetV2(
     input_shape=(IMG_SIZE, IMG_SIZE, 3)
 )
 
-x = base_model.output
-x = GlobalAveragePooling2D()(x)
-x = Dense(128, activation="relu")(x)
-output = Dense(1, activation="sigmoid")(x)
-
-model = Model(base_model.input, output)
-
 for layer in base_model.layers:
     layer.trainable = False
 
+x = base_model.output
+x = GlobalAveragePooling2D()(x)
+x = Dense(128, activation="relu")(x)
+
+output = Dense(3, activation="softmax")(x)
+
+model = Model(inputs=base_model.input, outputs=output)
+
 model.compile(
     optimizer="adam",
-    loss="binary_crossentropy",
+    loss="categorical_crossentropy",
     metrics=["accuracy"]
 )
 
 model.fit(
     train_generator,
     validation_data=val_generator,
-    epochs=10
+    epochs=8
 )
 
-model.save("freshness_model.h5")
+model.save("../pricing/models/freshness_model.h5")

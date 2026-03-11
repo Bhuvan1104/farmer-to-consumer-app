@@ -8,6 +8,9 @@ import requests
 import json
 from pathlib import Path
 
+# This is a manual API smoke-test script, not a pytest module.
+__test__ = False
+
 BASE_URL = 'http://localhost:8000'
 API_URL = f'{BASE_URL}/api'
 
@@ -165,3 +168,4 @@ if __name__ == '__main__':
     else:
         # Run full test suite
         main()
+

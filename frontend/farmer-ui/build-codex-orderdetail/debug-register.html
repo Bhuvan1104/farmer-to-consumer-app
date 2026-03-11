@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>🚨 SIMPLE Registration Debugger</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            padding: 40px;
+            background: #1a1a2e;
+            color: white;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 { color: #00d4ff; text-align: center; }
+        .form-section {
+            background: #16213e;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 5px solid #00d4ff;
+            margin: 20px 0;
+        }
+        input, select { 
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            background: #0f3460;
+            color: #00d4ff;
+            border: 1px solid #00d4ff;
+            border-radius: 5px;
+        }
+        button {
+            width: 100%;
+            padding: 15px;
+            background: #00d4ff;
+            color: #1a1a2e;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px 0;
+        }
+        button:hover { background: #00a8cc; }
+        #output {
+            background: #0f3460;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            border: 2px solid #00d4ff;
+            min-height: 100px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            color: #00d4ff;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .status-ok { color: #00ff00; }
+        .status-error { color: #ff0000; }
+        .status-info { color: #00d4ff; }
+        .divider { border-top: 2px solid #00d4ff; margin: 20px 0; }
+        small { color: #999; }
+    </style>
+</head>
+<body>
+    <h1>🔧 REGISTRATION SIMPLE DEBUGGER</h1>
+    
+    <div class="form-section">
+        <h2>Just Fill & Click!</h2>
+        <p><strong>Username:</strong></p>
+        <input type="text" id="username" placeholder="e.g., farmer_123" value="">
+        
+        <p><strong>Email:</strong></p>
+        <input type="email" id="email" placeholder="e.g., farmer@test.com" value="">
+        
+        <p><strong>Password:</strong></p>
+        <input type="password" id="password" placeholder="e.g., testpass123" value="">
+        
+        <p><strong>Role:</strong></p>
+        <select id="role">
+            <option value="consumer">Consumer</option>
+            <option value="farmer">Farmer</option>
+        </select>
+        
+        <button onclick="register()">📝 TRY TO REGISTER</button>
+        <small>Click button and watch the output below ⬇️</small>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="form-section">
+        <h2>📊 What's Happening?</h2>
+        <div id="output">
+            Loading...
+        </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="form-section">
+        <h2>ℹ️ Instructions</h2>
+        <p>✅ Fill in the fields above (or use auto-filled values)</p>
+        <p>✅ Click "TRY TO REGISTER"</p>
+        <p>✅ Watch the output section to see what happens</p>
+        <p>✅ Look for GREEN text = SUCCESS or RED text = ERROR</p>
+        <p>✅ Copy any RED error messages and send them to us</p>
+    </div>
+
+    <script>
+        function print(text, type = 'info') {
+            const output = document.getElementById('output');
+            const timestamp = new Date().toLocaleTimeString();
+            let icon = '❓';
+            let color = 'status-info';
+            
+            if (type === 'success') { icon = '✅'; color = 'status-ok'; }
+            else if (type === 'error') { icon = '❌'; color = 'status-error'; }
+            else if (type === 'info') { icon = 'ℹ️'; color = 'status-info'; }
+            
+            const line = `<span class="${color}">[${timestamp}] ${icon} ${text}</span>`;
+            output.innerHTML = line + '<br>' + output.innerHTML;
+        }
+
+        async function register() {
+            const output = document.getElementById('output');
+            output.innerHTML = '';
+            
+            print('Starting registration...', 'info');
+            
+            const username = document.getElementById('username').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const role = document.getElementById('role').value;
+            
+            // Validation
+            print('Validating inputs...', 'info');
+            
+            if (!username) {
+                print('❌ ERROR: Username is empty!', 'error');
+                return;
+            }
+            if (!email) {
+                print('❌ ERROR: Email is empty!', 'error');
+                return;
+            }
+            if (!password) {
+                print('❌ ERROR: Password is empty!', 'error');
+                return;
+            }
+            
+            if (!email.includes('@')) {
+                print('❌ ERROR: Email is not valid format!', 'error');
+                return;
+            }
+            
+            print('✅ All inputs valid', 'success');
+            print(`Username: ${username}`, 'info');
+            print(`Email: ${email}`, 'info');
+            print(`Role: ${role}`, 'info');
+            
+            // Send request
+            print('---', 'info');
+            print('Sending to server...', 'info');
+            
+            const payload = { username, email, password, role };
+            
+            try {
+                const response = await fetch('http://localhost:8000/api/auth/register/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                print(`Server response: HTTP ${response.status}`, 'info');
+                
+                const data = await response.json();
+                
+                if (response.status === 201) {
+                    print('---', 'info');
+                    print('✅ ✅ ✅ REGISTRATION SUCCESSFUL! ✅ ✅ ✅', 'success');
+                    print('---', 'info');
+                    print(`Username: ${data.username}`, 'success');
+                    print(`Email: ${data.email}`, 'success');
+                    print(`Role: ${data.role}`, 'success');
+                    print('---', 'info');
+                    print('You can now LOGIN with these credentials!', 'success');
+                } else {
+                    print('---', 'info');
+                    print('❌ ❌ ❌ REGISTRATION FAILED ❌ ❌ ❌', 'error');
+                    print('---', 'info');
+                    
+                    if (typeof data === 'object') {
+                        print('Server said:', 'error');
+                        for (const [field, errors] of Object.entries(data)) {
+                            if (Array.isArray(errors)) {
+                                errors.forEach(err => {
+                                    print(`  ${field}: ${err}`, 'error');
+                                });
+                            } else {
+                                print(`  ${field}: ${errors}`, 'error');
+                            }
+                        }
+                    } else {
+                        print(`Error: ${JSON.stringify(data)}`, 'error');
+                    }
+                }
+            } catch (error) {
+                print('---', 'info');
+                print('❌ ❌ ❌ NETWORK ERROR ❌ ❌ ❌', 'error');
+                print('---', 'info');
+                print(`Could not connect to backend!`, 'error');
+                print(`Error: ${error.message}`, 'error');
+                print('Make sure backend is running:', 'info');
+                print('python manage.py runserver 0.0.0.0:8000', 'info');
+            }
+        }
+
+        // Auto-fill test values
+        window.addEventListener('load', () => {
+            const rand = Math.floor(Math.random() * 10000);
+            document.getElementById('username').value = `test_${rand}`;
+            document.getElementById('email').value = `test_${rand}@example.com`;
+            document.getElementById('password').value = `TestPass123_${rand}`;
+            print('Ready! Click the button to test registration.', 'success');
+        });
+    </script>
+</body>
+</html>

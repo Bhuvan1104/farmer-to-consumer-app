@@ -1,23 +1,17 @@
-from rest_framework import generics, permissions
-from .serializers import RegisterSerializer
-from django.contrib.auth import get_user_model
-from rest_framework_simplejwt.views import TokenObtainPairView
-from .serializers import CustomTokenObtainPairSerializer
+from django.contrib.auth import authenticate, get_user_model
+from rest_framework import generics, permissions, status
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework import status
-from rest_framework_simplejwt.tokens import RefreshToken
-from django.contrib.auth import authenticate
-from rest_framework.permissions import IsAuthenticated
-from django.utils import timezone
-from rest_framework.decorators import authentication_classes
-from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from rest_framework_simplejwt.backends import TokenBackend
-import json
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.views import TokenObtainPairView
+
+from .address_utils import normalize_address_text
+from .map_service import reverse_geocode_location, search_map_locations
 from .models import Address
-from .serializers import AddressSerializer
+from .serializers import AddressSerializer, CustomTokenObtainPairSerializer, RegisterSerializer
+
 
 class RegisterView(generics.CreateAPIView):
     queryset = get_user_model().objects.all()
@@ -29,133 +23,154 @@ class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
 
 
-@api_view(['POST'])
+@api_view(["POST"])
 @permission_classes([AllowAny])
 def simple_login(request):
-    """Fallback login: authenticate and return a simple HS256 JWT access token."""
-    username = request.data.get('username')
-    password = request.data.get('password')
-
+    username = request.data.get("username")
+    password = request.data.get("password")
     if not username or not password:
-        return Response({'detail': 'Username and password required'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"detail": "Username and password required"}, status=status.HTTP_400_BAD_REQUEST)
 
-    # Try authenticating with username first
     user = authenticate(username=username, password=password)
-
-    # If failed and looks like email, try email lookup
-    if user is None and '@' in username:
+    if user is None and "@" in username:
         try:
-            from django.contrib.auth import get_user_model
             user_model = get_user_model()
-            u = user_model.objects.get(email__iexact=username)
-            user = authenticate(username=u.username, password=password)
+            found_user = user_model.objects.get(email__iexact=username)
+            user = authenticate(username=found_user.username, password=password)
         except Exception:
             user = None
 
     if user is None:
-        return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response({"detail": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
 
-    # Issue SimpleJWT refresh and access tokens for compatibility
     refresh = RefreshToken.for_user(user)
-    return Response({
-    "access": str(refresh.access_token),
-    "refresh": str(refresh),
-    "role": user.role
-})
+    return Response({"access": str(refresh.access_token), "refresh": str(refresh), "role": user.role})
 
 
-@api_view(['GET', 'PUT'])
+@api_view(["GET", "PUT"])
 @permission_classes([IsAuthenticated])
 def profile_view(request):
-    """Get or update current user's profile."""
     user = request.user
 
-    if request.method == 'GET':
-        data = {
-            'username': user.username,
-            'email': user.email,
-            'first_name': user.first_name,
-            'last_name': user.last_name,
-            'role': getattr(user, 'role', None),
-            'date_joined': user.date_joined,
+    if request.method == "GET":
+        return Response(
+            {
+                "username": user.username,
+                "email": user.email,
+                "first_name": user.first_name,
+                "last_name": user.last_name,
+                "role": getattr(user, "role", None),
+                "warehouse_name": getattr(user, "warehouse_name", ""),
+                "dispatch_location": getattr(user, "dispatch_location", ""),
+                "dispatch_latitude": getattr(user, "dispatch_latitude", None),
+                "dispatch_longitude": getattr(user, "dispatch_longitude", None),
+                "date_joined": user.date_joined,
+            }
+        )
+
+    if request.data.get("email"):
+        user.email = request.data.get("email")
+    if request.data.get("first_name") is not None:
+        user.first_name = request.data.get("first_name")
+    if request.data.get("last_name") is not None:
+        user.last_name = request.data.get("last_name")
+    if request.data.get("warehouse_name") is not None:
+        user.warehouse_name = request.data.get("warehouse_name").strip()
+    if request.data.get("dispatch_location") is not None:
+        cleaned_dispatch = normalize_address_text(request.data.get("dispatch_location"))
+        user.dispatch_location = cleaned_dispatch["normalized"] or request.data.get("dispatch_location").strip()
+        user.dispatch_latitude = request.data.get("dispatch_latitude") or None
+        user.dispatch_longitude = request.data.get("dispatch_longitude") or None
+
+    user.save()
+
+    return Response(
+        {
+            "username": user.username,
+            "email": user.email,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "role": getattr(user, "role", None),
+            "warehouse_name": getattr(user, "warehouse_name", ""),
+            "dispatch_location": getattr(user, "dispatch_location", ""),
+            "dispatch_latitude": getattr(user, "dispatch_latitude", None),
+            "dispatch_longitude": getattr(user, "dispatch_longitude", None),
+            "date_joined": user.date_joined,
         }
-        return Response(data)
-
-    # PUT - update profile
-    if request.method == 'PUT':
-        first_name = request.data.get('first_name')
-        last_name = request.data.get('last_name')
-        email = request.data.get('email')
-
-        if email:
-            user.email = email
-        if first_name is not None:
-            user.first_name = first_name
-        if last_name is not None:
-            user.last_name = last_name
-
-        user.save()
-        data = {
-            'username': user.username,
-            'email': user.email,
-            'first_name': user.first_name,
-            'last_name': user.last_name,
-            'role': getattr(user, 'role', None),
-            'date_joined': user.date_joined,
-        }
-        return Response(data)
+    )
 
 
-@api_view(['GET'])
+@api_view(["GET"])
 @permission_classes([AllowAny])
 def validate_token(request):
-    """Debug endpoint: validate a token supplied in Authorization header or body.
-
-    Returns decoded token payload or an error message to help diagnose
-    'token_not_valid' cases during development.
-    """
     token = None
-    auth = request.META.get('HTTP_AUTHORIZATION', '')
-    if auth.startswith('Bearer '):
-        token = auth.split(' ', 1)[1]
-
+    auth = request.META.get("HTTP_AUTHORIZATION", "")
+    if auth.startswith("Bearer "):
+        token = auth.split(" ", 1)[1]
     if not token:
-        # try body/query/cookies
-        token = request.data.get('access') or request.data.get('token') or request.query_params.get('access') or request.COOKIES.get('access')
-
+        token = request.data.get("access") or request.data.get("token") or request.query_params.get("access") or request.COOKIES.get("access")
     if not token:
-        return Response({'detail': 'No token provided'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"detail": "No token provided"}, status=status.HTTP_400_BAD_REQUEST)
 
     try:
-        backend = TokenBackend(algorithm='HS256')
+        backend = TokenBackend(algorithm="HS256")
         decoded = backend.decode(token, verify=False)
-        return Response({'valid': True, 'payload': decoded})
-    except Exception as e:
-        # Try to provide clearer detail
-        msg = str(e)
-        return Response({'valid': False, 'error': msg}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"valid": True, "payload": decoded})
+    except Exception as exc:
+        return Response({"valid": False, "error": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["GET", "POST"])
 @permission_classes([IsAuthenticated])
 def addresses(request):
-
     if request.method == "GET":
-
-        data = Address.objects.filter(user=request.user)
-
-        serializer = AddressSerializer(data, many=True)
-
+        serializer = AddressSerializer(Address.objects.filter(user=request.user).order_by("-created_at"), many=True)
         return Response(serializer.data)
 
-    if request.method == "POST":
+    serializer = AddressSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save(user=request.user)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        serializer = AddressSerializer(data=request.data)
 
-        if serializer.is_valid():
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def map_search(request):
+    query = request.query_params.get("q", "")
+    if not query.strip():
+        return Response({"results": []})
+    try:
+        return Response({"results": search_map_locations(query)})
+    except Exception as exc:
+        return Response({"detail": f"Map search failed: {exc}"}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
-            serializer.save(user=request.user)
 
-            return Response(serializer.data)
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def map_reverse(request):
+    latitude = request.query_params.get("lat")
+    longitude = request.query_params.get("lon")
+    if latitude is None or longitude is None:
+        return Response({"detail": "lat and lon are required"}, status=status.HTTP_400_BAD_REQUEST)
 
-        return Response(serializer.errors)
+    try:
+        return Response(reverse_geocode_location(latitude, longitude))
+    except Exception:
+        return Response(
+            {
+                "display_name": f"Pinned location ({float(latitude):.5f}, {float(longitude):.5f})",
+                "latitude": float(latitude),
+                "longitude": float(longitude),
+                "components": {
+                    "house_number": "",
+                    "road": "",
+                    "suburb": "",
+                    "city": "",
+                    "state": "",
+                    "postcode": "",
+                    "country": "India",
+                },
+                "fallback": True,
+            }
+        )

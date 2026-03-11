@@ -1,7 +1,20 @@
-import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+
 import API from "../services/api";
 import "../styles/orderdetail.css";
+
+const STATUS_STEPS = ["pending", "confirmed", "shipped", "delivered"];
+
+const categoryToProductType = (category = "") => {
+  const normalized = String(category).toLowerCase();
+  if (normalized.includes("fruit") || normalized.includes("mango") || normalized.includes("banana")) return "fruits";
+  if (normalized.includes("milk") || normalized.includes("cheese") || normalized.includes("dairy")) return "dairy";
+  if (normalized.includes("meat") || normalized.includes("chicken") || normalized.includes("fish")) return "meats";
+  if (normalized.includes("herb") || normalized.includes("leaf")) return "herbs";
+  if (normalized.includes("berry")) return "berries";
+  return "vegetables";
+};
 
 function OrderDetail() {
   const { id } = useParams();
@@ -10,33 +23,42 @@ function OrderDetail() {
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [deliveryMetrics, setDeliveryMetrics] = useState(null);
+  const [cancelLoading, setCancelLoading] = useState(false);
+  const [deliveryLoading, setDeliveryLoading] = useState(false);
 
-useEffect(() => {
-  const token = localStorage.getItem("access_token");
-
-  if (!token) {
-    navigate("/login");
-    return;
-  }
-
-  fetchOrderDetail();
-}, [id]);
+  useEffect(() => {
+    const token = localStorage.getItem("access_token");
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+    fetchOrderDetail();
+  }, [id, navigate]);
 
   const fetchDeliveryMetrics = async (orderData) => {
+    if (!orderData?.delivery_address) {
+      setDeliveryMetrics(null);
+      return;
+    }
+
     try {
-
+      setDeliveryLoading(true);
       const response = await API.post("orders/delivery/calculate/", {
-        farmer_location: "17.3850,78.4867",
-        customer_location: orderData.delivery_address || "17.4500,78.3800",
-        freshness_score: 0.8,
+        farmer_location: orderData.farmer_dispatch_location || "Farmer dispatch base not configured",
+        farmer_latitude: orderData.farmer_dispatch_latitude,
+        farmer_longitude: orderData.farmer_dispatch_longitude,
+        customer_location: orderData.delivery_address,
+        customer_latitude: orderData.delivery_latitude,
+        customer_longitude: orderData.delivery_longitude,
+        freshness_score: Number(orderData.product_freshness_score ?? 0.8),
         temperature_controlled: true,
-        product_type: "vegetables",
+        product_type: categoryToProductType(orderData.product_category),
       });
-
       setDeliveryMetrics(response.data);
-
     } catch (err) {
-      console.error("Delivery metrics error:", err);
+      setDeliveryMetrics(null);
+    } finally {
+      setDeliveryLoading(false);
     }
   };
 
@@ -54,97 +76,66 @@ useEffect(() => {
   };
 
   const cancelOrder = async () => {
+    if (!window.confirm("Cancel this order?")) return;
     try {
-      await API.patch(`orders/${id}/`, { status: "cancelled" });
+      setCancelLoading(true);
+      const response = await API.patch(`orders/${id}/`, { status: "cancelled" });
+      setOrder(response.data);
       navigate("/orders");
     } catch (err) {
-      alert("Failed to cancel order.");
+      alert(err.response?.data?.detail || "Failed to cancel order.");
+    } finally {
+      setCancelLoading(false);
     }
   };
 
-  const steps = ["pending", "confirmed", "shipped", "delivered"];
+  const activeIndex = STATUS_STEPS.indexOf(order?.status);
+  const riskTone = useMemo(() => {
+    const risk = Number(deliveryMetrics?.spoilage_risk_percentage || 0);
+    if (risk < 20) return "low";
+    if (risk < 40) return "medium";
+    return "high";
+  }, [deliveryMetrics]);
+  const canCancel = ["pending", "confirmed"].includes(order?.status);
 
   if (loading) return <div className="loading">Loading...</div>;
   if (!order) return null;
 
   return (
     <div className="order-page">
-
-      {/* HEADER */}
       <div className="order-header">
         <div className="left-section">
-          <button className="back-btn" onClick={() => navigate("/orders")}>
-            ← Back
-          </button>
-
+          <button className="back-btn" onClick={() => navigate("/orders")}>Back</button>
           <div className="order-title">
             <h2>Order #{order.id}</h2>
-            <span className={`status ${order.status}`}>
-              {order.status}
-            </span>
+            <span className={`status ${order.status}`}>{order.status}</span>
           </div>
         </div>
       </div>
 
-      {/* PROGRESS STEPPER */}
       <div className="progress-container">
-        {steps.map((step, index) => {
-          const activeIndex = steps.indexOf(order.status);
-          return (
-            <div key={step} className="step-wrapper">
-              <div
-                className={`step-circle ${
-                  index <= activeIndex ? "active" : ""
-                }`}
-              >
-                {index + 1}
-              </div>
-              <span className="step-label">{step}</span>
-              {index !== steps.length - 1 && (
-                <div
-                  className={`step-line ${
-                    index < activeIndex ? "active-line" : ""
-                  }`}
-                />
-              )}
-            </div>
-          );
-        })}
+        {STATUS_STEPS.map((step, index) => (
+          <div key={step} className="step-wrapper">
+            <div className={`step-circle ${index <= activeIndex ? "active" : ""}`}>{index + 1}</div>
+            <span className="step-label">{step}</span>
+            {index !== STATUS_STEPS.length - 1 && <div className={`step-line ${index < activeIndex ? "active-line" : ""}`} />}
+          </div>
+        ))}
       </div>
 
-      {/* MAIN GRID */}
       <div className="order-grid">
-
-        {/* LEFT */}
         <div className="left-column">
-
           <div className="card">
             <h3>Product Details</h3>
-                <div className="product-box">
-
-                  <img
-                    src={order.product_image || "https://via.placeholder.com/120"}
-                    alt="product"
-                    className="product-image"
-                  />
-
-                  <div className="product-info">
-                    <h4>{order.product_name}</h4>
-
-                    <p>
-                      <strong>Quantity:</strong> {order.quantity}
-                    </p>
-
-                    <p>
-                      <strong>Price:</strong> ₹{order.product_price} / unit
-                    </p>
-
-                    <p>
-                      <strong>Total:</strong> ₹{order.total_price}
-                    </p>
-                  </div>
-
-                </div>
+            <div className="product-box">
+              <img src={order.product_image || "https://via.placeholder.com/120"} alt="product" className="product-image" />
+              <div className="product-info">
+                <h4>{order.product_name}</h4>
+                <p><strong>Quantity:</strong> {order.quantity}</p>
+                <p><strong>Price:</strong> Rs.{order.product_price} / unit</p>
+                <p><strong>Total:</strong> Rs.{order.total_price}</p>
+              </div>
+            </div>
           </div>
 
           {order.delivery_address && (
@@ -154,70 +145,76 @@ useEffect(() => {
             </div>
           )}
 
-          {deliveryMetrics && (
-            <div className="card">
-              <h3>🚚 Delivery Metrics</h3>
-
-              <div className="metric-row">
-                <span>Distance</span>
-                <span>{deliveryMetrics.distance_km} km</span>
+          <div className={`card metrics-card ${riskTone}`}>
+            <div className="metrics-header">
+              <div>
+                <h3>Delivery Metrics</h3>
+                <p>Live estimate based on saved dispatch base, customer location, and product freshness.</p>
               </div>
-
-              <div className="metric-row">
-                <span>Estimated Time</span>
-                <span>{deliveryMetrics.estimated_delivery_hours} hrs</span>
-              </div>
-
-              <div className="metric-row">
-                <span>Spoilage Risk</span>
-                <span>{deliveryMetrics.spoilage_risk_percentage}%</span>
-              </div>
-
-              <div className="metric-row">
-                <span>Delivery Viable</span>
-                <span>
-                  {deliveryMetrics.is_viable ? "✅ Yes" : "❌ No"}
-                </span>
-              </div>
+              {deliveryLoading ? <span className="metrics-badge">Refreshing...</span> : <span className="metrics-badge">Route snapshot</span>}
             </div>
-          )}
+
+            {!deliveryMetrics ? (
+              <div className="metrics-empty">
+                <p>Delivery metrics are unavailable right now. Add a farmer dispatch base or a map-picked customer address for better route estimation.</p>
+              </div>
+            ) : (
+              <>
+                <div className="metrics-top-grid">
+                  <div className="metric-highlight">
+                    <span>Distance</span>
+                    <strong>{deliveryMetrics.distance_km?.toFixed(2)} km</strong>
+                  </div>
+                  <div className="metric-highlight">
+                    <span>Estimated Time</span>
+                    <strong>{deliveryMetrics.estimated_delivery_hours?.toFixed(1)} hrs</strong>
+                  </div>
+                  <div className="metric-highlight">
+                    <span>Spoilage Risk</span>
+                    <strong>{deliveryMetrics.spoilage_risk_percentage?.toFixed(1)}%</strong>
+                  </div>
+                </div>
+
+                <div className="risk-track">
+                  <div className={`risk-fill ${riskTone}`} style={{ width: `${Math.min(100, deliveryMetrics.spoilage_risk_percentage || 0)}%` }} />
+                </div>
+
+                <div className="metric-stack">
+                  <div className="metric-row"><span>Risk Category</span><span>{deliveryMetrics.spoilage_category}</span></div>
+                  <div className="metric-row"><span>Delivery Viable</span><span>{deliveryMetrics.is_viable ? "Yes" : "No"}</span></div>
+                  <div className="metric-row"><span>Farmer Dispatch Base</span><span>{deliveryMetrics.addresses?.farmer_normalized || order.farmer_dispatch_location || "Not configured"}</span></div>
+                  <div className="metric-row"><span>Customer Location</span><span>{deliveryMetrics.addresses?.customer_normalized || order.delivery_address}</span></div>
+                </div>
+
+                {deliveryMetrics.recommendation ? <div className="delivery-recommendation">{deliveryMetrics.recommendation}</div> : null}
+              </>
+            )}
+          </div>
         </div>
 
-        {/* RIGHT */}
         <div className="right-column">
-
           <div className="card">
             <h3>Price Breakdown</h3>
-            <div className="price-row">
-              <span>Subtotal</span>
-              <span>₹{order.subtotal}</span>
-            </div>
-            <div className="price-row">
-              <span>Shipping</span>
-              <span>₹{order.shipping_cost}</span>
-            </div>
-            <div className="price-row">
-              <span>Tax</span>
-              <span>₹{order.tax}</span>
-            </div>
-            <div className="price-row total">
-              <span>Total</span>
-              <span>₹{order.total_price}</span>
-            </div>
+            <div className="price-row"><span>Subtotal</span><span>Rs.{order.subtotal}</span></div>
+            <div className="price-row"><span>Shipping</span><span>Rs.{order.shipping_cost}</span></div>
+            <div className="price-row"><span>Tax</span><span>Rs.{order.tax}</span></div>
+            <div className="price-row total"><span>Total</span><span>Rs.{order.total_price}</span></div>
           </div>
 
           <div className="card">
             <h3>Order Info</h3>
             <p>Created: {new Date(order.created_at).toLocaleString()}</p>
             <p>Updated: {new Date(order.updated_at).toLocaleString()}</p>
+            <p>Farmer: {order.farmer_username}</p>
           </div>
 
-          {order.status === "pending" && (
-            <button className="cancel-btn" onClick={cancelOrder}>
-              Cancel Order
+          <div className="card action-card">
+            <h3>Order Actions</h3>
+            <p>{canCancel ? "You can cancel this order before dispatch progresses further." : "This order can no longer be cancelled from the detail page."}</p>
+            <button className="cancel-btn" onClick={cancelOrder} disabled={!canCancel || cancelLoading}>
+              {cancelLoading ? "Cancelling..." : "Cancel Order"}
             </button>
-          )}
-
+          </div>
         </div>
       </div>
     </div>

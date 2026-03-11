@@ -176,4 +176,11 @@
 .btn.complete{
   background:#2e7d32;
   color:white;
+}.action-shell {
+  margin-top: 16px;
+}
+
+.btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
 }

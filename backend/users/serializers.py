@@ -1,41 +1,36 @@
 from rest_framework import serializers
-from .models import User
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth import authenticate
+
+from .address_utils import normalize_address_text
 from .models import Address
+
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True)
-    role = serializers.ChoiceField(choices=['farmer', 'consumer', 'admin'], required=False, default='consumer')
-    
+    role = serializers.ChoiceField(choices=["farmer", "consumer", "admin"], required=False, default="consumer")
+
     class Meta:
         model = get_user_model()
-        fields = ['username', 'email', 'password', 'role']
+        fields = ["username", "email", "password", "role"]
 
     def create(self, validated_data):
-        user = get_user_model().objects.create_user(
-            username=validated_data['username'],
-            email=validated_data['email'],
-            password=validated_data['password'],
-            role=validated_data.get('role', 'consumer')
+        return get_user_model().objects.create_user(
+            username=validated_data["username"],
+            email=validated_data["email"],
+            password=validated_data["password"],
+            role=validated_data.get("role", "consumer"),
         )
-        return user
 
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
-    """Allow authentication with either username or email."""
-
     def validate(self, attrs):
-        # The incoming payload may use 'username' field which could be an email.
-        username = attrs.get('username') or attrs.get('email')
-        password = attrs.get('password')
+        username = attrs.get("username") or attrs.get("email")
+        password = attrs.get("password")
 
-        # Try authenticating directly first
         user = authenticate(username=username, password=password)
-
-        # If direct auth failed and username looks like an email, try lookup by email
-        if user is None and username and '@' in username:
+        if user is None and username and "@" in username:
             try:
                 user_obj = get_user_model().objects.get(email__iexact=username)
                 user = authenticate(username=user_obj.username, password=password)
@@ -43,16 +38,38 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
                 user = None
 
         if user is None:
-            raise serializers.ValidationError('No active account found with the given credentials')
+            raise serializers.ValidationError("No active account found with the given credentials")
 
-        # If authentication succeeded, set attrs so parent class can create tokens
-        attrs['username'] = user.username
+        attrs["username"] = user.username
         return super().validate(attrs)
-    
+
 
 class AddressSerializer(serializers.ModelSerializer):
+    cleaned_preview = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Address
-        fields = "__all__"
-        read_only_fields = ["user"]
+        fields = [
+            "id",
+            "user",
+            "label",
+            "address",
+            "normalized_address",
+            "phone_number",
+            "latitude",
+            "longitude",
+            "cleaned_preview",
+            "created_at",
+        ]
+        read_only_fields = ["user", "normalized_address", "phone_number", "cleaned_preview", "created_at"]
+
+    def get_cleaned_preview(self, obj):
+        return obj.normalized_address or obj.address
+
+    def create(self, validated_data):
+        cleaned = normalize_address_text(validated_data.get("address", ""))
+        validated_data["normalized_address"] = cleaned["normalized"]
+        validated_data["phone_number"] = cleaned["phone_number"]
+        if not validated_data.get("label"):
+            validated_data["label"] = cleaned["label"] or "Delivery Address"
+        return super().create(validated_data)

@@ -10,6 +10,107 @@ const STEPS = [
   "ML Forecast",
 ];
 
+const FACTOR_LABELS = {
+  freshness: "Freshness",
+  market_demand: "Market Demand",
+  shelf_life: "Shelf Life",
+  season: "Season",
+};
+
+function ImpactBoard({ title, data, basePrice, finalPrice }) {
+  if (!data?.factor_stats?.length && !data?.top_factors?.length) return null;
+
+  const factorStats = data.factor_stats || [];
+  const topFactors = data.top_factors || [];
+  const stats = data.statistics || {};
+  const priceChange = Number(stats.price_change ?? (finalPrice - basePrice));
+  const percentageChange = Number(stats.percentage_change ?? ((priceChange / basePrice) * 100 || 0));
+
+  return (
+    <div className="insight-panel">
+      <div className="insight-header">
+        <h4>{title}</h4>
+        <span className={`insight-badge ${priceChange >= 0 ? "up" : "down"}`}>
+          {priceChange >= 0 ? "+" : ""}{percentageChange.toFixed(2)}%
+        </span>
+      </div>
+
+      <div className="stats-grid">
+        <div className="stat-box">
+          <span className="stat-label">Base Price</span>
+          <strong>{formatINR(basePrice)}</strong>
+        </div>
+        <div className="stat-box">
+          <span className="stat-label">Final Price</span>
+          <strong>{formatINR(finalPrice)}</strong>
+        </div>
+        <div className="stat-box">
+          <span className="stat-label">Variation</span>
+          <strong className={priceChange >= 0 ? "stat-up" : "stat-down"}>
+            {priceChange >= 0 ? "+" : ""}{formatINR(priceChange)}
+          </strong>
+        </div>
+      </div>
+
+      {factorStats.length > 0 && (
+        <div className="factor-list">
+          {factorStats.map((factor) => {
+            const impact = Number(factor.percentage_impact || 0);
+            const width = Math.min(100, Math.max(8, Math.abs(impact) * 3));
+            const tone = impact >= 0 ? "up" : "down";
+            return (
+              <div className="factor-row" key={`${title}-${factor.factor}`}>
+                <div className="factor-copy">
+                  <span className="factor-name">{factor.factor}</span>
+                  <span className="factor-detail">{factor.detail}</span>
+                </div>
+                <div className="factor-bar-wrap">
+                  <div className="factor-bar-track">
+                    <div className={`factor-bar ${tone}`} style={{ width: `${width}%` }} />
+                  </div>
+                  <span className={`factor-impact ${tone}`}>
+                    {impact >= 0 ? "+" : ""}{impact.toFixed(1)}%
+                  </span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {topFactors.length > 0 && (
+        <div className="signal-cloud">
+          {topFactors.map((item, index) => (
+            <span className="signal-pill" key={`${item.factor}-${index}`}>
+              {FACTOR_LABELS[item.factor] || item.factor}: {(Number(item.importance) * 100).toFixed(0)}%
+            </span>
+          ))}
+        </div>
+      )}
+
+      {data.reasoning?.length > 0 && (
+        <div className="reasoning-box">
+          {data.reasoning.map((line, index) => (
+            <p key={`${title}-reason-${index}`}>{line}</p>
+          ))}
+        </div>
+      )}
+
+      {data.recommendation && <p className="recommendation-line">{data.recommendation}</p>}
+    </div>
+  );
+}
+
+function formatINR(value) {
+  const amount = Number(value);
+  if (Number.isNaN(amount)) return "--";
+  return new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    maximumFractionDigits: 2,
+  }).format(amount);
+}
+
 function Pricing() {
   const [image, setImage] = useState(null);
   const [freshness, setFreshness] = useState(null);
@@ -50,7 +151,8 @@ function Pricing() {
     const details = err?.response?.data;
     if (!details) return fallback;
 
-    if (typeof details.error === "string") return details.error;
+    if (details.error) return details.error;
+    if (details.message) return details.message;
     if (details.details && typeof details.details === "object") {
       const firstField = Object.keys(details.details)[0];
       const firstMessage = details.details[firstField]?.[0];
@@ -58,16 +160,6 @@ function Pricing() {
     }
 
     return fallback;
-  };
-
-  const formatINR = (value) => {
-    const amount = Number(value);
-    if (Number.isNaN(amount)) return "--";
-    return new Intl.NumberFormat("en-IN", {
-      style: "currency",
-      currency: "INR",
-      maximumFractionDigits: 2,
-    }).format(amount);
   };
 
   const getDelta = (target) => {
@@ -128,6 +220,7 @@ function Pricing() {
       const response = await API.post("pricing/dynamic-price/", {
         base_price: Number(basePrice),
         freshness_score: freshness.freshness_score,
+        estimated_remaining_days: freshness.estimated_remaining_days,
       });
 
       setDynamicPrice(response.data);
@@ -155,6 +248,7 @@ function Pricing() {
       const response = await API.post("pricing/advanced-dynamic-price/", {
         base_price: Number(basePrice),
         freshness_score: freshness.freshness_score,
+        estimated_remaining_days: freshness.estimated_remaining_days,
         demand_index: Number(demandIndex),
         season,
       });
@@ -183,6 +277,7 @@ function Pricing() {
       const response = await API.post("pricing/predict-price-ml/", {
         base_price: Number(basePrice),
         freshness_score: freshness.freshness_score,
+        estimated_remaining_days: freshness.estimated_remaining_days,
         demand_index: Number(demandIndex),
         seasonal_factor: Number(seasonalFactor),
       });
@@ -241,8 +336,19 @@ function Pricing() {
               <input
                 type="file"
                 accept="image/*"
-                onChange={(e) => setImage(e.target.files[0])}
+                onChange={(e) => {
+                  setImage(e.target.files[0]);
+                  setFreshness(null);
+                  setDynamicPrice(null);
+                  setAdvancedPrice(null);
+                  setMlPrice(null);
+                }}
               />
+              {image && (
+                <div className="image-preview">
+                  <img src={URL.createObjectURL(image)} alt="uploaded" />
+                </div>
+              )}
 
               <button className="primary-button" onClick={analyzeImage} disabled={loading}>
                 {activeAction === "freshness" ? (
@@ -284,14 +390,23 @@ function Pricing() {
 
                   <div className="metric-grid">
                     <div className="metric">
+                      <span className="metric-label">Detected Crop</span>
+                      <span className="metric-value">{freshness.detected_crop || "Unknown"}</span>
+                    </div>
+
+                    <div className="metric">
                       <span className="metric-label">Freshness Score</span>
                       <span className="metric-value">{Number(freshness.freshness_score).toFixed(3)}</span>
                     </div>
+
                     <div className="metric">
                       <span className="metric-label">Shelf Life</span>
                       <span className="metric-value">{freshness.estimated_remaining_days} days</span>
                     </div>
                   </div>
+                  {freshness.crop_detection_error && (
+                    <p className="delta-line down">Crop detection error: {freshness.crop_detection_error}</p>
+                  )}
                 </div>
               )}
             </article>
@@ -352,6 +467,13 @@ function Pricing() {
                       {Math.abs(dynamicDelta.pct).toFixed(2)}%) from base price
                     </p>
                   )}
+
+                  <ImpactBoard
+                    title="Why Dynamic Price Changed"
+                    data={dynamicPrice}
+                    basePrice={Number(basePrice)}
+                    finalPrice={Number(dynamicPrice.suggested_price)}
+                  />
                 </div>
               )}
             </article>
@@ -417,6 +539,13 @@ function Pricing() {
                       {Math.abs(advancedDelta.pct).toFixed(2)}%) from base price
                     </p>
                   )}
+
+                  <ImpactBoard
+                    title="Advanced Price Drivers"
+                    data={advancedPrice}
+                    basePrice={Number(basePrice)}
+                    finalPrice={Number(advancedPrice.suggested_price)}
+                  />
                 </div>
               )}
             </article>
@@ -479,6 +608,13 @@ function Pricing() {
                       {Math.abs(mlDelta.pct).toFixed(2)}%) from base price
                     </p>
                   )}
+
+                  <ImpactBoard
+                    title="Forecast Reasoning"
+                    data={mlPrice}
+                    basePrice={Number(basePrice)}
+                    finalPrice={Number(mlPrice.predicted_price)}
+                  />
                 </div>
               )}
             </article>
@@ -496,6 +632,14 @@ function Pricing() {
               <div className="summary-item">
                 <span>Freshness</span>
                 <strong>{hasFreshness ? Number(freshness.freshness_score).toFixed(3) : "--"}</strong>
+              </div>
+              <div className="summary-item">
+                <span>Shelf Life</span>
+                <strong>{hasFreshness ? `${freshness.estimated_remaining_days} days` : "--"}</strong>
+              </div>
+              <div className="summary-item">
+                <span>Demand</span>
+                <strong>{demandIndex}/10</strong>
               </div>
               <div className="summary-item">
                 <span>Dynamic</span>

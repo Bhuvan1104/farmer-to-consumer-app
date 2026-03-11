@@ -15,11 +15,6 @@
   font-weight: 600;
 }
 
-
-/* =============================
-   LAYOUT
-============================= */
-
 .cart-container {
   display: flex;
   gap: 30px;
@@ -30,29 +25,21 @@
   flex: 2;
 }
 
-
-/* =============================
-   CART ITEM CARD
-============================= */
-
 .cart-item-card {
   display: flex;
   justify-content: space-between;
   align-items: center;
-
   padding: 20px;
   margin-bottom: 18px;
-
   background: white;
   border-radius: 12px;
-
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   transition: 0.25s;
 }
 
 .cart-item-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
 }
 
 .cart-item-info h4 {
@@ -64,11 +51,6 @@
   margin-top: 5px;
   color: #666;
 }
-
-
-/* =============================
-   CART ACTIONS
-============================= */
 
 .cart-actions {
   display: flex;
@@ -82,19 +64,12 @@
   font-size: 18px;
 }
 
-
-/* =============================
-   REMOVE BUTTON
-============================= */
-
 .remove-btn {
   background: #dc3545;
   color: white;
   border: none;
-
   padding: 6px 12px;
   border-radius: 6px;
-
   cursor: pointer;
   font-size: 13px;
   transition: 0.25s;
@@ -105,29 +80,17 @@
   transform: scale(1.05);
 }
 
-
-/* =============================
-   CART SUMMARY PANEL
-============================= */
-
 .cart-summary {
   flex: 1;
-
   padding: 25px;
   background: white;
-
   border-radius: 15px;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
 }
 
 .cart-summary h3 {
   margin-bottom: 20px;
 }
-
-
-/* =============================
-   SUMMARY ROWS
-============================= */
 
 .summary-row,
 .summary-total {
@@ -147,11 +110,6 @@
   padding-top: 10px;
 }
 
-
-/* =============================
-   PAYMENT SECTION
-============================= */
-
 .payment-section {
   margin: 20px 0;
 }
@@ -165,31 +123,20 @@
 .payment-section select {
   width: 100%;
   padding: 10px;
-
   border-radius: 8px;
   border: 1px solid #ccc;
-
   font-size: 14px;
 }
-
-
-/* =============================
-   CHECKOUT BUTTON
-============================= */
 
 .checkout-btn {
   width: 100%;
   padding: 14px;
-
   border: none;
   border-radius: 10px;
-
   background: #28a745;
   color: white;
-
   font-size: 16px;
   font-weight: 500;
-
   cursor: pointer;
   transition: 0.25s;
 }
@@ -198,11 +145,6 @@
   background: #218838;
   transform: translateY(-2px);
 }
-
-
-/* =============================
-   EMPTY CART
-============================= */
 
 .empty-cart {
   text-align: center;
@@ -216,172 +158,283 @@
   padding: 40px;
 }
 
-
-/* =============================
-   ADDRESS MODAL OVERLAY
-============================= */
-
-/* Overlay */
-
-.address-overlay{
+.address-overlay {
   position: fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  background:rgba(0,0,0,0.45);
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  z-index:1000;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
 }
 
-
-/* Modal */
-
-.address-modal{
-  background:white;
-  width:500px;
-  padding:30px;
-  border-radius:16px;
-  box-shadow:0 12px 30px rgba(0,0,0,0.2);
+.address-modal {
+  background: white;
+  width: 500px;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
 }
 
-
-/* Header */
-
-.address-header h2{
-  margin:0;
-  font-size:22px;
+.address-modal.large {
+  width: min(760px, 92vw);
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
-.address-header p{
-  font-size:14px;
-  color:#666;
-  margin-bottom:20px;
+.address-modal.polished {
+  background: linear-gradient(180deg, #ffffff, #f8fcf9);
+  border: 1px solid #e2ebe5;
+  box-shadow: 0 24px 70px rgba(12, 43, 22, 0.18);
 }
 
-
-/* Address list */
-
-.address-list{
-  margin-bottom:20px;
-  display:flex;
-  flex-direction:column;
-  gap:12px;
+.address-header {
+  margin-bottom: 18px;
 }
 
-
-.address-card{
-  display:flex;
-  align-items:flex-start;
-  gap:10px;
-
-  border:2px solid #ddd;
-  border-radius:10px;
-
-  padding:14px;
-  cursor:pointer;
-  transition:0.2s;
-
-  background:white;
+.address-header h2 {
+  margin: 0;
+  font-size: 22px;
 }
 
-.address-card input{
-  margin-top:4px;
-  transform:scale(1.2);
+.address-header p {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 0;
 }
 
-.address-text{
-  flex:1;
-  font-size:15px;
-  line-height:1.4;
-  color:#333;
-  word-break:break-word;
+.address-list {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
-
-/* Add address */
-
-.add-address textarea{
-  width:100%;
-  height:75px;
-  padding:12px;
-  border-radius:8px;
-  border:1px solid #ccc;
-  resize:none;
-  margin-bottom:10px;
-  font-size:14px;
+.address-list.styled-list {
+  max-height: 240px;
+  overflow-y: auto;
+  padding-right: 4px;
 }
 
-
-.save-address-btn{
-  background:#2e7d32;
-  color:white;
-  border:none;
-  padding:8px 16px;
-  border-radius:6px;
-  cursor:pointer;
+.address-card {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
+  align-items: flex-start;
+  gap: 12px;
+  border: 2px solid #dbe7dd;
+  border-radius: 12px;
+  padding: 14px;
+  cursor: pointer;
+  transition: 0.2s;
+  background: white;
+  box-shadow: 0 8px 24px rgba(20, 60, 30, 0.04);
 }
 
-
-.save-address-btn:hover{
-  background:#256628;
+.address-card:hover {
+  border-color: #9dc8aa;
+  transform: translateY(-1px);
 }
 
-
-/* Buttons */
-
-.address-actions{
-  display:flex;
-  gap:12px;
-  margin-top:20px;
+.address-card input {
+  margin: 2px 0 0;
+  width: 16px;
+  height: 16px;
+  transform: none;
+  flex-shrink: 0;
 }
 
-/* Cancel button */
-
-.cancel-btn{
-  flex:1;
-  background:#f44336;
-  color:white;
-  border:none;
-  padding:12px;
-  border-radius:8px;
-  cursor:pointer;
-  font-size:15px;
+.address-card.active {
+  border-color: #2e7d32;
+  background: #f4fbf4;
 }
 
-.cancel-btn:hover{
-  background:#d32f2f;
+.address-details {
+  min-width: 0;
 }
 
-/* Confirm button */
-
-.confirm-btn{
-  flex:1;
-  background:#2e7d32;
-  color:white;
-  border:none;
-  padding:12px;
-  border-radius:8px;
-  cursor:pointer;
-  font-size:15px;
+.address-line {
+  font-size: 14px;
+  line-height: 1.5;
+  color: #333;
+  word-break: break-word;
 }
 
-.confirm-btn:hover{
-  background:#256628;
+.address-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+  font-size: 12px;
+  color: #587061;
 }
 
-.confirm-btn:disabled{
-  background:#aaa;
-  cursor:not-allowed;
+.address-meta-row span {
+  background: #eef7f0;
+  border: 1px solid #d2e7d8;
+  border-radius: 999px;
+  padding: 4px 8px;
 }
-/* =============================
-   RESPONSIVE
-============================= */
+
+.add-address input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+.add-address textarea {
+  width: 100%;
+  height: 75px;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  resize: none;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+.structured-address-form {
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid #e3e3e3;
+}
+
+.polished-form {
+  background: #fcfffd;
+  border: 1px solid #e7efe9;
+  border-radius: 16px;
+  padding: 18px;
+}
+
+.structured-address-form h3 {
+  margin: 0 0 12px;
+  font-size: 18px;
+}
+
+.structured-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.structured-grid input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+}
+
+.address-preview-box {
+  margin-top: 14px;
+  padding: 14px;
+  border-radius: 10px;
+  background: #f7fbf7;
+  border: 1px solid #d9ead9;
+}
+
+.address-preview-box span {
+  display: block;
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 6px;
+}
+
+.address-preview-box strong {
+  color: #1f3d1f;
+  line-height: 1.5;
+}
+
+.section-head-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.map-pick-btn {
+  border: 1px solid #b8d8c1;
+  background: #eefaf2;
+  color: #166534;
+  border-radius: 999px;
+  padding: 10px 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.save-address-btn {
+  background: #2e7d32;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.save-address-btn:hover {
+  background: #256628;
+}
+
+.address-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.sticky-actions {
+  position: sticky;
+  bottom: -30px;
+  background: linear-gradient(180deg, rgba(248, 252, 249, 0.7), #f8fcf9 35%);
+  padding-top: 14px;
+}
+
+.cancel-btn {
+  flex: 1;
+  background: #f44336;
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+.cancel-btn:hover {
+  background: #d32f2f;
+}
+
+.confirm-btn {
+  flex: 1;
+  background: #2e7d32;
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+.confirm-btn:hover {
+  background: #256628;
+}
+
+.confirm-btn:disabled {
+  background: #aaa;
+  cursor: not-allowed;
+}
+
+.no-address {
+  padding: 16px;
+  border-radius: 12px;
+  background: #f4fbf6;
+  color: #4b6256;
+  border: 1px dashed #cfe3d6;
+}
 
 @media (max-width: 900px) {
-
   .cart-container {
     flex-direction: column;
   }
@@ -389,5 +442,21 @@
   .cart-summary {
     width: 100%;
   }
+}
 
+@media (max-width: 700px) {
+  .structured-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .section-head-row,
+  .address-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .address-card {
+    grid-template-columns: 18px minmax(0, 1fr);
+    gap: 10px;
+  }
 }

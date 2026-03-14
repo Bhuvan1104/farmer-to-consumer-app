@@ -1,82 +1,68 @@
 import { useNavigate } from "react-router-dom";
+
 import "../styles/Dashboard.css";
-import { isFarmer, isConsumer } from "../utils/auth";
+import { isConsumer, isFarmer } from "../utils/auth";
+
 function Dashboard() {
   const navigate = useNavigate();
 
   const logout = () => {
-  localStorage.removeItem("access_token");
-  localStorage.removeItem("refresh_token");
-  localStorage.removeItem("user_role"); // 🔥 important
-  navigate("/");
-};
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
+    localStorage.removeItem("user_role");
+    navigate("/");
+  };
+
+  const quickActions = [
+    { title: "Products", copy: "Browse marketplace inventory and explore listed produce.", cta: "View Products", route: "/products", icon: "Crates" },
+    ...(isFarmer() ? [{ title: "Incoming Orders", copy: "Review new customer demand and move orders through dispatch.", cta: "View Orders", route: "/farmer-orders", icon: "Routes" }] : []),
+    ...(isConsumer() ? [{ title: "My Orders", copy: "Track purchases, delivery progress, and order history in one place.", cta: "View Orders", route: "/orders", icon: "Basket" }] : []),
+    { title: "Profile", copy: "Update account preferences, warehouse base, and personal details.", cta: "View Profile", route: "/profile", icon: "Profile" },
+  ];
 
   return (
-    <div className="dashboard-container">
-      
-      {/* HEADER */}
-      <div className="dashboard-header">
-        <div>
-          <h1>🚜 Farmer–Consumer Platform</h1>
-          <p className="subtitle">AI Powered Direct Trade Marketplace</p>
+    <div className="dashboard-container refined">
+      <div className="dashboard-hero">
+        <div className="dashboard-hero-copy">
+          <span className="eyebrow">Smart Agri Console</span>
+          <h1>Farmer to Consumer Marketplace</h1>
+          <p>
+            Manage products, direct trade, live order flow, and delivery intelligence from one polished workspace built for both growers and buyers.
+          </p>
+          <div className="hero-actions">
+            <button className="hero-primary" onClick={() => navigate("/products")}>Explore Inventory</button>
+            <button className="hero-secondary" onClick={logout}>Logout</button>
+          </div>
         </div>
-        <button className="logout-btn" onClick={logout}>
-          Logout
-        </button>
+
+        <div className="dashboard-hero-stats">
+          <div className="hero-stat-card">
+            <span>Marketplace Mode</span>
+            <strong>{isFarmer() ? "Farmer Workspace" : "Consumer Workspace"}</strong>
+          </div>
+          <div className="hero-stat-card accent">
+            <span>Operational Focus</span>
+            <strong>{isFarmer() ? "Inventory + Fulfillment" : "Discovery + Tracking"}</strong>
+          </div>
+        </div>
       </div>
 
-      {/* MAIN CONTENT */}
-      <div className="dashboard-content">
-        <h2 className="welcome-text">Welcome Back 👋</h2>
+      <div className="dashboard-section-head">
+        <div>
+          <h2>Quick Actions</h2>
+          <p>Jump into the workflows you are most likely to use next.</p>
+        </div>
+      </div>
 
-        <div className="dashboard-grid">
-
-  {/* Visible to Both */}
-  <div className="dashboard-card">
-    <div className="icon">📦</div>
-    <h3>Products</h3>
-    <p>Browse available products</p>
-    <button onClick={() => navigate('/products')}>
-      View Products
-    </button>
-  </div>
-
-  {/* Farmer Only */}
-  {/* Farmer Orders */}
-{isFarmer() && (
-  <div className="dashboard-card">
-    <div className="icon">📋</div>
-    <h3>Incoming Orders</h3>
-    <p>View orders placed by consumers</p>
-    <button onClick={() => navigate('/farmer-orders')}>
-      View Orders
-    </button>
-  </div>
-)}
-
-  {/* Consumer Only */}
-  {isConsumer() && (
-    <div className="dashboard-card">
-      <div className="icon">🛒</div>
-      <h3>Orders</h3>
-      <p>Track your purchases</p>
-      <button onClick={() => navigate('/orders')}>
-        View Orders
-      </button>
-    </div>
-  )}
-
-  {/* Both can view profile */}
-  <div className="dashboard-card">
-    <div className="icon">👤</div>
-    <h3>Profile</h3>
-    <p>Manage account settings</p>
-    <button onClick={() => navigate('/profile')}>
-      View Profile
-    </button>
-  </div>
-
-</div>
+      <div className="dashboard-grid refined-grid">
+        {quickActions.map((item, index) => (
+          <div className="dashboard-card refined-card" key={item.title} style={{ animationDelay: `${index * 80}ms` }}>
+            <div className="card-icon-badge">{item.icon}</div>
+            <h3>{item.title}</h3>
+            <p>{item.copy}</p>
+            <button onClick={() => navigate(item.route)}>{item.cta}</button>
+          </div>
+        ))}
       </div>
     </div>
   );

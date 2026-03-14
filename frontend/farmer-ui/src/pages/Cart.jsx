@@ -20,7 +20,17 @@ const EMPTY_ADDRESS_FORM = {
 };
 
 const buildStructuredAddress = (form) => {
-  const parts = [form.recipientName, form.phoneNumber, form.houseNumber, form.area, form.landmark ? `near ${form.landmark}` : "", form.city, form.state, form.pincode, form.country];
+  const parts = [
+    form.recipientName,
+    form.phoneNumber,
+    form.houseNumber,
+    form.area,
+    form.landmark ? `near ${form.landmark}` : "",
+    form.city,
+    form.state,
+    form.pincode,
+    form.country,
+  ];
   return parts.map((value) => String(value || "").trim()).filter(Boolean).join(", ");
 };
 
@@ -189,56 +199,63 @@ function Cart() {
 
       {showAddressModal && (
         <div className="address-overlay">
-          <div className="address-modal large polished">
+          <div className="address-modal address-modal-xl polished">
             <div className="address-header">
               <h2>Select Delivery Address</h2>
               <p>Choose a saved address or add a new one using the structured form, map search, dropped pin, or current location.</p>
             </div>
 
-            <div className="address-list styled-list">
-              {addresses.length === 0 && <div className="no-address">No saved addresses yet. Add one below.</div>}
-              {addresses.map((addr) => (
-                <label key={addr.id} className={`address-card ${selectedAddressId === addr.id ? "active" : ""}`}>
-                  <input type="radio" name="address" checked={selectedAddressId === addr.id} onChange={() => setSelectedAddressId(addr.id)} />
-                  <div className="address-details">
-                    <div className="address-line"><strong>{addr.label || "Delivery Address"}</strong></div>
-                    <div className="address-line">{addr.cleaned_preview || addr.normalized_address || addr.address}</div>
-                    <div className="address-meta-row">
-                      {addr.phone_number ? <span>Phone: {addr.phone_number}</span> : null}
-                      {addr.latitude && addr.longitude ? <span>Coordinates saved</span> : <span>Address only</span>}
-                    </div>
-                  </div>
-                </label>
-              ))}
-            </div>
-
-            <div className="structured-address-form polished-form">
-              <div className="section-head-row">
-                <h3>Add New Address</h3>
-                <button type="button" className="map-pick-btn" onClick={() => setShowMapPicker(true)}>Pick From Map</button>
-              </div>
-              <div className="structured-grid">
-                <input type="text" placeholder="Address label (Home, Shop, etc.)" value={addressForm.label} onChange={(e) => setAddressForm({ ...addressForm, label: e.target.value })} />
-                <input type="text" placeholder="Recipient name" value={addressForm.recipientName} onChange={(e) => setAddressForm({ ...addressForm, recipientName: e.target.value })} />
-                <input type="text" placeholder="Phone number" value={addressForm.phoneNumber} onChange={(e) => setAddressForm({ ...addressForm, phoneNumber: e.target.value })} />
-                <input type="text" placeholder="House no / building" value={addressForm.houseNumber} onChange={(e) => setAddressForm({ ...addressForm, houseNumber: e.target.value })} />
-                <input type="text" placeholder="Area / locality" value={addressForm.area} onChange={(e) => setAddressForm({ ...addressForm, area: e.target.value })} />
-                <input type="text" placeholder="Landmark" value={addressForm.landmark} onChange={(e) => setAddressForm({ ...addressForm, landmark: e.target.value })} />
-                <input type="text" placeholder="City" value={addressForm.city} onChange={(e) => setAddressForm({ ...addressForm, city: e.target.value })} />
-                <input type="text" placeholder="State" value={addressForm.state} onChange={(e) => setAddressForm({ ...addressForm, state: e.target.value })} />
-                <input type="text" placeholder="Pincode" value={addressForm.pincode} onChange={(e) => setAddressForm({ ...addressForm, pincode: e.target.value })} />
-                <input type="text" placeholder="Country" value={addressForm.country} onChange={(e) => setAddressForm({ ...addressForm, country: e.target.value })} />
-              </div>
-
-              <div className="address-preview-box">
-                <span>Address Preview</span>
-                <strong>{buildStructuredAddress(addressForm) || "Complete the fields to preview the final delivery address."}</strong>
-                <div className="address-meta-row">
-                  {addressForm.latitude && addressForm.longitude ? <span>Lat {Number(addressForm.latitude).toFixed(5)} | Lon {Number(addressForm.longitude).toFixed(5)}</span> : <span>No coordinates selected yet</span>}
+            <div className="address-modal-body">
+              <div className="address-list-section">
+                <h3>Saved Addresses</h3>
+                <div className="address-list styled-list">
+                  {addresses.length === 0 && <div className="no-address">No saved addresses yet. Add one below.</div>}
+                  {addresses.map((addr) => (
+                    <label key={addr.id} className={`address-card ${selectedAddressId === addr.id ? "active" : ""}`}>
+                      <input type="radio" name="address" checked={selectedAddressId === addr.id} onChange={() => setSelectedAddressId(addr.id)} />
+                      <div className="address-details">
+                        <div className="address-line"><strong>{addr.label || "Delivery Address"}</strong></div>
+                        <div className="address-line">{addr.cleaned_preview || addr.normalized_address || addr.address}</div>
+                        <div className="address-meta-row">
+                          {addr.phone_number ? <span>Phone: {addr.phone_number}</span> : null}
+                          {addr.latitude && addr.longitude ? <span>Coordinates saved</span> : <span>Address only</span>}
+                        </div>
+                      </div>
+                    </label>
+                  ))}
                 </div>
               </div>
 
-              <button className="save-address-btn" onClick={addAddress}>Save Address</button>
+              <div className="address-form-section">
+                <div className="structured-address-form polished-form">
+                  <div className="section-head-row">
+                    <h3>Add New Address</h3>
+                    <button type="button" className="map-pick-btn" onClick={() => setShowMapPicker(true)}>Pick From Map</button>
+                  </div>
+                  <div className="structured-grid">
+                    <input type="text" placeholder="Address label (Home, Shop, etc.)" value={addressForm.label} onChange={(e) => setAddressForm({ ...addressForm, label: e.target.value })} />
+                    <input type="text" placeholder="Recipient name" value={addressForm.recipientName} onChange={(e) => setAddressForm({ ...addressForm, recipientName: e.target.value })} />
+                    <input type="text" placeholder="Phone number" value={addressForm.phoneNumber} onChange={(e) => setAddressForm({ ...addressForm, phoneNumber: e.target.value })} />
+                    <input type="text" placeholder="House no / building" value={addressForm.houseNumber} onChange={(e) => setAddressForm({ ...addressForm, houseNumber: e.target.value })} />
+                    <input type="text" placeholder="Area / locality" value={addressForm.area} onChange={(e) => setAddressForm({ ...addressForm, area: e.target.value })} />
+                    <input type="text" placeholder="Landmark" value={addressForm.landmark} onChange={(e) => setAddressForm({ ...addressForm, landmark: e.target.value })} />
+                    <input type="text" placeholder="City" value={addressForm.city} onChange={(e) => setAddressForm({ ...addressForm, city: e.target.value })} />
+                    <input type="text" placeholder="State" value={addressForm.state} onChange={(e) => setAddressForm({ ...addressForm, state: e.target.value })} />
+                    <input type="text" placeholder="Pincode" value={addressForm.pincode} onChange={(e) => setAddressForm({ ...addressForm, pincode: e.target.value })} />
+                    <input type="text" placeholder="Country" value={addressForm.country} onChange={(e) => setAddressForm({ ...addressForm, country: e.target.value })} />
+                  </div>
+
+                  <div className="address-preview-box">
+                    <span>Address Preview</span>
+                    <strong>{buildStructuredAddress(addressForm) || "Complete the fields to preview the final delivery address."}</strong>
+                    <div className="address-meta-row">
+                      {addressForm.latitude && addressForm.longitude ? <span>Lat {Number(addressForm.latitude).toFixed(5)} | Lon {Number(addressForm.longitude).toFixed(5)}</span> : <span>No coordinates selected yet</span>}
+                    </div>
+                  </div>
+
+                  <button className="save-address-btn" onClick={addAddress}>Save Address</button>
+                </div>
+              </div>
             </div>
 
             <div className="address-actions sticky-actions">
@@ -264,3 +281,4 @@ function Cart() {
 }
 
 export default Cart;
+

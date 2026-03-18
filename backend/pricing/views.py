@@ -1,5 +1,6 @@
 from PIL import Image
 import numpy as np
+import logging
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -10,11 +11,18 @@ from .serializers import (
     FreshnessUploadSerializer,
     MLPricePredictionSerializer,
 )
-from .services.crop_detection_service import detect_crop
+from .services.crop_detection_service import detect_crop, get_supported_crops
 from .services.freshness_service import predict_freshness
+from .services.hybrid.hybrid_pipeline import (
+    hybrid_pipeline_available,
+    predict_hybrid_pipeline,
+)
 from .services.ml_price_service import predict_ml_price
 from .services.pricing_service import advanced_price, dynamic_price
 from .services.shelf_life_service import predict_shelf_life
+
+ALLOWED_AGRI_CROPS = set(get_supported_crops())
+logger = logging.getLogger(__name__)
 
 
 @api_view(["POST"])
@@ -26,10 +34,33 @@ def predict_freshness_view(request):
             status=status.HTTP_400_BAD_REQUEST,
         )
 
+    image_file = serializer.validated_data["image"]
     try:
-        image_file = serializer.validated_data["image"]
         image = Image.open(image_file).convert("RGB")
         img = np.array(image)
+    except Exception as exc:
+        return Response({"error": f"Invalid image: {exc}"}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        if hybrid_pipeline_available():
+            try:
+                hybrid = predict_hybrid_pipeline(img)
+                return Response(
+                    {
+                        "crop_type": hybrid["crop_type"],
+                        "detected_crop": hybrid["crop_type"],
+                        "freshness_score": hybrid["freshness_score"],
+                        "freshness_category": hybrid["freshness_category"],
+                        "estimated_remaining_days": hybrid["estimated_shelf_life_days"],
+                        "estimated_shelf_life_days": hybrid["estimated_shelf_life_days"],
+                        "detection_confidence": hybrid.get("detection_confidence"),
+                        "pipeline": "hybrid_yolov8_freshness_regression",
+                    },
+                    status=status.HTTP_200_OK,
+                )
+            except Exception as hybrid_exc:
+                # Fallback to legacy pipeline if hybrid assets are still being trained.
+                logger.exception("Hybrid pipeline fallback to legacy: %s", hybrid_exc)
 
         freshness_result = predict_freshness(img)
         if isinstance(freshness_result, tuple):
@@ -52,29 +83,61 @@ def predict_freshness_view(request):
             crop_confidence = None
             crop_error = str(crop_exc)
 
-        shelf = predict_shelf_life(freshness_score, detected_crop)
+        normalized_crop = str(detected_crop).strip().lower()
+        confidence_value = float(crop_confidence or 0.0)
+        if normalized_crop != "unknown" and confidence_value < 0.62:
+            normalized_crop = "unknown"
+
+        if normalized_crop not in ALLOWED_AGRI_CROPS and crop_error is None:
+            normalized_crop = "unknown"
+
+        shelf = predict_shelf_life(freshness_score, normalized_crop)
 
         payload = {
             "freshness_score": round(float(freshness_score), 3),
             "estimated_remaining_days": shelf["remaining_days"],
             "freshness_category": shelf["category"],
-            "detected_crop": detected_crop,
+            "detected_crop": normalized_crop,
         }
         if crop_confidence is not None:
             payload["crop_confidence"] = round(float(crop_confidence), 3)
         if crop_error is not None:
             payload["crop_detection_error"] = crop_error
+            payload["detected_crop"] = "unknown"
         if model_label is not None:
             payload["model_label"] = model_label
 
         return Response(payload, status=status.HTTP_200_OK)
     except ValueError as exc:
         return Response({"error": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
-    except Exception:
-        return Response(
-            {"error": "Freshness prediction failed"},
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        )
+    except Exception as exc:
+        # Fail-safe fallback so UI always gets a usable freshness response.
+        try:
+            logger.exception("Primary freshness path failed: %s", exc)
+            fallback_score, fallback_label = predict_freshness(img)
+            fallback_shelf = predict_shelf_life(fallback_score, "generic")
+            return Response(
+                {
+                    "freshness_score": round(float(fallback_score), 3),
+                    "estimated_remaining_days": fallback_shelf["remaining_days"],
+                    "freshness_category": fallback_shelf["category"],
+                    "detected_crop": "unknown",
+                    "model_label": fallback_label,
+                    "fallback_used": True,
+                    "fallback_reason": str(exc),
+                },
+                status=status.HTTP_200_OK,
+            )
+        except Exception as fallback_exc:
+            logger.exception("Fallback freshness path failed: %s", fallback_exc)
+            return Response(
+                {
+                    "error": "Freshness prediction failed",
+                    "details": str(exc),
+                    "fallback_error": str(fallback_exc),
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
 
 @api_view(["POST"])

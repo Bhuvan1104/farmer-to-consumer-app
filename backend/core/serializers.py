@@ -12,6 +12,18 @@ class ChatbotMessageSerializer(serializers.Serializer):
         max_length=500,
         help_text="User's message to the chatbot"
     )
+    language = serializers.ChoiceField(
+        required=False,
+        choices=["en", "hi", "te", "ta"],
+        help_text="Preferred response language",
+        default="en",
+    )
+    input_mode = serializers.ChoiceField(
+        required=False,
+        choices=["text", "voice"],
+        default="text",
+        help_text="Whether the message came from typed input or voice input",
+    )
 
 
 class ChatbotResponseSerializer(serializers.Serializer):
@@ -28,6 +40,12 @@ class ChatbotConversationSerializer(serializers.Serializer):
     messages = serializers.ListField(
         child=serializers.DictField(),
         help_text="List of messages with 'role' and 'content' fields"
+    )
+    language = serializers.ChoiceField(
+        required=False,
+        choices=["en", "hi", "te", "ta"],
+        default="en",
+        help_text="Preferred response language for conversation",
     )
 
 

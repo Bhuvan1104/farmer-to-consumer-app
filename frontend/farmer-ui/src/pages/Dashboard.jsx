@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 
+import OnboardingGuide from "../components/OnboardingGuide";
 import "../styles/Dashboard.css";
 import { isConsumer, isFarmer } from "../utils/auth";
 
@@ -31,6 +32,7 @@ function Dashboard() {
           </p>
           <div className="hero-actions">
             <button className="hero-primary" onClick={() => navigate("/products")}>Explore Inventory</button>
+            <OnboardingGuide role={isFarmer() ? "farmer" : "consumer"} />
             <button className="hero-secondary" onClick={logout}>Logout</button>
           </div>
         </div>

@@ -4,7 +4,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth import authenticate
 
 from .address_utils import normalize_address_text
-from .models import Address
+from .models import Address, ChatMessage
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -73,3 +73,35 @@ class AddressSerializer(serializers.ModelSerializer):
         if not validated_data.get("label"):
             validated_data["label"] = cleaned["label"] or "Delivery Address"
         return super().create(validated_data)
+
+
+class ChatContactSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    username = serializers.CharField()
+    role = serializers.CharField()
+    preferred_language = serializers.CharField()
+    last_message = serializers.CharField(allow_blank=True)
+    last_message_at = serializers.DateTimeField(allow_null=True)
+    unread_count = serializers.IntegerField()
+
+
+class ChatMessageSerializer(serializers.ModelSerializer):
+    sender_username = serializers.CharField(source="sender.username", read_only=True)
+    receiver_username = serializers.CharField(source="receiver.username", read_only=True)
+
+    class Meta:
+        model = ChatMessage
+        fields = [
+            "id",
+            "sender",
+            "receiver",
+            "sender_username",
+            "receiver_username",
+            "source_text",
+            "source_language",
+            "translated_text",
+            "translated_language",
+            "is_read",
+            "created_at",
+        ]
+        read_only_fields = fields

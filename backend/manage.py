@@ -7,6 +7,13 @@ import sys
 def main():
     """Run administrative tasks."""
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
+    # Some Windows environments silently fail with StatReloader child process.
+    # Force stable single-process mode unless user explicitly overrides.
+    if len(sys.argv) > 1 and sys.argv[1] == "runserver":
+        if "--noreload" not in sys.argv:
+            sys.argv.append("--noreload")
+        if "--nothreading" not in sys.argv:
+            sys.argv.append("--nothreading")
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:

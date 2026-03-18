@@ -1,418 +1,448 @@
 """
-NLP-Based Chatbot using scikit-learn
+NLP chatbot service for farmer support.
 
-Uses TF-IDF vectorization and intent classification to provide support.
+This module keeps a lightweight intent classifier and a deterministic
+keyword fallback so responses remain useful even when model confidence is low.
 """
 
-import os
+import hashlib
 import json
-import pickle
 import logging
-import numpy as np
-from googletrans import Translator
+import os
+import pickle
+import random
+import re
+import asyncio
+import inspect
+from datetime import datetime, timezone
+
+try:
+    from googletrans import Translator
+except Exception:
+    Translator = None
+
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.pipeline import Pipeline
-from sklearn.exceptions import NotFittedError
-import warnings
-
-warnings.filterwarnings('ignore')
 
 logger = logging.getLogger(__name__)
 
 
+class _NoOpTranslation:
+    def __init__(self, text, lang="en"):
+        self.text = text
+        self.lang = lang
+
+
+class _FallbackTranslator:
+    def detect(self, text):
+        return _NoOpTranslation(text=text, lang="en")
+
+    def translate(self, text, dest="en"):
+        return _NoOpTranslation(text=text, lang=dest)
+
+
+def _clean_text(text: str) -> str:
+    text = str(text or "").lower().strip()
+    text = re.sub(r"[^\w\s]", " ", text)
+    text = re.sub(r"\s+", " ", text).strip()
+    return text
+
+
 class FarmerChatbot:
-    """
-    NLP-based chatbot for farmer support.
-    
-    Uses TF-IDF vectorization and Naive Bayes classification
-    to understand user intent and provide appropriate responses.
-    """
-    
-    # Intent definitions
+    SUPPORTED_LANGS = {"en", "hi", "te", "ta"}
     INTENTS = {
-
-        'greeting': {
-        'patterns': [
-        'hello','hi','hey','good morning','good afternoon','good evening',
-        'how are you','is anyone there','can you help me','hello assistant',
-        'hi chatbot','start chat','talk to assistant'
-        ],
-        'responses': [
-        'Hello! 👋 I am your AI Farming Assistant. How can I help you today?',
-        'Hi farmer! I can help with pricing, delivery, demand, freshness scoring and more.',
-        'Welcome! Ask me anything about selling products, delivery logistics or market demand.',
-        'Hello! Feel free to ask about pricing, orders, freshness or product management.'
-        ]
+        "greeting": {
+            "patterns": [
+                "hello",
+                "hi",
+                "hey",
+                "good morning",
+                "good afternoon",
+                "good evening",
+                "how are you",
+                "can you help me",
+            ],
+            "responses": [
+                "Hello! I am your AI farming assistant. How can I help you today?",
+                "Hi! I can help with pricing, freshness, delivery, and orders.",
+            ],
         },
-
-        'pricing': {
-        'patterns': [
-        'how to price my product','how should I price vegetables','what price should I sell for',
-        'how much should I charge','best price for tomatoes','suggest price for my crop',
-        'how to decide product price','pricing strategy','price recommendation',
-        'market price suggestion','dynamic pricing system','calculate selling price',
-        'what is best selling price','how to set price for vegetables'
-        ],
-        'responses': [
-        'Our AI pricing tool suggests prices based on freshness, demand and seasonal trends.',
-        'Upload a product image for freshness analysis and then use the pricing calculator.',
-        'Higher demand and fresher produce allow you to set premium prices.',
-        'You can check the pricing section in the dashboard for AI-based price suggestions.'
-        ]
+        "pricing": {
+            "patterns": [
+                "price my product",
+                "best price",
+                "pricing strategy",
+                "price recommendation",
+                "market price",
+                "selling price",
+            ],
+            "responses": [
+                "Use Pricing to calculate dynamic and advanced prices from freshness, demand, and season.",
+                "Upload product image first, then run pricing suggestions for better recommendations.",
+            ],
         },
-
-        'freshness': {
-        'patterns': [
-        'how to check freshness','freshness score','product freshness analysis',
-        'is my vegetable fresh','quality analysis','freshness detection',
-        'analyze my product image','check product quality','how fresh is my crop'
-        ],
-        'responses': [
-        'Upload a photo of your product to calculate its freshness score using AI.',
-        'Freshness analysis categorizes produce as Excellent, Good, Fair, Poor or Not Fresh.',
-        'Fresher products usually sell at higher prices and lower spoilage risk.',
-        'Make sure your image is clear and taken in good lighting for best analysis.'
-        ]
+        "freshness": {
+            "patterns": [
+                "freshness score",
+                "check freshness",
+                "quality analysis",
+                "freshness detection",
+                "analyze product image",
+            ],
+            "responses": [
+                "Upload a clear produce image in Pricing to get freshness score and estimated shelf life.",
+                "For better freshness results, use a clear image with plain background and good lighting.",
+            ],
         },
-
-        'orders': {
-        'patterns': [
-        'how to place order','create order','view my orders','order status',
-        'track my order','order details','show my orders','where are my orders'
-        ],
-        'responses': [
-        'You can view and manage orders in the Orders section of your dashboard.',
-        'To track an order, open Orders and check the delivery status.',
-        'All orders placed by consumers are visible in your Orders page.',
-        'You can monitor order progress including pending, shipped and delivered.'
-        ]
+        "orders": {
+            "patterns": [
+                "place order",
+                "order status",
+                "track order",
+                "my orders",
+            ],
+            "responses": [
+                "You can track and manage orders in the Orders page.",
+                "Open Orders to view status like pending, accepted, shipped, or delivered.",
+            ],
         },
-
-        'delivery': {
-        'patterns': [
-        'delivery time','shipping time','how long delivery takes',
-        'delivery cost','logistics calculation','spoilage risk',
-        'transport risk','delivery distance','delivery estimate'
-        ],
-        'responses': [
-        'Delivery time depends on distance between farmer and consumer.',
-        'The system estimates spoilage risk based on distance and freshness score.',
-        'Temperature-controlled transport can reduce spoilage risk.',
-        'Check the logistics calculator to estimate delivery time and cost.'
-        ]
+        "delivery": {
+            "patterns": [
+                "delivery time",
+                "delivery cost",
+                "shipping",
+                "logistics",
+                "spoilage risk",
+            ],
+            "responses": [
+                "Delivery metrics depend on distance, freshness, and selected address.",
+                "Use Delivery page to estimate time, route efficiency, and risk.",
+            ],
         },
-
-        'products': {
-        'patterns': [
-        'how to add product','create new product','list product for sale',
-        'upload product','add vegetables to marketplace',
-        'manage my products','edit product details'
-        ],
-        'responses': [
-        'You can add products by clicking the Add Product button in your dashboard.',
-        'Upload product images, price, quantity and description when listing a product.',
-        'Better images and descriptions improve visibility in the marketplace.',
-        'Keep product information updated to attract more buyers.'
-        ]
+        "products": {
+            "patterns": [
+                "add product",
+                "edit product",
+                "list product",
+                "upload product",
+            ],
+            "responses": [
+                "Use Add Product to list new produce with image, quantity, and price.",
+                "You can edit product details from Product Detail page.",
+            ],
         },
-
-        'demand': {
-        'patterns': [
-        'market demand','demand forecast','how much demand for vegetables',
-        'current market demand','demand level','product demand',
-        'demand prediction'
-        ],
-        'responses': [
-        'The demand index reflects current customer interest for a product.',
-        'Higher demand allows higher pricing opportunities.',
-        'Monitoring demand trends helps farmers adjust production and pricing.',
-        'The system analyzes order data to estimate demand levels.'
-        ]
+        "demand": {
+            "patterns": [
+                "market demand",
+                "demand forecast",
+                "demand index",
+            ],
+            "responses": [
+                "Demand index helps adjust pricing and expected sales potential.",
+                "Higher demand usually supports better prices.",
+            ],
         },
-
-        'seasonal': {
-        'patterns': [
-        'seasonal demand','peak season','off season vegetables',
-        'seasonal pricing','crop season demand','harvest season'
-        ],
-        'responses': [
-        'Seasonal factors influence both demand and price.',
-        'Peak seasons usually bring higher demand and better prices.',
-        'Off-season crops may require discounts or promotions.',
-        'Understanding seasonal trends helps maximize farmer profit.'
-        ]
+        "seasonal": {
+            "patterns": [
+                "seasonal impact",
+                "season demand",
+                "off season",
+                "peak season",
+            ],
+            "responses": [
+                "Seasonal factors affect demand and pricing multipliers.",
+                "Use advanced pricing to include season-based adjustments.",
+            ],
         },
-
-        'payment': {
-        'patterns': [
-        'payment methods','how will i get paid','payment options',
-        'upi payment','card payment','online payment','transaction history'
-        ],
-        'responses': [
-        'The platform supports UPI, card payments and cash-on-delivery.',
-        'All transactions can be tracked in the Orders or Payment history section.',
-        'Payments are processed securely through the platform.',
-        'You can view completed transactions in your account dashboard.'
-        ]
+        "payment": {
+            "patterns": [
+                "payment method",
+                "how will i get paid",
+                "transaction history",
+                "upi payment",
+            ],
+            "responses": [
+                "Payments and transaction details are available in your account/order flow.",
+                "You can track completed transactions from order history.",
+            ],
         },
-
-        'support': {
-        'patterns': [
-        'i need help','technical issue','website not working',
-        'bug in system','problem with app','error occurred'
-        ],
-        'responses': [
-        'I will try to help. Please describe the issue you are facing.',
-        'If the problem continues, please contact the support team.',
-        'Sometimes refreshing the page or clearing cache fixes the issue.',
-        'Please provide details of the error so we can assist you.'
-        ]
+        "support": {
+            "patterns": [
+                "technical issue",
+                "bug",
+                "error",
+                "not working",
+                "help",
+            ],
+            "responses": [
+                "Please share the exact error message and page name, and I will guide you step-by-step.",
+                "Try refreshing once and retrying. If issue remains, share screenshot and logs.",
+            ],
         },
+        "farewell": {
+            "patterns": ["bye", "goodbye", "thanks", "thank you"],
+            "responses": [
+                "Goodbye. Wishing you a great harvest!",
+                "Thanks for using FarmDirect assistant.",
+            ],
+        },
+    }
 
-        'farewell': {
-        'patterns': [
-        'bye','goodbye','see you','thank you','thanks','that is all'
-        ],
-        'responses': [
-        'Goodbye! Happy farming! 🌱',
-        'Thank you for using the Farmer Assistant.',
-        'See you soon. Wishing you a great harvest!',
-        'Take care and feel free to return anytime.'
-        ]
-        }
+    KEYWORD_HINTS = {
+        "pricing": ["price", "pricing", "cost", "sell", "rate"],
+        "freshness": ["fresh", "freshness", "rotten", "shelf", "quality"],
+        "orders": ["order", "orders", "status", "track"],
+        "delivery": ["delivery", "ship", "shipping", "distance", "route"],
+        "products": ["product", "products", "add product", "edit product", "listing"],
+        "demand": ["demand", "forecast"],
+        "seasonal": ["season", "seasonal", "off season", "peak season"],
+        "payment": ["payment", "upi", "transaction", "paid"],
+        "support": ["error", "issue", "bug", "problem", "not working"],
+        "greeting": ["hello", "hi", "hey"],
+        "farewell": ["bye", "thanks", "thank you"],
+    }
 
-        }
-            
-    MODEL_PATH = os.path.join(
-        os.path.dirname(__file__),
-        'models',
-        'chatbot_model.pkl'
-    )
-    
-    INTENTS_PATH = os.path.join(
-        os.path.dirname(__file__),
-        'models',
-        'chatbot_intents.json'
-    )
-    
+    MODEL_PATH = os.path.join(os.path.dirname(__file__), "models", "chatbot_model.pkl")
+    META_PATH = os.path.join(os.path.dirname(__file__), "models", "chatbot_model_meta.json")
+
     def __init__(self):
-        """Initialize chatbot."""
         self.model = None
-        self.vectorizer = None
         self.intents = self.INTENTS
         self.is_trained = False
-        self.translator = Translator()
-        self._load_model()
-    
-    def _load_model(self):
-        """Load trained model from disk."""
+        self.translator = Translator() if Translator is not None else _FallbackTranslator()
+        self._load_or_train()
+
+    def _intents_hash(self):
+        payload = json.dumps(self.intents, sort_keys=True, ensure_ascii=True)
+        return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+    def _load_or_train(self):
+        os.makedirs(os.path.dirname(self.MODEL_PATH), exist_ok=True)
+        wanted_hash = self._intents_hash()
+
         try:
-            if os.path.exists(self.MODEL_PATH):
-                with open(self.MODEL_PATH, 'rb') as f:
-                    self.model = pickle.load(f)
-                self.is_trained = True
-                logger.info("Chatbot model loaded successfully")
-            else:
-                logger.warning(f"Model not found at {self.MODEL_PATH}")
-                self._train_model()
-        
-        except Exception as e:
-            logger.error(f"Error loading model: {str(e)}")
-            self._train_model()
-    
+            if os.path.exists(self.MODEL_PATH) and os.path.exists(self.META_PATH):
+                with open(self.META_PATH, "r", encoding="utf-8") as f:
+                    meta = json.load(f)
+                if meta.get("intents_hash") == wanted_hash:
+                    with open(self.MODEL_PATH, "rb") as f:
+                        self.model = pickle.load(f)
+                    self.is_trained = True
+                    return
+        except Exception as exc:
+            logger.warning("Chatbot model load failed, retraining: %s", exc)
+
+        self._train_model()
+        self._save_model(wanted_hash)
+
     def _train_model(self):
-        """Train improved chatbot model."""
-        logger.info("Training improved chatbot model...")
+        patterns = []
+        labels = []
+        for intent, data in self.intents.items():
+            for p in data["patterns"]:
+                c = _clean_text(p)
+                if not c:
+                    continue
+                patterns.extend([c, f"{c} please", f"can you {c}", f"tell me about {c}"])
+                labels.extend([intent, intent, intent, intent])
 
-        training_patterns = []
-        training_labels = []
-
-        for intent_name, intent_data in self.intents.items():
-            for pattern in intent_data['patterns']:
-                training_patterns.append(pattern.lower())
-                training_labels.append(intent_name)
-
-                # 🔥 Automatically create variations
-                training_patterns.append(pattern.lower() + " please")
-                training_labels.append(intent_name)
-
-                training_patterns.append("can you " + pattern.lower())
-                training_labels.append(intent_name)
-
-                training_patterns.append("tell me about " + pattern.lower())
-                training_labels.append(intent_name)
-
-        # 🔥 Improved pipeline
-        self.model = Pipeline([
-            ('tfidf', TfidfVectorizer(
-                lowercase=True,
-                stop_words='english',
-                ngram_range=(1, 2),   # 🔥 BIGRAM SUPPORT
-                max_features=3000
-            )),
-            ('classifier', MultinomialNB(alpha=0.1))
-        ])
-
-        self.model.fit(training_patterns, training_labels)
+        self.model = Pipeline(
+            steps=[
+                (
+                    "tfidf",
+                    TfidfVectorizer(lowercase=True, ngram_range=(1, 2), max_features=4000),
+                ),
+                ("classifier", MultinomialNB(alpha=0.08)),
+            ]
+        )
+        self.model.fit(patterns, labels)
         self.is_trained = True
 
-        logger.info("Improved chatbot trained successfully")
-
-        self._save_model()
-    
-    def _save_model(self):
-        """Save trained model to disk."""
+    def _save_model(self, intents_hash):
         try:
-            os.makedirs(os.path.dirname(self.MODEL_PATH), exist_ok=True)
-            
-            with open(self.MODEL_PATH, 'wb') as f:
+            with open(self.MODEL_PATH, "wb") as f:
                 pickle.dump(self.model, f)
-            
-            logger.info(f"Chatbot model saved to {self.MODEL_PATH}")
-        
-        except Exception as e:
-            logger.error(f"Error saving model: {str(e)}")
-    
-    def get_response(self, user_message):
+            with open(self.META_PATH, "w", encoding="utf-8") as f:
+                json.dump({"intents_hash": intents_hash}, f, indent=2, ensure_ascii=True)
+        except Exception as exc:
+            logger.warning("Unable to save chatbot model/meta: %s", exc)
+
+    def _translate_in(self, text):
+        return self._translate_in_with_preference(text, None)
+
+    def _resolve_translation_obj(self, maybe_obj):
+        if inspect.isawaitable(maybe_obj):
+            try:
+                return asyncio.run(maybe_obj)
+            except RuntimeError:
+                loop = asyncio.new_event_loop()
+                try:
+                    return loop.run_until_complete(maybe_obj)
+                finally:
+                    loop.close()
+        return maybe_obj
+
+    def _normalize_lang(self, lang):
+        lang = str(lang or "en").strip().lower()
+        if "-" in lang:
+            lang = lang.split("-", 1)[0]
+        if lang not in self.SUPPORTED_LANGS:
+            return "en"
+        return lang
+
+    def _translate_in_with_preference(self, text, preferred_language=None):
+        preferred = self._normalize_lang(preferred_language) if preferred_language else None
+        if preferred and preferred != "en":
+            try:
+                translated = self.translator.translate(text, dest="en")
+                translated = self._resolve_translation_obj(translated)
+                return _clean_text(translated.text), preferred
+            except Exception:
+                return _clean_text(text), preferred
+
+        try:
+            detected = self._resolve_translation_obj(self.translator.detect(text))
+            lang = getattr(detected, "lang", "en") or "en"
+        except Exception:
+            lang = "en"
+        lang = self._normalize_lang(lang)
+
+        if lang != "en":
+            try:
+                translated = self._resolve_translation_obj(self.translator.translate(text, dest="en"))
+                return _clean_text(translated.text), lang
+            except Exception:
+                return _clean_text(text), lang
+        return _clean_text(text), "en"
+
+    def _translate_out(self, text, lang):
+        lang = self._normalize_lang(lang)
+        if lang == "en":
+            return text
+        try:
+            translated = self._resolve_translation_obj(self.translator.translate(text, dest=lang))
+            return translated.text
+        except Exception:
+            return text
+
+    def _keyword_intent(self, text):
+        score_by_intent = {}
+        for intent, kws in self.KEYWORD_HINTS.items():
+            score = sum(1 for kw in kws if kw in text)
+            if score > 0:
+                score_by_intent[intent] = score
+        if not score_by_intent:
+            return None, 0.0
+        best = max(score_by_intent, key=score_by_intent.get)
+        confidence = min(0.95, 0.35 + 0.15 * score_by_intent[best])
+        return best, confidence
+
+    def get_response(self, user_message, preferred_language=None):
         try:
             if not self.is_trained:
-                self._train_model()
+                self._load_or_train()
 
-            original_message = user_message.strip()
+            original = str(user_message or "").strip()
+            if not original:
+                return {
+                    "response": "Please type a message so I can help.",
+                    "intent": "unknown",
+                    "confidence": 0.0,
+                    "language": "en",
+                    "user_message": user_message,
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                }
 
-            # 🔥 Detect language
-            detected = self.translator.detect(original_message)
-            user_lang = detected.lang
+            message_en, user_lang = self._translate_in_with_preference(original, preferred_language)
 
-            # 🔥 Translate to English if not English
-            if user_lang != "en":
-                translated = self.translator.translate(original_message, dest="en")
-                message_for_model = translated.text.lower()
-            else:
-                message_for_model = original_message.lower()
+            predicted_intent = None
+            confidence = 0.0
+            if self.model is not None:
+                predicted_intent = self.model.predict([message_en])[0]
+                probs = self.model.predict_proba([message_en])[0]
+                confidence = float(max(probs))
 
-            # Predict intent
-            predicted_intent = self.model.predict([message_for_model])[0]
-            probabilities = self.model.predict_proba([message_for_model])[0]
-            confidence = float(max(probabilities))
+            # Keyword fallback or override for weak predictions.
+            kw_intent, kw_conf = self._keyword_intent(message_en)
+            if predicted_intent is None or confidence < 0.45:
+                if kw_intent:
+                    predicted_intent, confidence = kw_intent, max(confidence, kw_conf)
 
-            responses = self.intents[predicted_intent]['responses']
-            response_text = np.random.choice(responses)
+            if predicted_intent not in self.intents:
+                predicted_intent = "support"
+                confidence = max(confidence, 0.35)
+            predicted_intent = str(predicted_intent)
 
-            # 🔥 Low confidence fallback
-            if confidence < 0.15:
-                response_text = (
-                    "I may not fully understand, but I can help with:\n"
-                    "• Pricing strategy\n"
-                    "• Delivery logistics\n"
-                    "• Demand forecasting\n"
-                    "• Freshness scoring\n"
-                    "• Order management\n\n"
-                    "Could you rephrase your question?"
-                )
+            responses = self.intents[predicted_intent]["responses"]
+            response_text = random.choice(responses)
+
+            if confidence < 0.30:
                 predicted_intent = "unknown"
-
-            # 🔥 Translate back to user's language
-            if user_lang != "en":
-                translated_back = self.translator.translate(
-                    response_text, dest=user_lang
+                response_text = (
+                    "I can help with pricing, freshness, delivery, orders, products, and demand. "
+                    "Please rephrase your question with a little more detail."
                 )
-                response_text = translated_back.text
+
+            response_text = self._translate_out(response_text, user_lang)
 
             return {
                 "response": response_text,
                 "intent": predicted_intent,
-                "confidence": round(confidence, 2),
+                "confidence": round(float(confidence), 2),
                 "language": user_lang,
                 "user_message": user_message,
-                "timestamp": str(np.datetime64("now"))
+                "timestamp": datetime.now(timezone.utc).isoformat(),
             }
 
-        except Exception as e:
-            logger.error(f"Error in get_response: {str(e)}")
+        except Exception as exc:
+            logger.exception("Error in get_response: %s", exc)
             return {
                 "response": "Sorry, something went wrong. Please try again.",
                 "intent": "error",
                 "confidence": 0.0,
-                "error": str(e)
+                "error": str(exc),
             }
-    
+
     def get_available_intents(self):
-        """Get list of available intents and their patterns."""
         return {
             intent: {
-                'description': f'{intent.capitalize()} related queries',
-                'patterns': data['patterns'][:3],  # First 3 patterns as examples
-                'num_patterns': len(data['patterns'])
+                "description": f"{intent.capitalize()} related queries",
+                "patterns": data["patterns"][:3],
+                "num_patterns": len(data["patterns"]),
             }
             for intent, data in self.intents.items()
         }
-    
-    def handle_conversation(self, messages):
-        """
-        Handle a multi-turn conversation.
-        
-        Args:
-            messages: List of dicts with 'role' and 'content'
-        
-        Returns:
-            List of responses
-        """
+
+    def handle_conversation(self, messages, preferred_language=None):
         responses = []
-        
         for message in messages:
-            if message.get('role') == 'user':
-                response = self.get_response(message['content'])
-                responses.append(response)
-        
+            if message.get("role") == "user":
+                responses.append(
+                    self.get_response(
+                        message.get("content", ""),
+                        preferred_language=message.get("language") or preferred_language,
+                    )
+                )
         return responses
-    
+
     def add_custom_intent(self, intent_name, patterns, responses):
-        """
-        Add custom intent to chatbot.
-        
-        Args:
-            intent_name: Name of the intent
-            patterns: List of pattern strings
-            responses: List of response strings
-        """
-        self.intents[intent_name] = {
-            'patterns': patterns,
-            'responses': responses
-        }
-        
-        # Retrain model
+        self.intents[intent_name] = {"patterns": patterns, "responses": responses}
         self._train_model()
-        logger.info(f"Added custom intent: {intent_name}")
-    
+        self._save_model(self._intents_hash())
+
     def get_model_info(self):
-        """Get information about the chatbot model."""
-        if not self.is_trained:
-            return {'status': 'Not trained'}
-        
-        total_patterns = sum(len(data['patterns']) for data in self.intents.values())
-        
+        total_patterns = sum(len(data["patterns"]) for data in self.intents.values())
         return {
-            'status': 'Ready',
-            'model_type': 'TF-IDF + Naive Bayes',
-            'num_intents': len(self.intents),
-            'total_patterns': total_patterns,
-            'intents': list(self.intents.keys()),
-            'path': self.MODEL_PATH
+            "status": "Ready" if self.is_trained else "Not trained",
+            "model_type": "TF-IDF + Naive Bayes + keyword fallback",
+            "num_intents": len(self.intents),
+            "total_patterns": total_patterns,
+            "intents": list(self.intents.keys()),
+            "path": self.MODEL_PATH,
         }
 
 
-# Convenience function
 def chat(user_message):
-    """
-    Quick convenience function to get chatbot response.
-    
-    Args:
-        user_message: User's input message
-    
-    Returns:
-        Chatbot response
-    """
     chatbot = FarmerChatbot()
     return chatbot.get_response(user_message)

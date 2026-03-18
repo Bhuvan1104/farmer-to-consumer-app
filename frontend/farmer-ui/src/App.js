@@ -40,7 +40,7 @@ function AppWrapper() {
           <Route path="/cart" element={<ProtectedRoute><Cart /></ProtectedRoute>} />
           <Route path="/add-product" element={<ProtectedRoute allowedRoles={["farmer"]}><AddProduct /></ProtectedRoute>} />
           <Route path="/chatbot" element={<ProtectedRoute><Chatbot /></ProtectedRoute>} />
-          <Route path="/chat-history" element={<ProtectedRoute allowedRoles={["consumer"]}><ChatHistory /></ProtectedRoute>} />
+          <Route path="/chat-history" element={<ProtectedRoute allowedRoles={["consumer", "farmer"]}><ChatHistory /></ProtectedRoute>} />
           <Route path="/pricing" element={<ProtectedRoute allowedRoles={["farmer"]}><Pricing /></ProtectedRoute>} />
           <Route path="/delivery" element={<ProtectedRoute allowedRoles={["farmer"]}><Delivery /></ProtectedRoute>} />
           <Route path="/orders" element={<ProtectedRoute allowedRoles={["consumer"]}><Orders /></ProtectedRoute>} />

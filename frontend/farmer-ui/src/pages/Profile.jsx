@@ -43,6 +43,7 @@ function Profile() {
         first_name: formData.first_name,
         last_name: formData.last_name,
         email: formData.email,
+        preferred_language: formData.preferred_language,
       });
 
       setProfile(response.data);
@@ -124,6 +125,21 @@ function Profile() {
                 />
               </div>
 
+              <div className="form-group">
+                <label>Preferred Language</label>
+                <select
+                  value={formData.preferred_language || "en"}
+                  onChange={(e) =>
+                    setFormData({ ...formData, preferred_language: e.target.value })
+                  }
+                >
+                  <option value="en">English</option>
+                  <option value="hi">Hindi</option>
+                  <option value="te">Telugu</option>
+                  <option value="ta">Tamil</option>
+                </select>
+              </div>
+
               <div className="form-actions">
                 <button className="btn-primary" onClick={handleUpdate}>
                   Save Changes
@@ -154,6 +170,11 @@ function Profile() {
               <div className="detail-item">
                 <span>Role</span>
                 <strong>{profile?.role}</strong>
+              </div>
+
+              <div className="detail-item">
+                <span>Preferred Language</span>
+                <strong>{profile?.preferred_language || "en"}</strong>
               </div>
 
               <div className="detail-item">

@@ -135,6 +135,8 @@ function Chatbot() {
       try {
         const response = await API.post("chatbot/message/", {
           message: messageText,
+          language: selectedLang,
+          input_mode: overrideText ? "voice" : "text",
         });
 
         const botMessage = {
@@ -150,11 +152,12 @@ function Chatbot() {
         setMessages((prev) => [...prev, botMessage]);
         speakText(botMessage.text, botMessage.language);
       } catch (err) {
+        const reason = err?.response?.data?.detail || err?.response?.data?.error || "Something went wrong while contacting the assistant.";
         setMessages((prev) => [
           ...prev,
           {
             id: Date.now() + 1,
-            text: "Something went wrong while contacting the assistant.",
+            text: reason,
             sender: "bot",
             timestamp: new Date(),
           },
@@ -198,7 +201,15 @@ function Chatbot() {
 
   const startListening = () => {
     if (!recognitionRef.current) {
-      alert("Speech recognition is not supported in this browser.");
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now() + 1,
+          text: "Voice input is not supported in this browser. You can continue with text chat.",
+          sender: "bot",
+          timestamp: new Date(),
+        },
+      ]);
       return;
     }
 
@@ -318,8 +329,9 @@ function Chatbot() {
               onClick={startListening}
               className={`mic-button ${listening ? "active" : ""}`}
               title={listening ? "Stop listening" : "Start voice input"}
+              aria-label={listening ? "Stop microphone" : "Start microphone"}
             >
-              {listening ? "Stop Mic" : "Start Mic"}
+              {listening ? "■" : "🎤"}
             </button>
 
             <button

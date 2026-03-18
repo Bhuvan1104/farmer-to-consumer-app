@@ -279,6 +279,10 @@
   background: #ebf1fa;
   color: #2a4f76;
   border: 1px solid #cfdced;
+  min-width: 58px;
+  font-size: 20px;
+  line-height: 1;
+  padding: 10px 0;
 }
 
 .mic-button:hover {

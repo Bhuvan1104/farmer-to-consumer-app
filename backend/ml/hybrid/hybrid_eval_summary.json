@@ -1,0 +1,16 @@
+{
+  "freshness": {},
+  "shelf_life": {
+    "mae": 0.5838568935921793,
+    "rmse": 0.7309996275960261,
+    "r2": 0.9740214780014825
+  },
+  "detection": {
+    "run_results_file": "D:\\farmer-to-consumer-app\\backend\\ml\\hybrid\\runs\\yolo_crop_fast3\\results.csv",
+    "epochs_recorded": 8,
+    "precision_b": "0.14159",
+    "recall_b": "0.22003",
+    "map50_b": "0.20805",
+    "map50_95_b": "0.20723"
+  }
+}

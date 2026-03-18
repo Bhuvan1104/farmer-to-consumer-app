@@ -1,0 +1,18 @@
+{
+  "features": [
+    "crop_type",
+    "freshness_score",
+    "brightness",
+    "saturation",
+    "area_ratio"
+  ],
+  "target": "shelf_life_days",
+  "metrics": {
+    "mae": 0.5838568935921793,
+    "rmse": 0.7309996275960261,
+    "r2": 0.9740214780014825
+  },
+  "profile": "balanced",
+  "dataset_path": "D:\\farmer-to-consumer-app\\backend\\dataset\\shelf_life\\generated_shelf_life_training.csv",
+  "algorithm": "xgboost"
+}

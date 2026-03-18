@@ -101,9 +101,27 @@ function MapAddressPicker({ open, title, initialQuery = "", onClose, onSelect })
     }
   };
 
+  const geolocationErrorMessage = (geoError) => {
+    const code = geoError?.code;
+    if (code === 1) {
+      return "Location permission was denied. Allow location access in your browser/site settings and try again.";
+    }
+    if (code === 2) {
+      return "Current location is unavailable right now. Try again, or use map search and drop a pin.";
+    }
+    if (code === 3) {
+      return "Location request timed out. Try again, or choose the address from map search.";
+    }
+    return "Unable to access current location. Use map search or drop a pin to continue.";
+  };
+
   const useCurrentLocation = () => {
     if (!navigator.geolocation) {
       setError("Current location is not supported on this device/browser.");
+      return;
+    }
+    if (!window.isSecureContext) {
+      setError("Current location requires a secure origin. Open the app via localhost or HTTPS and try again.");
       return;
     }
     setLocationLoading(true);
@@ -113,8 +131,11 @@ function MapAddressPicker({ open, title, initialQuery = "", onClose, onSelect })
         reverseGeocodePoint({ lat: position.coords.latitude, lng: position.coords.longitude });
         setLocationLoading(false);
       },
-      () => {
-        setError("Unable to access current location. Please allow location access and try again.");
+      (geoError) => {
+        setError(geolocationErrorMessage(geoError));
+        if (!selectedPoint) {
+          setSelectedPoint({ lat: DEFAULT_CENTER[0], lng: DEFAULT_CENTER[1] });
+        }
         setLocationLoading(false);
       },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 300000 }

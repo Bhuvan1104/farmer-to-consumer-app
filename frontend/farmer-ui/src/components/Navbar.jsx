@@ -1,7 +1,7 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import API from "../services/api";
-import { isFarmer, isConsumer } from "../utils/auth";
+import { getUserRole, isFarmer, isConsumer } from "../utils/auth";
 import "./Navbar.css";
 
 
@@ -69,8 +69,11 @@ function Navbar() {
         {isConsumer() && (
           <>
             <NavLink to="/orders" className="nav-item">Orders</NavLink>
-            <NavLink to="/chat-history" className="nav-item">Chat History</NavLink>
           </>
+        )}
+
+        {["consumer", "farmer"].includes(getUserRole()) && (
+          <NavLink to="/chat-history" className="nav-item">Messages</NavLink>
         )}
 
         {isConsumer() && (

@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from .chatbot_service import FarmerChatbot
-from .serializers import ChatbotMessageSerializer, ChatbotResponseSerializer
+from .serializers import ChatbotConversationSerializer, ChatbotMessageSerializer
 
 logger = logging.getLogger(__name__)
 
@@ -34,24 +34,18 @@ def chatbot_message(request):
     }
     """
     try:
-        # Get message
-        message = request.data.get('message', '').strip()
-        
-        if not message:
+        serializer = ChatbotMessageSerializer(data=request.data)
+        if not serializer.is_valid():
             return Response(
-                {"error": "Message cannot be empty"},
-                status=status.HTTP_400_BAD_REQUEST
+                {"error": "Invalid request", "details": serializer.errors},
+                status=status.HTTP_400_BAD_REQUEST,
             )
-        
-        if len(message) > 500:
-            return Response(
-                {"error": "Message is too long (max 500 characters)"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
-        # Get chatbot response
+
+        message = serializer.validated_data["message"].strip()
+        preferred_language = serializer.validated_data.get("language", "en")
+
         chatbot = FarmerChatbot()
-        response = chatbot.get_response(message)
+        response = chatbot.get_response(message, preferred_language=preferred_language)
         
         return Response(response, status=status.HTTP_200_OK)
     
@@ -160,14 +154,16 @@ def chatbot_conversation(request):
     }
     """
     try:
-        messages = request.data.get('messages', [])
-        
-        if not messages or not isinstance(messages, list):
+        serializer = ChatbotConversationSerializer(data=request.data)
+        if not serializer.is_valid():
             return Response(
-                {"error": "Invalid messages format"},
-                status=status.HTTP_400_BAD_REQUEST
+                {"error": "Invalid request", "details": serializer.errors},
+                status=status.HTTP_400_BAD_REQUEST,
             )
-        
+
+        messages = serializer.validated_data.get("messages", [])
+        preferred_language = request.data.get("language", "en")
+
         if len(messages) > 10:
             return Response(
                 {"error": "Too many messages (max 10)"},
@@ -176,7 +172,7 @@ def chatbot_conversation(request):
         
         # Get responses
         chatbot = FarmerChatbot()
-        responses = chatbot.handle_conversation(messages)
+        responses = chatbot.handle_conversation(messages, preferred_language=preferred_language)
         
         return Response(
             {"responses": responses},

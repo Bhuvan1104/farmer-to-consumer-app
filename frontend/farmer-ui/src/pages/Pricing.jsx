@@ -149,9 +149,17 @@ function Pricing() {
 
   const extractError = (err, fallback) => {
     const details = err?.response?.data;
-    if (!details) return fallback;
+    if (!details) {
+      if (err?.message) return err.message;
+      return fallback;
+    }
 
+    if (details.error && details.details) return `${details.error} (${details.details})`;
+    if (details.error && details.fallback_error) {
+      return `${details.error} (${details.details || "fallback failed"} | ${details.fallback_error})`;
+    }
     if (details.error) return details.error;
+    if (typeof details.details === "string") return details.details;
     if (details.message) return details.message;
     if (details.details && typeof details.details === "object") {
       const firstField = Object.keys(details.details)[0];

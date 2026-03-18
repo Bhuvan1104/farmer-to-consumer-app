@@ -1,0 +1,152 @@
+.onb-trigger {
+  border: 1px solid #cde3d5;
+  background: #f3fbf6;
+  color: #155f37;
+  border-radius: 999px;
+  font-weight: 700;
+  padding: 8px 14px;
+  cursor: pointer;
+}
+
+.onb-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 33, 20, 0.45);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1100;
+  padding: 20px;
+}
+
+.onb-modal {
+  width: min(760px, 100%);
+  background: #fff;
+  border-radius: 20px;
+  border: 1px solid #dbe8df;
+  box-shadow: 0 28px 60px rgba(8, 38, 21, 0.3);
+  padding: 18px;
+}
+
+.onb-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.onb-head h3 {
+  margin: 0;
+  font-size: 28px;
+  color: #164b31;
+}
+
+.onb-head p {
+  margin: 6px 0 0;
+  color: #56705f;
+}
+
+.onb-head select {
+  border: 1px solid #c6d8cb;
+  border-radius: 10px;
+  padding: 8px 10px;
+  font-weight: 600;
+}
+
+.onb-step-card {
+  margin-top: 14px;
+  border: 1px solid #dbe8df;
+  border-radius: 16px;
+  padding: 14px;
+  background: linear-gradient(180deg, #f8fcf9 0%, #f1f8f3 100%);
+}
+
+.onb-step-index {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #417059;
+  text-transform: uppercase;
+}
+
+.onb-step-card h4 {
+  margin: 8px 0 4px;
+  font-size: 22px;
+  color: #143f2b;
+}
+
+.onb-step-card p {
+  margin: 0;
+  color: #466755;
+}
+
+.onb-open-page {
+  margin-top: 12px;
+  border: none;
+  border-radius: 10px;
+  background: #1e8a48;
+  color: #fff;
+  padding: 9px 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.onb-voice-row {
+  margin-top: 12px;
+  display: flex;
+  gap: 10px;
+}
+
+.onb-voice-row button {
+  border: 1px solid #cfe0d5;
+  background: #f4faf6;
+  color: #1f5d3c;
+  border-radius: 10px;
+  padding: 9px 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.onb-note {
+  margin-top: 10px;
+  padding: 9px 10px;
+  border-radius: 10px;
+  border: 1px solid #d8e7dc;
+  background: #f8fcfa;
+  color: #406754;
+}
+
+.onb-note.onb-error {
+  border-color: #f3c5c5;
+  background: #fff3f3;
+  color: #9a2f2f;
+}
+
+.onb-actions {
+  margin-top: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.onb-actions > button,
+.onb-actions div button {
+  border: 1px solid #cbddd1;
+  background: #fff;
+  color: #1f5b3a;
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.onb-actions div {
+  display: flex;
+  gap: 8px;
+}
+
+.onb-actions div button:last-child {
+  background: #1e8a48;
+  color: #fff;
+  border-color: #1e8a48;
+}

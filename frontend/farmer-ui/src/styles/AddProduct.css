@@ -153,6 +153,48 @@
   line-height: 1.55;
 }
 
+.ap-mode-toggle {
+  margin-top: 8px;
+  display: inline-flex;
+  gap: 8px;
+}
+
+.ap-mode-btn {
+  border: 1px solid #cde0d1;
+  background: #f3faf5;
+  color: #1f5f3c;
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.ap-mode-btn.active {
+  background: linear-gradient(135deg, #1c8b48, #17653a);
+  color: #fff;
+  border-color: #1c8b48;
+}
+
+.ap-quick-hint {
+  margin-top: 8px;
+  border: 1px solid #d8e8dc;
+  background: #f6fcf8;
+  color: #3d644f;
+  border-radius: 10px;
+  padding: 9px 11px;
+  font-size: 0.82rem;
+}
+
+.ap-auto-category {
+  margin-top: -4px;
+  border: 1px dashed #bdd8c4;
+  background: #f4faf6;
+  color: #2f6548;
+  border-radius: 10px;
+  padding: 8px 10px;
+  font-size: 0.82rem;
+}
+
 /* ---------- alerts ---------- */
 .ap-alert {
   display: flex;

@@ -1,12 +1,12 @@
 :root {
-  --pricing-bg-1: #f2f7ff;
-  --pricing-bg-2: #e8f1ff;
+  --pricing-bg-1: #f1f8f3;
+  --pricing-bg-2: #e8f3ec;
   --pricing-surface: #ffffff;
-  --pricing-border: #d5e0f2;
-  --pricing-text: #182133;
-  --pricing-muted: #60718c;
-  --pricing-primary: #1363df;
-  --pricing-primary-dark: #0d4cb1;
+  --pricing-border: #d3e3d9;
+  --pricing-text: #173327;
+  --pricing-muted: #5e7468;
+  --pricing-primary: #168f58;
+  --pricing-primary-dark: #126f44;
   --pricing-success: #157347;
   --pricing-warning: #b57900;
   --pricing-danger: #b42318;
@@ -233,7 +233,7 @@ select:focus {
   border: none;
   border-radius: 10px;
   padding: 12px;
-  background: linear-gradient(135deg, var(--pricing-primary), #1659df);
+  background: linear-gradient(135deg, var(--pricing-primary), #20a667);
   color: #fff;
   font-size: 15px;
   font-weight: 600;
@@ -243,8 +243,8 @@ select:focus {
 
 .primary-button:hover {
   transform: translateY(-1px);
-  box-shadow: 0 8px 14px rgba(29, 79, 191, 0.26);
-  background: linear-gradient(135deg, #1d56d8, var(--pricing-primary-dark));
+  box-shadow: 0 8px 14px rgba(24, 108, 65, 0.26);
+  background: linear-gradient(135deg, #198a56, var(--pricing-primary-dark));
 }
 
 .primary-button:disabled {
@@ -769,4 +769,422 @@ select:focus {
   .skeleton-grid.three {
     grid-template-columns: 1fr;
   }
+}
+
+[data-theme="dark"] {
+  --pricing-bg-1: #101f16;
+  --pricing-bg-2: #0f1a14;
+  --pricing-surface: #1a2822;
+  --pricing-border: #345244;
+  --pricing-text: #e6f3ec;
+  --pricing-muted: #a3b9ae;
+  --pricing-primary: #45ba80;
+  --pricing-primary-dark: #2f9463;
+  --pricing-success: #4fc78f;
+  --pricing-warning: #e2ad43;
+  --pricing-danger: #ef7f7f;
+}
+
+[data-theme="dark"] .pricing-page {
+  background: radial-gradient(circle at top left, rgba(70, 122, 198, 0.2) 0, transparent 40%),
+    radial-gradient(circle at bottom right, rgba(44, 90, 162, 0.2) 0, transparent 35%),
+    linear-gradient(165deg, #101827, #0e1522);
+  color: var(--pricing-text);
+}
+
+[data-theme="dark"] .pricing-hero,
+[data-theme="dark"] .step-chip,
+[data-theme="dark"] .card,
+[data-theme="dark"] .metric,
+[data-theme="dark"] .stat-box,
+[data-theme="dark"] .signal-pill,
+[data-theme="dark"] .reasoning-box,
+[data-theme="dark"] .summary-item,
+[data-theme="dark"] .completion-card,
+[data-theme="dark"] .hero-state {
+  background: #1a2822;
+  border-color: #334b68;
+  color: #dee9fb;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .step-chip {
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+[data-theme="dark"] .step-chip:hover {
+  transform: translateY(-1px);
+  border-color: #4c6b92;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.28);
+}
+
+[data-theme="dark"] .step-chip.done {
+  border-color: #3d6a57;
+  background: #21382e;
+}
+
+[data-theme="dark"] .step-index {
+  border-color: #3e5777;
+  color: #aec3df;
+  background: #1f2d42;
+}
+
+[data-theme="dark"] .step-chip.done .step-index {
+  background: #274a3a;
+  border-color: #4f8b70;
+  color: #b8e9cf;
+}
+
+[data-theme="dark"] .step-text,
+[data-theme="dark"] .card h2,
+[data-theme="dark"] .result-header h3,
+[data-theme="dark"] .metric-value,
+[data-theme="dark"] .insight-header h4,
+[data-theme="dark"] .factor-name,
+[data-theme="dark"] .stat-box strong,
+[data-theme="dark"] .summary-item strong,
+[data-theme="dark"] .completion-card h3,
+[data-theme="dark"] .recommendation-line {
+  color: #e7f0ff;
+}
+
+[data-theme="dark"] .hero-subtitle,
+[data-theme="dark"] .section-note,
+[data-theme="dark"] .metric-label,
+[data-theme="dark"] .meter-value,
+[data-theme="dark"] .factor-detail,
+[data-theme="dark"] .stat-label,
+[data-theme="dark"] .reasoning-box p,
+[data-theme="dark"] .summary-item span,
+[data-theme="dark"] .completion-card p,
+[data-theme="dark"] .step-text {
+  color: #a8bdd9;
+}
+
+[data-theme="dark"] input[type="file"],
+[data-theme="dark"] input[type="number"],
+[data-theme="dark"] select,
+[data-theme="dark"] .pricing-page select,
+[data-theme="dark"] .pricing-page input[type="number"],
+[data-theme="dark"] .pricing-page input[type="file"] {
+  background: #172335;
+  border-color: #395273;
+  color: #dee9fb;
+}
+
+[data-theme="dark"] input:focus,
+[data-theme="dark"] select:focus {
+  border-color: #62a8ff;
+  box-shadow: 0 0 0 3px rgba(98, 168, 255, 0.2);
+}
+
+[data-theme="dark"] .primary-button {
+  background: linear-gradient(135deg, #2f9463, #45ba80);
+}
+
+[data-theme="dark"] .primary-button:hover {
+  background: linear-gradient(135deg, #2a8257, #3ba06f);
+}
+
+[data-theme="dark"] .card {
+  transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+}
+
+[data-theme="dark"] .card:hover {
+  transform: translateY(-1px);
+  border-color: #4a6a92;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.34);
+}
+
+[data-theme="dark"] .primary-button:disabled {
+  background: #5a6678;
+}
+
+[data-theme="dark"] .result-card {
+  border-color: #3a5578;
+  background: linear-gradient(180deg, #1a2a43, #17253b);
+}
+
+[data-theme="dark"] .metric,
+[data-theme="dark"] .stat-box,
+[data-theme="dark"] .summary-item,
+[data-theme="dark"] .signal-pill {
+  transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+}
+
+[data-theme="dark"] .metric:hover,
+[data-theme="dark"] .stat-box:hover,
+[data-theme="dark"] .summary-item:hover,
+[data-theme="dark"] .signal-pill:hover {
+  border-color: #4f709b;
+  background: #223047;
+}
+
+[data-theme="dark"] .badge-good {
+  background: #214434;
+  color: #a6e7c8;
+}
+
+[data-theme="dark"] .badge-mid {
+  background: #4b3a1b;
+  color: #ffd88c;
+}
+
+[data-theme="dark"] .badge-low {
+  background: #542a2a;
+  color: #ffbcbc;
+}
+
+[data-theme="dark"] .meter-track {
+  background: #2c4262;
+}
+
+[data-theme="dark"] .insight-panel {
+  border-top-color: #385273;
+}
+
+[data-theme="dark"] .insight-badge.up {
+  background: #214434;
+  color: #a7e9cb;
+}
+
+[data-theme="dark"] .insight-badge.down {
+  background: #542a2a;
+  color: #ffc2c2;
+}
+
+[data-theme="dark"] .factor-bar-track {
+  background: #2a3f5f;
+}
+
+[data-theme="dark"] .factor-row:hover .factor-name {
+  color: #9fc3f4;
+}
+
+[data-theme="dark"] .delta-line.up,
+[data-theme="dark"] .stat-up,
+[data-theme="dark"] .factor-impact.up {
+  color: #8fe0b8;
+}
+
+[data-theme="dark"] .delta-line.down,
+[data-theme="dark"] .stat-down,
+[data-theme="dark"] .factor-impact.down {
+  color: #ff9f9f;
+}
+
+[data-theme="dark"] .skeleton-line,
+[data-theme="dark"] .skeleton-tile {
+  background: linear-gradient(100deg, #233550 35%, #314a6f 50%, #233550 65%);
+  background-size: 300% 100%;
+}
+
+/* ===================================================
+   Visual Upgrade Layer (Attractive Pricing Experience)
+   =================================================== */
+
+.pricing-page {
+  position: relative;
+  overflow: hidden;
+}
+
+.pricing-page::before,
+.pricing-page::after {
+  content: "";
+  position: absolute;
+  width: 340px;
+  height: 340px;
+  border-radius: 999px;
+  filter: blur(42px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.pricing-page::before {
+  top: -120px;
+  right: -80px;
+  background: rgba(56, 140, 255, 0.18);
+}
+
+.pricing-page::after {
+  bottom: -130px;
+  left: -90px;
+  background: rgba(67, 186, 127, 0.18);
+}
+
+.pricing-shell {
+  position: relative;
+  z-index: 1;
+}
+
+.pricing-hero {
+  border-radius: 20px;
+  padding: 28px;
+  background:
+    radial-gradient(circle at top right, rgba(255, 255, 255, 0.28), transparent 32%),
+    linear-gradient(130deg, #1256c7, #1f74e3 56%, #27a273 130%);
+  border: 1px solid rgba(255, 255, 255, 0.34);
+  box-shadow: 0 22px 48px rgba(24, 66, 137, 0.24);
+}
+
+.hero-tag {
+  color: #e2eeff;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.26);
+  border-radius: 999px;
+  padding: 5px 10px;
+  width: fit-content;
+}
+
+.pricing-hero h1 {
+  color: #fff;
+  letter-spacing: -0.02em;
+}
+
+.hero-subtitle {
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.hero-state {
+  background: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.32);
+  color: #fff;
+  backdrop-filter: blur(7px);
+}
+
+.workflow-strip {
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.step-chip {
+  border-radius: 14px;
+  padding: 12px;
+}
+
+.step-chip.active {
+  box-shadow: 0 10px 20px rgba(32, 94, 198, 0.18);
+}
+
+.step-chip.done {
+  box-shadow: 0 10px 22px rgba(37, 126, 79, 0.12);
+}
+
+.workbench {
+  gap: 20px;
+}
+
+.main-panel {
+  gap: 20px;
+}
+
+.card {
+  border-radius: 18px;
+  padding: 20px;
+  box-shadow: 0 14px 32px rgba(16, 44, 96, 0.09);
+}
+
+.card h2 {
+  font-size: 21px;
+}
+
+.section-note {
+  line-height: 1.6;
+}
+
+.primary-button {
+  border-radius: 12px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.result-card {
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.38);
+}
+
+.insight-panel {
+  margin-top: 16px;
+  padding-top: 16px;
+}
+
+.insight-header h4 {
+  font-size: 16px;
+}
+
+.factor-row {
+  border: 1px solid #d8e3f4;
+  border-radius: 12px;
+  padding: 10px;
+  background: #fbfdff;
+}
+
+.signal-pill {
+  font-weight: 600;
+}
+
+.summary-item {
+  border-radius: 12px;
+}
+
+.completion-card {
+  border-radius: 14px;
+}
+
+[data-theme="dark"] .pricing-page::before {
+  background: rgba(82, 152, 255, 0.24);
+}
+
+[data-theme="dark"] .pricing-page::after {
+  background: rgba(67, 186, 127, 0.2);
+}
+
+[data-theme="dark"] .pricing-hero {
+  background:
+    radial-gradient(circle at top right, rgba(255, 255, 255, 0.16), transparent 30%),
+    linear-gradient(135deg, #184a9f, #2462bd 54%, #2b9267 130%);
+  border-color: rgba(146, 186, 243, 0.42);
+  box-shadow: 0 22px 50px rgba(0, 0, 0, 0.34);
+}
+
+[data-theme="dark"] .hero-tag {
+  color: #dbe9ff;
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.24);
+}
+
+[data-theme="dark"] .hero-subtitle {
+  color: rgba(236, 245, 255, 0.92);
+}
+
+[data-theme="dark"] .hero-state {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(194, 217, 247, 0.38);
+  color: #eaf2ff;
+}
+
+[data-theme="dark"] .factor-row {
+  background: #1d2d44;
+  border-color: #3a5578;
+}
+
+/* Project-Wide Background Sync */
+.pricing-page {
+  background:
+    radial-gradient(circle at top left, var(--bg-glow-top), transparent 28%),
+    radial-gradient(circle at bottom right, var(--bg-glow-bottom), transparent 24%),
+    var(--bg-gradient-main);
+}
+
+.pricing-page::before,
+.pricing-page::after {
+  display: none;
+}
+
+[data-theme="dark"] .pricing-page {
+  background:
+    radial-gradient(circle at top left, var(--bg-glow-top), transparent 28%),
+    radial-gradient(circle at bottom right, var(--bg-glow-bottom), transparent 24%),
+    var(--bg-gradient-main);
 }

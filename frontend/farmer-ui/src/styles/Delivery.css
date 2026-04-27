@@ -613,3 +613,171 @@
   font-size: 12px;
   color: #607066;
 }
+
+[data-theme="dark"] .delivery-page {
+  background:
+    radial-gradient(circle at top left, rgba(53, 153, 101, 0.22), transparent 35%),
+    radial-gradient(circle at bottom right, rgba(42, 123, 86, 0.2), transparent 30%),
+    linear-gradient(145deg, #101a15, #0f1714);
+}
+
+[data-theme="dark"] .delivery-header,
+[data-theme="dark"] .delivery-card,
+[data-theme="dark"] .selection-summary div,
+[data-theme="dark"] .route-origin,
+[data-theme="dark"] .address-trace div,
+[data-theme="dark"] .mini-metric,
+[data-theme="dark"] .suggestions-box,
+[data-theme="dark"] .stops-panel,
+[data-theme="dark"] .map-preview-card {
+  background: #1a2822;
+  border-color: #334a3f;
+  color: #deeee5;
+}
+
+[data-theme="dark"] .delivery-header h1,
+[data-theme="dark"] .delivery-card h2,
+[data-theme="dark"] .section-title,
+[data-theme="dark"] .selection-summary strong,
+[data-theme="dark"] .route-origin strong,
+[data-theme="dark"] .address-trace strong,
+[data-theme="dark"] .metric strong,
+[data-theme="dark"] .mini-metric strong,
+[data-theme="dark"] .suggestions-box h3,
+[data-theme="dark"] .stops-panel h3,
+[data-theme="dark"] .stop-body strong {
+  color: #e8f5ee;
+}
+
+[data-theme="dark"] .delivery-header p,
+[data-theme="dark"] .helper-text,
+[data-theme="dark"] .form-group label,
+[data-theme="dark"] .checkbox-group,
+[data-theme="dark"] .order-choice span,
+[data-theme="dark"] .order-choice p,
+[data-theme="dark"] .selection-summary span,
+[data-theme="dark"] .route-origin span,
+[data-theme="dark"] .address-trace span,
+[data-theme="dark"] .mini-metric span,
+[data-theme="dark"] .suggestions-box p,
+[data-theme="dark"] .stop-body p,
+[data-theme="dark"] .stop-meta,
+[data-theme="dark"] .pin-fallback-card span,
+[data-theme="dark"] .pin-fallback-card p,
+[data-theme="dark"] .map-preview-card span,
+[data-theme="dark"] .coord-chip.muted,
+[data-theme="dark"] .order-meta-line {
+  color: #a9beb3;
+}
+
+[data-theme="dark"] .form-group input,
+[data-theme="dark"] .form-group textarea {
+  background: #16231e;
+  border-color: #355045;
+  color: #deeee5;
+}
+
+[data-theme="dark"] .form-group input:focus,
+[data-theme="dark"] .form-group textarea:focus {
+  border-color: #46b27b;
+  box-shadow: 0 0 0 4px rgba(70, 178, 123, 0.2);
+}
+
+[data-theme="dark"] .order-choice,
+[data-theme="dark"] .pin-fallback-card {
+  background: #1b2b24;
+  border-color: #355045;
+}
+
+[data-theme="dark"] .order-choice strong {
+  color: #e8f5ee;
+}
+
+[data-theme="dark"] .selection-dot,
+[data-theme="dark"] .stop-sequence,
+[data-theme="dark"] .coord-chip,
+[data-theme="dark"] .map-pick-btn {
+  background: #224033;
+  border-color: #35614f;
+  color: #8de4b8;
+}
+
+[data-theme="dark"] .status-confirmed,
+[data-theme="dark"] .status-packed {
+  background: #214434;
+  color: #9ce6c0;
+}
+
+[data-theme="dark"] .status-shipped,
+[data-theme="dark"] .status-out_for_delivery {
+  background: #203a55;
+  color: #9ec9ff;
+}
+
+[data-theme="dark"] .btn-primary {
+  background: linear-gradient(135deg, #1f7e4f, #2ea86a);
+}
+
+[data-theme="dark"] .btn-secondary,
+[data-theme="dark"] .btn-outline {
+  background: #1d2d26;
+  color: #d2e9dd;
+  border-color: #3a564b;
+}
+
+[data-theme="dark"] .btn-primary:disabled,
+[data-theme="dark"] .btn-secondary:disabled,
+[data-theme="dark"] .btn-outline:disabled {
+  background: #4e5f57;
+  border-color: #4e5f57;
+}
+
+[data-theme="dark"] .highlight-card {
+  background: linear-gradient(135deg, #1f352a, #233d31);
+  border-color: #345245;
+}
+
+[data-theme="dark"] .highlight-card span {
+  color: #a9beb3;
+}
+
+[data-theme="dark"] .highlight-card strong,
+[data-theme="dark"] .recommendation {
+  color: #d8f3e5;
+}
+
+[data-theme="dark"] .metric {
+  border-bottom-color: #2e433a;
+}
+
+[data-theme="dark"] .risk-bar {
+  background: #2a3b34;
+}
+
+[data-theme="dark"] .recommendation {
+  background: #1f3d2f;
+  border-color: #34614e;
+}
+
+[data-theme="dark"] .stop-card {
+  border-bottom-color: #2e433a;
+}
+
+[data-theme="dark"] .alert.error {
+  background: #3a1f1f;
+  border-color: #6a3434;
+  color: #ffc0c0;
+}
+
+[data-theme="dark"] .alert.success {
+  background: #1d3d2d;
+  border-color: #2f6249;
+  color: #b9f2d3;
+}
+
+[data-theme="dark"] .map-link-row a,
+[data-theme="dark"] .pin-fallback-card a,
+[data-theme="dark"] .map-preview-card a,
+[data-theme="dark"] .stop-body a {
+  color: #8de4b8;
+}

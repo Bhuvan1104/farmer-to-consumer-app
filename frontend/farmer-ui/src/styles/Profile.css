@@ -242,3 +242,68 @@
     margin-left: 0;
   }
 }
+
+[data-theme="dark"] .page-container {
+  background: linear-gradient(135deg, #111b16, #0f1714);
+}
+
+[data-theme="dark"] .profile-card {
+  background: #1a2822;
+  border: 1px solid #334a3f;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.32);
+}
+
+[data-theme="dark"] .profile-info h2,
+[data-theme="dark"] .profile-body h3,
+[data-theme="dark"] .detail-item strong {
+  color: #e6f3ec;
+}
+
+[data-theme="dark"] .profile-info p,
+[data-theme="dark"] .detail-item span,
+[data-theme="dark"] .form-group label {
+  color: #a3b9ae;
+}
+
+[data-theme="dark"] .role-badge {
+  background: #234233;
+  color: #9fe3c1;
+}
+
+[data-theme="dark"] .detail-item {
+  background: #1f2f27;
+}
+
+[data-theme="dark"] .detail-item:hover {
+  background: #24382e;
+}
+
+[data-theme="dark"] .form-group input {
+  background: #16231d;
+  border-color: #395347;
+  color: #d9ece0;
+}
+
+[data-theme="dark"] .form-group input:focus {
+  border-color: #3fb97d;
+  box-shadow: 0 0 0 3px rgba(63, 185, 125, 0.24);
+}
+
+[data-theme="dark"] .btn-secondary {
+  background: #24352d;
+  color: #d0e5da;
+}
+
+[data-theme="dark"] .btn-secondary:hover {
+  background: #2b4036;
+}
+
+[data-theme="dark"] .alert.error {
+  background: #3a1f1f;
+  color: #ffc0c0;
+}
+
+[data-theme="dark"] .alert.success {
+  background: #1d3d2d;
+  color: #b9f2d3;
+}

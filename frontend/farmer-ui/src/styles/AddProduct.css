@@ -53,7 +53,7 @@
 /* ---------- page ---------- */
 .ap-page {
   min-height: 100vh;
-  background: var(--surface-1);
+  background: transparent;
   font-family: var(--font-body);
   color: var(--text-primary);
   padding: 28px 40px 80px;
@@ -223,14 +223,15 @@
 
 /* ---------- sections ---------- */
 .ap-section {
-  background: var(--surface-0);
-  border: 1.5px solid var(--border);
+  background: var(--bg-elevated);
+  border: 1.5px solid var(--line);
   border-radius: var(--r-xl);
   padding: 22px 24px;
   display: flex;
   flex-direction: column;
   gap: 18px;
   box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(10px);
   animation: fadein 0.25s ease;
 }
 
@@ -290,8 +291,8 @@
   font-family: var(--font-body);
   font-size: 0.88rem;
   color: var(--text-primary);
-  background: var(--surface-1);
-  border: 1.5px solid var(--border);
+  background: var(--bg-surface);
+  border: 1.5px solid var(--line);
   border-radius: var(--r-sm);
   padding: 10px 13px;
   outline: none;
@@ -304,7 +305,7 @@
 .ap-input:focus {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--accent-glow);
-  background: #fff;
+  background: var(--bg-elevated);
 }
 .ap-input::placeholder { color: var(--text-faint); }
 
@@ -348,8 +349,8 @@
   font-family: var(--font-body);
   font-size: 0.88rem;
   color: var(--text-primary);
-  background: var(--surface-1);
-  border: 1.5px solid var(--border);
+  background: var(--bg-surface);
+  border: 1.5px solid var(--line);
   border-radius: var(--r-sm);
   padding: 11px 13px;
   outline: none;
@@ -363,7 +364,7 @@
 .ap-textarea:focus {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--accent-glow);
-  background: #fff;
+  background: var(--bg-elevated);
 }
 .ap-textarea::placeholder { color: var(--text-faint); }
 
@@ -380,14 +381,14 @@
   align-items: center;
   justify-content: center;
   gap: 10px;
-  border: 2px dashed var(--border);
+  border: 2px dashed var(--line);
   border-radius: var(--r-lg);
   padding: 36px 24px;
   cursor: pointer;
   text-align: center;
   color: var(--text-muted);
   transition: all var(--t);
-  background: var(--surface-1);
+  background: var(--bg-surface);
 }
 .ap-dropzone:hover,
 .ap-dropzone.drag-over {
@@ -512,11 +513,12 @@
 }
 
 .ap-summary-card {
-  background: var(--surface-0);
-  border: 1.5px solid var(--border);
+  background: var(--bg-elevated);
+  border: 1.5px solid var(--line);
   border-radius: var(--r-xl);
   overflow: hidden;
   box-shadow: var(--shadow-md);
+  backdrop-filter: blur(10px);
 }
 
 .ap-summary-header {
@@ -525,7 +527,7 @@
   gap: 8px;
   padding: 13px 18px;
   background: linear-gradient(135deg, var(--g-50), var(--surface-0));
-  border-bottom: 1.5px solid var(--border);
+  border-bottom: 1.5px solid var(--line);
   font-size: 0.7rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -538,7 +540,7 @@
 .ap-summary-image {
   width: 100%;
   aspect-ratio: 4/3;
-  background: var(--surface-2);
+  background: var(--bg-surface);
   overflow: hidden;
 }
 .ap-summary-image img {
@@ -624,7 +626,7 @@
 .ap-summary-stats {
   display: flex;
   flex-direction: column;
-  border: 1.5px solid var(--border);
+  border: 1.5px solid var(--line);
   border-radius: var(--r-md);
   overflow: hidden;
   margin-top: 2px;
@@ -636,7 +638,7 @@
   align-items: center;
   padding: 9px 12px;
   font-size: 0.8rem;
-  border-bottom: 1.5px solid var(--border);
+  border-bottom: 1.5px solid var(--line);
   transition: background var(--t);
 }
 .ap-summary-stat:last-child { border-bottom: none; }
@@ -670,4 +672,128 @@
 @media (max-width: 500px) {
   .ap-title { font-size: 1.55rem; }
   .ap-section { padding: 18px; }
+}
+
+[data-theme="dark"] {
+  --g-50: #14261c;
+  --g-100: #1d3729;
+  --g-200: #2a4f3b;
+  --g-400: #44ab78;
+  --g-500: #3fb07a;
+  --g-600: #2f9562;
+  --g-700: #7ed8ab;
+  --g-800: #9be6bf;
+  --g-900: #b8f0d3;
+
+  --surface-0: #1a2822;
+  --surface-1: #131d19;
+  --surface-2: #1f2f27;
+  --border: #334a3f;
+  --border-mid: #4b6b5d;
+
+  --text-primary: #e6f3ec;
+  --text-mid: #c4d9ce;
+  --text-muted: #9db5a8;
+  --text-faint: #7f978b;
+
+  --accent: #43ba7f;
+  --accent-dark: #2e9060;
+  --accent-glow: rgba(67, 186, 127, 0.22);
+  --accent-ring: rgba(67, 186, 127, 0.3);
+
+  --danger-bg: #3a1f1f;
+  --warn-bg: #3a2d17;
+}
+
+[data-theme="dark"] .ap-page {
+  background: transparent;
+}
+
+[data-theme="dark"] .ap-mode-btn {
+  border-color: #3b5b4b;
+  background: #22342b;
+  color: #b9d8c7;
+}
+
+[data-theme="dark"] .ap-mode-btn:hover {
+  background: #294036;
+  border-color: #4f7763;
+}
+
+[data-theme="dark"] .ap-mode-btn.active {
+  background: linear-gradient(135deg, #2b8f5b, #25784d);
+  border-color: #2b8f5b;
+  color: #fff;
+}
+
+[data-theme="dark"] .ap-section,
+[data-theme="dark"] .ap-summary-card {
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+[data-theme="dark"] .ap-section:hover,
+[data-theme="dark"] .ap-summary-card:hover {
+  border-color: #4f7763;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.34);
+}
+
+[data-theme="dark"] .ap-quick-hint,
+[data-theme="dark"] .ap-auto-category {
+  border-color: #3b5b4b;
+  background: #1f3128;
+  color: #b2cebf;
+}
+
+[data-theme="dark"] .ap-input:focus,
+[data-theme="dark"] .ap-textarea:focus {
+  background: var(--bg-elevated);
+}
+
+[data-theme="dark"] .ap-section,
+[data-theme="dark"] .ap-summary-card,
+[data-theme="dark"] .ap-input,
+[data-theme="dark"] .ap-textarea,
+[data-theme="dark"] .ap-dropzone,
+[data-theme="dark"] .ap-summary-image {
+  background-color: var(--bg-surface);
+  border-color: var(--line);
+}
+
+[data-theme="dark"] .ap-dropzone:hover,
+[data-theme="dark"] .ap-dropzone.drag-over {
+  background: #20352b;
+  border-color: #4eb885;
+  box-shadow: 0 0 0 4px rgba(78, 184, 133, 0.2);
+}
+
+[data-theme="dark"] .ap-btn-ai:hover:not(:disabled) {
+  background: #284136;
+  border-color: #4eb885;
+  color: #bfead3;
+}
+
+[data-theme="dark"] .ap-btn-submit:hover:not(:disabled) {
+  background: linear-gradient(135deg, #2b9d63, #278456);
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.34);
+}
+
+[data-theme="dark"] .ap-btn-submit:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 5px 18px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .ap-image-remove {
+  background: rgba(22, 35, 29, 0.94);
+  border-color: #3b5b4b;
+  color: #c5ddd1;
+}
+
+[data-theme="dark"] .ap-image-remove:hover {
+  background: #3a2323;
+  border-color: #7a4747;
+  color: #ffc1c1;
+}
+
+[data-theme="dark"] .ap-summary-stat:hover {
+  background: #243a2f;
 }

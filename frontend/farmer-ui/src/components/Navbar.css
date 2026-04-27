@@ -9,16 +9,17 @@
   align-items: center;
 
   padding: 14px 40px;
-  background: white;
-  border-bottom: 1px solid #e5e7eb;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  background: var(--bg-elevated);
+  border-bottom: 1px solid var(--line);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(8px);
 }
 
 /* LOGO */
 .logo {
   font-size: 20px;
   font-weight: 700;
-  color: #14532d;
+  color: var(--ink-strong);
   text-decoration: none;
 }
 
@@ -36,19 +37,19 @@
 /* NAV ITEM */
 .nav-item {
   text-decoration: none;
-  color: #374151;
+  color: var(--ink-soft);
   font-weight: 500;
   position: relative;
   transition: color 0.3s ease;
 }
 
 .nav-item:hover {
-  color: #16a34a;
+  color: var(--brand);
 }
 
 /* Active link */
 .nav-item.active {
-  color: #16a34a;
+  color: var(--brand);
   font-weight: 600;
 }
 
@@ -60,7 +61,7 @@
   height: 2px;
   bottom: -6px;
   left: 0;
-  background-color: #16a34a;
+  background-color: var(--brand);
   transition: width 0.3s ease;
 }
 
@@ -76,12 +77,13 @@
 .navbar-right {
   display: flex;
   align-items: center;
+  gap: 10px;
 }
 
 /* LOGOUT BUTTON */
 .logout-btn {
-  background: linear-gradient(135deg, #16a34a, #22c55e);
-  color: white;
+  background: linear-gradient(135deg, var(--brand), #2cc37d);
+  color: #fff;
   border: none;
   padding: 8px 16px;
   border-radius: 8px;
@@ -92,7 +94,7 @@
 
 .logout-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(22, 163, 74, 0.25);
+  box-shadow: 0 6px 18px rgba(37, 136, 89, 0.32);
 }
 /* CART BUTTON */
 
@@ -102,8 +104,8 @@
   align-items: center;
   gap: 6px;
 
-  background: linear-gradient(135deg, #28a745, #218838);
-  color: white;
+  background: linear-gradient(135deg, var(--brand), var(--brand-deep));
+  color: #fff;
   border: none;
   padding: 8px 16px;
   border-radius: 30px;
@@ -111,13 +113,13 @@
   cursor: pointer;
   transition: all 0.3s ease;
 
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .nav-cart-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
-  background: linear-gradient(135deg, #218838, #1e7e34);
+  background: linear-gradient(135deg, var(--brand-deep), #1d5f3f);
 }
 
 .cart-icon {
@@ -135,8 +137,8 @@
   top: -6px;
   right: -6px;
 
-  background: red;
-  color: white;
+  background: #ef4444;
+  color: #fff;
   font-size: 11px;
   font-weight: bold;
 

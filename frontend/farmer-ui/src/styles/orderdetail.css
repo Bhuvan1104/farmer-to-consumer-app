@@ -282,3 +282,91 @@
   .metric-row,
   .metrics-header { flex-direction: column; align-items: flex-start; }
 }
+
+[data-theme="dark"] .order-page {
+  background: linear-gradient(180deg, #101a15, #0f1714);
+  color: #dceee4;
+}
+
+[data-theme="dark"] .order-title h2,
+[data-theme="dark"] .card h3,
+[data-theme="dark"] .metric-highlight strong,
+[data-theme="dark"] .metric-row span:last-child,
+[data-theme="dark"] .price-row.total {
+  color: #e8f5ee;
+}
+
+[data-theme="dark"] .back-btn {
+  background: #2b8f5b;
+}
+
+[data-theme="dark"] .back-btn:hover {
+  background: #267f51;
+}
+
+[data-theme="dark"] .progress-container::before {
+  background: #334a3f;
+}
+
+[data-theme="dark"] .step-circle {
+  background: #2c4036;
+  color: #cde3d7;
+}
+
+[data-theme="dark"] .step-circle.active {
+  background: #2f9d61;
+}
+
+[data-theme="dark"] .step-label {
+  color: #a7bcb1;
+}
+
+[data-theme="dark"] .card {
+  background: #1a2822;
+  border-color: #32483d;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .product-info p,
+[data-theme="dark"] .metrics-header p,
+[data-theme="dark"] .action-card p,
+[data-theme="dark"] .metrics-empty {
+  color: #a7bcb1;
+}
+
+[data-theme="dark"] .metrics-badge {
+  background: #223b2f;
+  color: #a8e4c6;
+}
+
+[data-theme="dark"] .metric-highlight {
+  background: #1f2f27;
+  border-color: #344b40;
+}
+
+[data-theme="dark"] .metric-highlight span {
+  color: #a7bcb1;
+}
+
+[data-theme="dark"] .risk-track {
+  background: #2c4036;
+}
+
+[data-theme="dark"] .metric-row {
+  border-bottom-color: #2f4339;
+}
+
+[data-theme="dark"] .delivery-recommendation {
+  background: #1f3d2f;
+  border-color: #34614e;
+  color: #b8f0d1;
+}
+
+[data-theme="dark"] .metrics-empty {
+  background: #1c2b24;
+  border-color: #3b5549;
+}
+
+[data-theme="dark"] .price-row.total {
+  border-top-color: #2f4339;
+}

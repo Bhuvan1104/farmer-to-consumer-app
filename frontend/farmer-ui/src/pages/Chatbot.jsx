@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useLanguage } from "../context/LanguageContext";
 import API from "../services/api";
 import "../styles/Chatbot.css";
 
@@ -60,37 +61,33 @@ const LANGUAGE_CONFIG = {
 };
 
 function Chatbot() {
+  const { language, setLanguage } = useLanguage();
+  const te = language === "te";
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [listening, setListening] = useState(false);
   const [speaking, setSpeaking] = useState(false);
-  const [selectedLang, setSelectedLang] = useState("en");
+  const [selectedLang, setSelectedLang] = useState(language || "en");
 
   const recognitionRef = useRef(null);
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
+    setSelectedLang(language || "en");
+  }, [language]);
+
+  useEffect(() => {
     setMessages([
       {
         id: 1,
-        text: "Hello. I am your AI farming assistant. You can type or speak in your selected language.",
+        text: te ? "హలో. నేను మీ AI వ్యవసాయ సహాయకుడు. మీరు ఎంచుకున్న భాషలో టైప్ చేయండి లేదా మాట్లాడండి." : "Hello. I am your AI farming assistant. You can type or speak in your selected language.",
         sender: "bot",
         timestamp: new Date(),
       },
     ]);
-  }, []);
-  useEffect(() => {
-    const prevBodyOverflow = document.body.style.overflow;
-    const prevHtmlOverflow = document.documentElement.style.overflow;
-    document.body.style.overflow = "hidden";
-    document.documentElement.style.overflow = "hidden";
+  }, [te]);
 
-    return () => {
-      document.body.style.overflow = prevBodyOverflow;
-      document.documentElement.style.overflow = prevHtmlOverflow;
-    };
-  }, []);
   const stopSpeaking = useCallback(() => {
     window.speechSynthesis.cancel();
     setSpeaking(false);
@@ -205,7 +202,7 @@ function Chatbot() {
         ...prev,
         {
           id: Date.now() + 1,
-          text: "Voice input is not supported in this browser. You can continue with text chat.",
+          text: te ? "ఈ బ్రౌజర్‌లో వాయిస్ ఇన్‌పుట్‌కు మద్దతు లేదు. టెక్స్ట్ చాట్ ఉపయోగించండి." : "Voice input is not supported in this browser. You can continue with text chat.",
           sender: "bot",
           timestamp: new Date(),
         },
@@ -228,20 +225,20 @@ function Chatbot() {
     <div className="chatbot-wrapper">
       <header className="chatbot-header">
         <div>
-          <p className="chatbot-tag">Conversational AI</p>
-          <h1>AI Farming Assistant</h1>
-          <p>Multilingual guidance for pricing, freshness, delivery, and order workflows.</p>
+          <p className="chatbot-tag">{te ? "సంభాషణ AI" : "Conversational AI"}</p>
+          <h1>{te ? "AI వ్యవసాయ సహాయకుడు" : "AI Farming Assistant"}</h1>
+          <p>{te ? "ధర, తాజాదనం, డెలివరీ మరియు ఆర్డర్ వర్క్‌ఫ్లోలకు బహుభాషా మార్గదర్శనం." : "Multilingual guidance for pricing, freshness, delivery, and order workflows."}</p>
         </div>
 
         <div className="chatbot-status">
           <span className={`status-pill ${loading ? "busy" : "ready"}`}>
-            {loading ? "Thinking" : "Ready"}
+            {loading ? (te ? "ఆలోచిస్తోంది" : "Thinking") : (te ? "సిద్ధం" : "Ready")}
           </span>
           <span className={`status-pill ${listening ? "live" : "off"}`}>
-            {listening ? "Listening" : "Mic Off"}
+            {listening ? (te ? "వింటోంది" : "Listening") : (te ? "మైక్ ఆఫ్" : "Mic Off")}
           </span>
           <span className={`status-pill ${speaking ? "talk" : "off"}`}>
-            {speaking ? "Speaking" : "Voice Idle"}
+            {speaking ? (te ? "మాట్లాడుతోంది" : "Speaking") : (te ? "వాయిస్ నిర్క్రియ" : "Voice Idle")}
           </span>
         </div>
       </header>
@@ -284,9 +281,9 @@ function Chatbot() {
 
         <div className="chat-input">
           <div className="chat-suggestions chat-suggestions-inline">
-            <div className="chat-suggestions-title">{SUGGESTION_LABEL[selectedLang] || "Quick Prompts"}</div>
+            <div className="chat-suggestions-title">{te ? "త్వరిత సూచనలు" : (SUGGESTION_LABEL[selectedLang] || "Quick Prompts")}</div>
             {suggestions.length === 0 ? (
-              <div className="chat-suggestions-empty">No suggestions for selected language.</div>
+              <div className="chat-suggestions-empty">{te ? "ఎంచుకున్న భాషకు సూచనలు లేవు." : "No suggestions for selected language."}</div>
             ) : (
               suggestions.map((q, index) => (
                 <button key={`inline-${index}`} onClick={() => sendMessage(q)} disabled={loading}>
@@ -299,7 +296,11 @@ function Chatbot() {
           <div className="chat-input-top">
             <select
               value={selectedLang}
-              onChange={(e) => setSelectedLang(e.target.value)}
+              onChange={(e) => {
+                const next = e.target.value;
+                setSelectedLang(next);
+                setLanguage(next);
+              }}
               className="lang-select"
               disabled={loading}
             >
@@ -322,14 +323,14 @@ function Chatbot() {
 
           <div className="chat-input-actions">
             <button onClick={() => sendMessage()} disabled={loading || !input.trim()} className="send-button">
-              Send Message
+              {te ? "సందేశం పంపు" : "Send Message"}
             </button>
 
             <button
               onClick={startListening}
               className={`mic-button ${listening ? "active" : ""}`}
-              title={listening ? "Stop listening" : "Start voice input"}
-              aria-label={listening ? "Stop microphone" : "Start microphone"}
+              title={listening ? (te ? "వినడాన్ని ఆపు" : "Stop listening") : (te ? "వాయిస్ ఇన్‌పుట్ ప్రారంభించు" : "Start voice input")}
+              aria-label={listening ? (te ? "మైక్ ఆపు" : "Stop microphone") : (te ? "మైక్ ప్రారంభించు" : "Start microphone")}
             >
               {listening ? "■" : "🎤"}
             </button>
@@ -338,9 +339,9 @@ function Chatbot() {
               onClick={stopSpeaking}
               className="stop-voice-button"
               disabled={!speaking}
-              title="Stop text to speech"
+              title={te ? "వాయిస్ అవుట్‌పుట్ ఆపు" : "Stop text to speech"}
             >
-              Stop Voice
+              {te ? "వాయిస్ ఆపు" : "Stop Voice"}
             </button>
           </div>
         </div>

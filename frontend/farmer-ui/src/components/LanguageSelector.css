@@ -1,0 +1,33 @@
+.lang-global-selector {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 7px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--bg-elevated-soft);
+  color: var(--ink-strong);
+}
+
+.lang-global-icon {
+  font-size: 12px;
+  line-height: 1;
+}
+
+.lang-global-selector select {
+  border: none;
+  background: transparent;
+  color: inherit;
+  font-weight: 600;
+  font-size: 13px;
+  line-height: 1.1;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  outline: none;
+  min-width: 64px;
+}
+
+.lang-global-selector select option {
+  color: #102117;
+}

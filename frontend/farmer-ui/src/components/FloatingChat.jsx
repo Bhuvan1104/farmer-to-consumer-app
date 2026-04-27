@@ -1,16 +1,18 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
+import { useLanguage } from "../context/LanguageContext";
 
-export default function FloatingChat(){
+export default function FloatingChat() {
   const navigate = useNavigate();
+  const { t } = useLanguage();
+
   const openChat = () => {
-    // route to chatbot page (protected)
-    navigate('/chatbot');
-  }
+    navigate("/chatbot");
+  };
 
   return (
-    <div className="floating-chat" onClick={openChat} title="Chat with assistant">
+    <div className="floating-chat" onClick={openChat} title={t("floatingChatTitle", "Chat with assistant")}>
       <div className="chat-bubble">💬</div>
     </div>
-  )
+  );
 }
+

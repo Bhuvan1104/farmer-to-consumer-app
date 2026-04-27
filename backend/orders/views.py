@@ -1,3 +1,5 @@
+import os
+import uuid
 from decimal import Decimal
 
 from django.db import transaction
@@ -15,6 +17,22 @@ from users.models import Address
 from .delivery_service import DeliveryOptimizer
 from .models import CartItem, Order
 from .serializers import BatchDeliveryMetricsSerializer, BatchDeliveryResultSerializer, CartItemSerializer, DeliveryMetricsResultSerializer, DeliveryMetricsSerializer, OrderSerializer
+
+
+def _get_razorpay_client():
+    key_id = os.getenv("RAZORPAY_KEY_ID", "").strip()
+    key_secret = os.getenv("RAZORPAY_KEY_SECRET", "").strip()
+
+    if not key_id or not key_secret:
+        raise ValueError("Razorpay keys are not configured in backend environment.")
+
+    try:
+        import razorpay  # pylint: disable=import-outside-toplevel
+    except ImportError as exc:  # pragma: no cover - environment-specific
+        raise ImportError("Razorpay SDK is not installed. Run: pip install razorpay") from exc
+
+    client = razorpay.Client(auth=(key_id, key_secret))
+    return client, key_id
 
 
 class OrderViewSet(viewsets.ModelViewSet):
@@ -185,6 +203,17 @@ def checkout(request):
         return Response({"error": "Cart is empty"}, status=400)
 
     payment_method = request.data.get("payment_method")
+    if payment_method in {"UPI", "CARD"} and not request.data.get("razorpay_payment_id"):
+        return Response({"error": "Digital payment is not verified yet."}, status=400)
+    if payment_method in {"UPI", "CARD"} and os.getenv("STRICT_DIGITAL_PAYMENT", "0") == "1":
+        payment_id = str(request.data.get("razorpay_payment_id") or "")
+        order_id = str(request.data.get("razorpay_order_id") or "")
+        if payment_id.startswith("sim_") or order_id.startswith("sim_"):
+            return Response(
+                {"error": "Simulated digital payments are disabled in strict mode."},
+                status=400,
+            )
+
     address_id = request.data.get("address_id")
     raw_address = request.data.get("address")
     final_address = ""
@@ -227,3 +256,77 @@ def checkout(request):
         cart_items.delete()
 
     return Response({"message": "Order placed successfully", "delivery_address": final_address, "delivery_latitude": final_latitude, "delivery_longitude": final_longitude})
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def create_payment_order(request):
+    try:
+        amount = int(request.data.get("amount", 0))
+    except (TypeError, ValueError):
+        return Response({"error": "Invalid amount"}, status=400)
+
+    if amount <= 0:
+        return Response({"error": "Amount must be greater than zero"}, status=400)
+
+    currency = str(request.data.get("currency", "INR")).upper()
+    payment_mode = str(request.data.get("payment_mode", "UPI")).upper()
+
+    try:
+        client, key_id = _get_razorpay_client()
+        receipt = f"fd_{request.user.id}_{uuid.uuid4().hex[:12]}"
+        order_data = {
+            "amount": amount,
+            "currency": currency,
+            "receipt": receipt,
+            "payment_capture": 1,
+            "notes": {
+                "user_id": str(request.user.id),
+                "payment_mode": payment_mode,
+            },
+        }
+        created = client.order.create(order_data)
+    except ValueError as exc:
+        return Response({"error": str(exc)}, status=500)
+    except ImportError as exc:
+        return Response({"error": str(exc)}, status=500)
+    except Exception as exc:  # pragma: no cover - gateway/runtime failures
+        return Response({"error": f"Failed to create payment order: {exc}"}, status=500)
+
+    return Response(
+        {
+            "key": key_id,
+            "order_id": created.get("id"),
+            "amount": created.get("amount"),
+            "currency": created.get("currency", currency),
+        }
+    )
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def verify_payment_signature(request):
+    razorpay_order_id = request.data.get("razorpay_order_id")
+    razorpay_payment_id = request.data.get("razorpay_payment_id")
+    razorpay_signature = request.data.get("razorpay_signature")
+
+    if not razorpay_order_id or not razorpay_payment_id or not razorpay_signature:
+        return Response({"error": "Missing Razorpay verification fields"}, status=400)
+
+    try:
+        client, _ = _get_razorpay_client()
+        client.utility.verify_payment_signature(
+            {
+                "razorpay_order_id": razorpay_order_id,
+                "razorpay_payment_id": razorpay_payment_id,
+                "razorpay_signature": razorpay_signature,
+            }
+        )
+    except ValueError as exc:
+        return Response({"error": str(exc)}, status=500)
+    except ImportError as exc:
+        return Response({"error": str(exc)}, status=500)
+    except Exception:
+        return Response({"error": "Payment signature verification failed"}, status=400)
+
+    return Response({"verified": True})

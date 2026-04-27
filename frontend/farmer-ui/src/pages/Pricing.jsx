@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useLanguage } from "../context/LanguageContext";
 import API from "../services/api";
 import "../styles/Pricing.css";
 
@@ -112,6 +113,8 @@ function formatINR(value) {
 }
 
 function Pricing() {
+  const { language } = useLanguage();
+  const te = language === "te";
   const [image, setImage] = useState(null);
   const [freshness, setFreshness] = useState(null);
   const [basePrice, setBasePrice] = useState("");
@@ -186,7 +189,7 @@ function Pricing() {
 
   const analyzeImage = async () => {
     if (!image) {
-      setError("Please upload a product image.");
+      setError(te ? "దయచేసి ఉత్పత్తి చిత్రం అప్లోడ్ చేయండి." : "Please upload a product image.");
       return;
     }
 
@@ -216,7 +219,7 @@ function Pricing() {
 
   const calculateDynamicPrice = async () => {
     if (!hasBasePrice || !hasFreshness) {
-      setError("Analyze freshness and enter a valid base price first.");
+      setError(te ? "ముందుగా తాజాదనం విశ్లేషించి సరైన బేస్ ధర ఇవ్వండి." : "Analyze freshness and enter a valid base price first.");
       return;
     }
 
@@ -244,7 +247,7 @@ function Pricing() {
 
   const calculateAdvancedPrice = async () => {
     if (!dynamicPrice) {
-      setError("Calculate dynamic price first.");
+      setError(te ? "ముందుగా డైనమిక్ ధర లెక్కించండి." : "Calculate dynamic price first.");
       return;
     }
 
@@ -273,7 +276,7 @@ function Pricing() {
 
   const predictMLPrice = async () => {
     if (!advancedPrice) {
-      setError("Calculate advanced price first.");
+      setError(te ? "ముందుగా అడ్వాన్స్ ధర లెక్కించండి." : "Calculate advanced price first.");
       return;
     }
 
@@ -308,15 +311,15 @@ function Pricing() {
       <div className="pricing-shell">
         <header className="pricing-hero">
           <div>
-            <p className="hero-tag">Pricing Intelligence</p>
-            <h1>AI Smart Pricing Workstation</h1>
+            <p className="hero-tag">{te ? "ధర ఇంటెలిజెన్స్" : "Pricing Intelligence"}</p>
+            <h1>{te ? "AI స్మార్ట్ ధర వర్క్‌స్టేషన్" : "AI Smart Pricing Workstation"}</h1>
             <p className="hero-subtitle">
-              Build final market price in five guided stages using freshness, demand, seasonality, and forecasting.
+              {te ? "తాజాదనం, డిమాండ్, సీజన్, ఫోరకాస్ట్ ఆధారంగా ఐదు దశల్లో ధర నిర్ణయించండి." : "Build final market price in five guided stages using freshness, demand, seasonality, and forecasting."}
             </p>
           </div>
           <div className="hero-state">
             <span className={`state-dot ${loading ? "busy" : "idle"}`} />
-            {loading ? "Processing" : "System Ready"}
+            {loading ? (te ? "ప్రాసెస్ అవుతోంది" : "Processing") : (te ? "సిస్టమ్ సిద్ధం" : "System Ready")}
           </div>
         </header>
 
@@ -338,8 +341,8 @@ function Pricing() {
         <div className="workbench">
           <section className="main-panel">
             <article className="card card-main">
-              <h2>1. Freshness Analysis</h2>
-              <p className="section-note">Upload produce image for freshness and shelf-life analysis.</p>
+              <h2>{te ? "1. తాజాదనం విశ్లేషణ" : "1. Freshness Analysis"}</h2>
+              <p className="section-note">{te ? "తాజాదనం మరియు షెల్ఫ్-లైఫ్ కోసం చిత్రం అప్లోడ్ చేయండి." : "Upload produce image for freshness and shelf-life analysis."}</p>
 
               <input
                 type="file"
@@ -362,10 +365,10 @@ function Pricing() {
                 {activeAction === "freshness" ? (
                   <span className="btn-loading">
                     <span className="btn-spinner" />
-                    Analyzing...
+                    {te ? "విశ్లేషిస్తోంది..." : "Analyzing..."}
                   </span>
                 ) : (
-                  "Analyze Freshness"
+                  (te ? "తాజాదనం విశ్లేషించు" : "Analyze Freshness")
                 )}
               </button>
 
@@ -382,7 +385,7 @@ function Pricing() {
               {freshness && (
                 <div className={`result-card tone-${freshnessTone}`}>
                   <div className="result-header">
-                    <h3>Freshness Result</h3>
+                    <h3>{te ? "తాజాదనం ఫలితం" : "Freshness Result"}</h3>
                     <span className={`badge badge-${freshnessTone}`}>{freshness.freshness_category}</span>
                   </div>
 
@@ -420,8 +423,8 @@ function Pricing() {
             </article>
 
             <article className="card">
-              <h2>2. Base Price</h2>
-              <p className="section-note">Set the baseline price before AI adjustments.</p>
+              <h2>{te ? "2. బేస్ ధర" : "2. Base Price"}</h2>
+              <p className="section-note">{te ? "AI సవరణల ముందు బేస్ ధరను సెట్ చేయండి." : "Set the baseline price before AI adjustments."}</p>
 
               <label className="field-label">Base Price (INR)</label>
               <input
@@ -433,17 +436,17 @@ function Pricing() {
             </article>
 
             <article className="card">
-              <h2>3. Dynamic Price</h2>
+              <h2>{te ? "3. డైనమిక్ ధర" : "3. Dynamic Price"}</h2>
               <p className="section-note">Freshness-adjusted recommendation.</p>
 
               <button className="primary-button" onClick={calculateDynamicPrice} disabled={loading}>
                 {activeAction === "dynamic" ? (
                   <span className="btn-loading">
                     <span className="btn-spinner" />
-                    Calculating...
+                    {te ? "లెక్కిస్తోంది..." : "Calculating..."}
                   </span>
                 ) : (
-                  "Calculate Dynamic Price"
+                  (te ? "డైనమిక్ ధర లెక్కించు" : "Calculate Dynamic Price")
                 )}
               </button>
 
@@ -487,7 +490,7 @@ function Pricing() {
             </article>
 
             <article className="card">
-              <h2>4. Advanced Pricing</h2>
+              <h2>{te ? "4. అడ్వాన్స్ ధర" : "4. Advanced Pricing"}</h2>
               <p className="section-note">Refine with demand and seasonal effects.</p>
 
               <label className="field-label">Demand Index: {demandIndex}</label>
@@ -512,10 +515,10 @@ function Pricing() {
                 {activeAction === "advanced" ? (
                   <span className="btn-loading">
                     <span className="btn-spinner" />
-                    Calculating...
+                    {te ? "లెక్కిస్తోంది..." : "Calculating..."}
                   </span>
                 ) : (
-                  "Calculate Advanced Price"
+                  (te ? "అడ్వాన్స్ ధర లెక్కించు" : "Calculate Advanced Price")
                 )}
               </button>
 
@@ -559,7 +562,7 @@ function Pricing() {
             </article>
 
             <article className="card card-main">
-              <h2>5. ML Price Forecast</h2>
+              <h2>{te ? "5. ML ధర ఫోరకాస్ట్" : "5. ML Price Forecast"}</h2>
               <p className="section-note">Forecast future movement using ML signals.</p>
 
               <label className="field-label">Seasonal Factor: {Number(seasonalFactor).toFixed(1)}</label>
@@ -576,10 +579,10 @@ function Pricing() {
                 {activeAction === "ml" ? (
                   <span className="btn-loading">
                     <span className="btn-spinner" />
-                    Forecasting...
+                    {te ? "ఫోరకాస్ట్ చేస్తోంది..." : "Forecasting..."}
                   </span>
                 ) : (
-                  "Predict Future Price"
+                  (te ? "భవిష్యత్ ధర అంచనా వేయండి" : "Predict Future Price")
                 )}
               </button>
 

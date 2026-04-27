@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useLanguage } from "../context/LanguageContext";
 import API from "../services/api";
 import "../styles/ChatHistory.css";
 
@@ -10,12 +11,14 @@ const LANGUAGE_OPTIONS = [
 ];
 
 function ChatHistory() {
+  const { language } = useLanguage();
+  const te = language === "te";
   const [contacts, setContacts] = useState([]);
   const [selectedContactId, setSelectedContactId] = useState(null);
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
-  const [composeLanguage, setComposeLanguage] = useState("en");
-  const [displayLanguage, setDisplayLanguage] = useState("en");
+  const [composeLanguage, setComposeLanguage] = useState(language || "en");
+  const [displayLanguage, setDisplayLanguage] = useState(language || "en");
   const [currentUserId, setCurrentUserId] = useState(null);
   const [sending, setSending] = useState(false);
   const [listening, setListening] = useState(false);
@@ -70,11 +73,16 @@ function ChatHistory() {
       setMessages(Array.isArray(res.data) ? res.data : []);
       setError("");
     } catch (err) {
-      setError(err.response?.data?.detail || "Failed to fetch messages");
+      setError(err.response?.data?.detail || (te ? "సందేశాలు పొందడంలో విఫలం" : "Failed to fetch messages"));
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    setComposeLanguage(language || "en");
+    setDisplayLanguage(language || "en");
+  }, [language]);
 
   useEffect(() => {
     const initProfile = async () => {
@@ -126,7 +134,7 @@ function ChatHistory() {
 
     recognition.onerror = () => {
       setListening(false);
-      setError("Voice input failed. Please type or try again.");
+      setError(te ? "వాయిస్ ఇన్‌పుట్ విఫలమైంది. టైప్ చేయండి లేదా మళ్లీ ప్రయత్నించండి." : "Voice input failed. Please type or try again.");
     };
 
     recognition.onend = () => setListening(false);
@@ -172,7 +180,7 @@ function ChatHistory() {
       await fetchMessages(selectedContactId);
       await fetchContacts();
     } catch (err) {
-      setError(err.response?.data?.detail || "Failed to send message");
+      setError(err.response?.data?.detail || (te ? "సందేశం పంపడంలో విఫలం" : "Failed to send message"));
     } finally {
       setSending(false);
     }
@@ -202,7 +210,7 @@ function ChatHistory() {
       await fetchMessages(selectedContactId);
       await fetchContacts();
     } catch (err) {
-      setError(err.response?.data?.detail || "Failed to update message");
+      setError(err.response?.data?.detail || (te ? "సందేశం నవీకరణ విఫలం" : "Failed to update message"));
     }
   };
 
@@ -214,7 +222,7 @@ function ChatHistory() {
       await fetchMessages(selectedContactId);
       await fetchContacts();
     } catch (err) {
-      setError(err.response?.data?.detail || "Failed to delete message");
+      setError(err.response?.data?.detail || (te ? "సందేశం తొలగింపు విఫలం" : "Failed to delete message"));
     }
   };
 
@@ -226,7 +234,7 @@ function ChatHistory() {
       try {
         recognitionRef.current.start();
       } catch {
-        setError("Unable to start microphone. Allow mic permission and try again.");
+        setError(te ? "మైక్ ప్రారంభం కాలేదు. అనుమతి ఇచ్చి మళ్లీ ప్రయత్నించండి." : "Unable to start microphone. Allow mic permission and try again.");
       }
     }
   };
@@ -241,8 +249,8 @@ function ChatHistory() {
   return (
     <div className="chat2-wrapper">
       <div className="chat2-header">
-        <h1>Regional Language Messages</h1>
-        <p>Type or speak in your language. View in any selected language.</p>
+        <h1>{te ? "ప్రాంతీయ భాష సందేశాలు" : "Regional Language Messages"}</h1>
+        <p>{te ? "మీ భాషలో టైప్ చేయండి లేదా మాట్లాడండి. కావలసిన భాషలో చూడండి." : "Type or speak in your language. View in any selected language."}</p>
       </div>
 
       {error && <div className="chat2-error">{error}</div>}
@@ -250,10 +258,10 @@ function ChatHistory() {
       <div className="chat2-layout">
         <aside className="chat2-contacts">
           <div className="chat2-sidebar-head">
-            <h3>People</h3>
+            <h3>{te ? "వ్యక్తులు" : "People"}</h3>
             <div className="chat2-lang-controls">
               <label>
-                My input language
+                {te ? "నా ఇన్‌పుట్ భాష" : "My input language"}
                 <select value={composeLanguage} onChange={(e) => setComposeLanguage(e.target.value)}>
                   {LANGUAGE_OPTIONS.map((lang) => (
                     <option key={lang.code} value={lang.code}>
@@ -263,7 +271,7 @@ function ChatHistory() {
                 </select>
               </label>
               <label>
-                Translate thread to
+                {te ? "థ్రెడ్‌ను ఈ భాషకు అనువదించు" : "Translate thread to"}
                 <select value={displayLanguage} onChange={(e) => setDisplayLanguage(e.target.value)}>
                   {LANGUAGE_OPTIONS.map((lang) => (
                     <option key={lang.code} value={lang.code}>
@@ -302,13 +310,13 @@ function ChatHistory() {
             <h3>{selectedContact ? selectedContact.username : "Select a contact"}</h3>
             {selectedContact && (
               <span>
-                Receiver preference: {selectedContact.preferred_language || "en"} | Viewing: {displayLanguage}
+                {te ? "స్వీకర్త అభిరుచి" : "Receiver preference"}: {selectedContact.preferred_language || "en"} | {te ? "వీక్షణ" : "Viewing"}: {displayLanguage}
               </span>
             )}
           </div>
 
           <div className="chat2-messages">
-            {loading && <div className="chat2-empty">Loading messages...</div>}
+            {loading && <div className="chat2-empty">{te ? "సందేశాలు లోడ్ అవుతున్నాయి..." : "Loading messages..."}</div>}
             {!loading && messages.length === 0 && <div className="chat2-empty">No messages yet. Start the conversation.</div>}
             {messages.map((msg) => {
               const isMine =
@@ -326,8 +334,8 @@ function ChatHistory() {
                           className="chat2-edit-input"
                         />
                         <div className="chat2-edit-actions">
-                          <button type="button" onClick={() => saveEdit(msg.id)}>Save</button>
-                          <button type="button" onClick={cancelEdit}>Cancel</button>
+                          <button type="button" onClick={() => saveEdit(msg.id)}>{te ? "సేవ్" : "Save"}</button>
+                          <button type="button" onClick={cancelEdit}>{te ? "రద్దు" : "Cancel"}</button>
                         </div>
                       </div>
                     ) : (
@@ -353,7 +361,7 @@ function ChatHistory() {
                               Edit
                             </button>
                             <button type="button" onClick={() => deleteMessage(msg.id)}>
-                              Delete
+                              {te ? "తొలగించు" : "Delete"}
                             </button>
                           </div>
                         )}
@@ -386,7 +394,7 @@ function ChatHistory() {
                 {listening ? "■" : "🎤"}
               </button>
               <button type="button" onClick={sendMessage} disabled={!selectedContact || !text.trim() || sending}>
-                {sending ? "Sending..." : "Send"}
+                {sending ? (te ? "పంపుతోంది..." : "Sending...") : (te ? "పంపు" : "Send")}
               </button>
             </div>
           </div>

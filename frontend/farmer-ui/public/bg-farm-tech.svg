@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080" fill="none">
+  <defs>
+    <linearGradient id="base" x1="0" y1="0" x2="1920" y2="1080" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0F3C2B"/>
+      <stop offset="0.55" stop-color="#145638"/>
+      <stop offset="1" stop-color="#204A35"/>
+    </linearGradient>
+    <radialGradient id="spotA" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(380 180) rotate(35) scale(560 380)">
+      <stop stop-color="#77D69F" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#77D69F" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="spotB" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1580 860) rotate(-22) scale(720 460)">
+      <stop stop-color="#CBA66A" stop-opacity="0.28"/>
+      <stop offset="1" stop-color="#CBA66A" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="fieldGrid" patternUnits="userSpaceOnUse" width="90" height="90">
+      <path d="M90 0H0V90" stroke="#B8E5C7" stroke-opacity="0.16" stroke-width="1"/>
+      <path d="M45 0V90M0 45H90" stroke="#B8E5C7" stroke-opacity="0.11" stroke-width="1"/>
+    </pattern>
+  </defs>
+
+  <rect width="1920" height="1080" fill="url(#base)"/>
+  <rect width="1920" height="1080" fill="url(#spotA)"/>
+  <rect width="1920" height="1080" fill="url(#spotB)"/>
+  <rect width="1920" height="1080" fill="url(#fieldGrid)"/>
+
+  <g opacity="0.25" stroke="#CFF4DD">
+    <path d="M-40 1010C280 840 600 920 920 760C1240 600 1560 680 1960 420" stroke-width="3"/>
+    <path d="M-60 940C300 780 560 850 940 700C1290 560 1640 630 1980 360" stroke-width="2"/>
+    <path d="M-80 880C260 730 620 760 930 640C1260 510 1610 560 1960 300" stroke-width="1.5"/>
+  </g>
+</svg>

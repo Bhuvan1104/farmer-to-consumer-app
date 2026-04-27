@@ -1,16 +1,11 @@
 :root {
-  --primary: #157347;
-  --primary-dark: #0f5c37;
-  --accent: #c97c2a;
-  --accent-soft: #fff0dc;
-  --surface: rgba(255, 255, 255, 0.88);
-  --surface-strong: rgba(255, 255, 255, 0.96);
-  --line: rgba(15, 76, 43, 0.12);
-  --text-main: #173a28;
-  --text-muted: #607066;
-  --bg-gradient: linear-gradient(160deg, rgba(231, 247, 236, 0.92), rgba(245, 251, 246, 0.96));
-  --shadow-soft: 0 16px 40px rgba(15, 52, 29, 0.08);
-  --shadow-hover: 0 20px 52px rgba(15, 52, 29, 0.14);
+  --primary: var(--brand);
+  --primary-dark: var(--brand-deep);
+  --surface: var(--bg-surface);
+  --surface-strong: var(--bg-elevated);
+  --text-main: var(--ink-strong);
+  --text-muted: var(--ink-soft);
+  --bg-gradient: linear-gradient(160deg, rgba(62, 148, 98, 0.16), rgba(22, 37, 30, 0.05));
 }
 
 .page-container,
@@ -24,11 +19,11 @@
 .page-header {
   position: relative;
   overflow: hidden;
-  color: white;
+  color: #fff;
   padding: 28px 30px;
   border-radius: 24px;
   margin-bottom: 28px;
-  background: linear-gradient(135deg, #166534, #3aa66e);
+  background: linear-gradient(135deg, var(--primary-dark), var(--primary));
   box-shadow: var(--shadow-soft);
 }
 
@@ -37,7 +32,7 @@
   position: absolute;
   inset: auto -10% -40% 40%;
   height: 140px;
-  background: radial-gradient(circle, rgba(255,255,255,0.18), transparent 60%);
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.18), transparent 60%);
 }
 
 .page-header h1 {
@@ -71,7 +66,7 @@
 .dashboard-card:hover {
   transform: translateY(-4px);
   box-shadow: var(--shadow-hover);
-  border-color: rgba(21, 115, 71, 0.18);
+  border-color: rgba(21, 115, 71, 0.32);
 }
 
 .primary-button,
@@ -81,10 +76,10 @@
   border: none;
   padding: 12px 20px;
   border-radius: 999px;
-  color: white;
+  color: #fff;
   font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 10px 24px rgba(21, 115, 71, 0.18);
+  box-shadow: 0 10px 24px rgba(21, 115, 71, 0.28);
 }
 
 .primary-button:hover,
@@ -96,9 +91,9 @@
 
 .secondary-button,
 .btn-secondary {
-  background: rgba(255, 255, 255, 0.9);
+  background: var(--surface-strong);
   color: var(--text-main);
-  border: 1px solid rgba(15, 76, 43, 0.12);
+  border: 1px solid var(--line);
   border-radius: 999px;
   padding: 10px 18px;
   cursor: pointer;
@@ -106,12 +101,12 @@
 
 .secondary-button:hover,
 .btn-secondary:hover {
-  background: #f4faf5;
+  background: rgba(76, 121, 92, 0.22);
 }
 
 .danger-button {
   background: linear-gradient(135deg, #d84848, #f06b6b);
-  color: white;
+  color: #fff;
   border-radius: 999px;
   padding: 10px 18px;
   border: none;
@@ -128,9 +123,15 @@ textarea {
   width: 100%;
   padding: 11px 12px;
   border-radius: 12px;
-  border: 1px solid #d9e6dd;
+  border: 1px solid var(--line);
   margin-top: 5px;
-  background: rgba(255,255,255,0.92);
+  background: var(--surface-strong);
+  color: var(--text-main);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-muted);
 }
 
 input:focus,
@@ -138,7 +139,7 @@ select:focus,
 textarea:focus {
   border-color: var(--primary);
   outline: none;
-  box-shadow: 0 0 0 4px rgba(21, 115, 71, 0.12);
+  box-shadow: 0 0 0 4px rgba(21, 115, 71, 0.22);
 }
 
 .badge,
@@ -147,7 +148,7 @@ textarea:focus {
   border-radius: 999px;
   font-size: 0.8rem;
   font-weight: 700;
-  color: white;
+  color: #fff;
 }
 
 .success-message,
@@ -166,4 +167,111 @@ textarea:focus {
   border-radius: 10px;
   margin-bottom: 12px;
   color: #ad2f2f;
+}
+
+[data-theme="dark"] {
+  --g-50: #13231a;
+  --g-100: #1a3526;
+  --g-200: #24513a;
+  --g-400: #3fa673;
+  --g-500: #3db07a;
+  --g-600: #319664;
+  --g-700: #5ac38e;
+  --g-800: #79d5a7;
+  --g-900: #9ee2c0;
+
+  --surface-0: #17231e;
+  --surface-1: #121c18;
+  --surface-2: #1b2a24;
+  --border: #32483e;
+  --border-mid: #446357;
+
+  --text-primary: #e8f5ee;
+  --text-mid: #c6dbcf;
+  --text-muted: #a2b9ae;
+  --text-faint: #80988d;
+
+  --accent: #42bb7f;
+  --accent-dark: #2f9160;
+  --accent-glow: rgba(66, 187, 127, 0.2);
+  --accent-ring: rgba(66, 187, 127, 0.28);
+
+  --danger-bg: #3b1e1e;
+  --warn-bg: #3a2d16;
+
+  --pricing-bg-1: #101a2e;
+  --pricing-bg-2: #101b34;
+  --pricing-surface: #1a2740;
+  --pricing-border: #35517f;
+  --pricing-text: #e5edfb;
+  --pricing-muted: #aec2df;
+  --pricing-primary: #5fa3ff;
+  --pricing-primary-dark: #3d7fd4;
+  --pricing-success: #4fc68f;
+  --pricing-warning: #d9ab48;
+  --pricing-danger: #ef7f7f;
+}
+
+[data-theme="dark"] .home-feature-card,
+[data-theme="dark"] .login-card,
+[data-theme="dark"] .register-card,
+[data-theme="dark"] .chatbot-card,
+[data-theme="dark"] .chat2-wrapper,
+[data-theme="dark"] .order-card,
+[data-theme="dark"] .product-card,
+[data-theme="dark"] .delivery-card,
+[data-theme="dark"] .pricing-hero,
+[data-theme="dark"] .pricing-shell section,
+[data-theme="dark"] .profile-card,
+[data-theme="dark"] .orders-grid > div,
+[data-theme="dark"] .pd-sidebar-card,
+[data-theme="dark"] .pd-main-grid,
+[data-theme="dark"] .ap-summary-card {
+  background: var(--surface-strong) !important;
+  border-color: var(--line) !important;
+  color: var(--text-main) !important;
+}
+
+[data-theme="dark"] .home-footer,
+[data-theme="dark"] .login-subtitle,
+[data-theme="dark"] .register-card h2,
+[data-theme="dark"] .section-title,
+[data-theme="dark"] .home-feature-card h3,
+[data-theme="dark"] .home-feature-card p,
+[data-theme="dark"] .register-footer button,
+[data-theme="dark"] .link-button,
+[data-theme="dark"] .input-group label,
+[data-theme="dark"] .form-group label {
+  color: var(--text-main) !important;
+}
+
+[data-theme="dark"] .error-box,
+[data-theme="dark"] .error-message {
+  background: #3d1f1f !important;
+  color: #ffb8b8 !important;
+}
+
+[data-theme="dark"] .success-box,
+[data-theme="dark"] .success-message {
+  background: #1a3d2d !important;
+  color: #aff3ca !important;
+}
+
+[data-theme="dark"] .route-stage [class*="card"],
+[data-theme="dark"] .route-stage [class*="panel"],
+[data-theme="dark"] .route-stage [class*="box"],
+[data-theme="dark"] .route-stage [class*="shell"],
+[data-theme="dark"] .route-stage [class*="thread"],
+[data-theme="dark"] .route-stage [class*="contacts"] {
+  background-color: #1a2822;
+  border-color: #32483d;
+  color: #deeee5;
+}
+
+[data-theme="dark"] .route-stage input,
+[data-theme="dark"] .route-stage textarea,
+[data-theme="dark"] .route-stage select {
+  background: #16231d;
+  border-color: #385247;
+  color: #d9ece0;
 }

@@ -13,9 +13,49 @@
   --line: rgba(19, 76, 43, 0.1);
   --shadow-soft: 0 16px 42px rgba(15, 52, 29, 0.08);
   --shadow-hover: 0 22px 54px rgba(15, 52, 29, 0.14);
+  --bg-glow-top: rgba(43, 145, 84, 0.16);
+  --bg-glow-bottom: rgba(201, 124, 42, 0.12);
+  --bg-gradient-main: linear-gradient(180deg, #f6fbf6, #eef6ef);
+  --bg-image-url: url("./assets/bg-farm-tech.svg");
+  --bg-image-opacity: 0.12;
+  --bg-image-blur: 0px;
+  --grid-line: rgba(255, 255, 255, 0.03);
+  --scrollbar-track: #edf4ee;
+  --scrollbar-thumb-start: #4ea86f;
+  --scrollbar-thumb-end: #1a7a4a;
+  --scrollbar-thumb-start-hover: #3e9660;
+  --scrollbar-thumb-end-hover: #11653a;
   --radius-lg: 22px;
   --radius-md: 14px;
   --transition-smooth: 220ms ease;
+}
+
+[data-theme="dark"] {
+  --bg-base: #0f1714;
+  --bg-surface: rgba(23, 33, 29, 0.86);
+  --bg-elevated: rgba(28, 39, 34, 0.95);
+  --ink-strong: #e8f5ee;
+  --ink-soft: #a8b9b0;
+  --brand: #37a26b;
+  --brand-deep: #2a7f53;
+  --brand-soft: #213b2e;
+  --accent: #e4a65c;
+  --accent-soft: #3b2c18;
+  --danger: #f17272;
+  --line: rgba(141, 181, 157, 0.28);
+  --shadow-soft: 0 18px 44px rgba(0, 0, 0, 0.32);
+  --shadow-hover: 0 26px 60px rgba(0, 0, 0, 0.44);
+  --bg-glow-top: rgba(55, 162, 107, 0.2);
+  --bg-glow-bottom: rgba(228, 166, 92, 0.12);
+  --bg-gradient-main: linear-gradient(180deg, #101917, #0b1310);
+  --bg-image-opacity: 0.22;
+  --bg-image-blur: 0px;
+  --grid-line: rgba(255, 255, 255, 0.035);
+  --scrollbar-track: #1a2520;
+  --scrollbar-thumb-start: #2f7a57;
+  --scrollbar-thumb-end: #256646;
+  --scrollbar-thumb-start-hover: #399365;
+  --scrollbar-thumb-end-hover: #2d7651;
 }
 
 * {
@@ -35,9 +75,9 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background:
-    radial-gradient(circle at top left, rgba(43, 145, 84, 0.16), transparent 28%),
-    radial-gradient(circle at bottom right, rgba(201, 124, 42, 0.12), transparent 24%),
-    linear-gradient(180deg, #f6fbf6, #eef6ef);
+    radial-gradient(circle at top left, var(--bg-glow-top), transparent 28%),
+    radial-gradient(circle at bottom right, var(--bg-glow-bottom), transparent 24%),
+    var(--bg-gradient-main);
   background-attachment: fixed;
 }
 
@@ -46,9 +86,22 @@ body::before {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-image: linear-gradient(var(--grid-line) 1px, transparent 1px), linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
   background-size: 32px 32px;
   opacity: 0.45;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: var(--bg-image-url);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: var(--bg-image-opacity);
+  filter: blur(var(--bg-image-blur));
 }
 
 h1,
@@ -205,16 +258,16 @@ body,
 }
 
 ::-webkit-scrollbar-track {
-  background: #edf4ee;
+  background: var(--scrollbar-track);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #4ea86f, #1a7a4a);
+  background: linear-gradient(180deg, var(--scrollbar-thumb-start), var(--scrollbar-thumb-end));
   border-radius: 999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, #3e9660, #11653a);
+  background: linear-gradient(180deg, var(--scrollbar-thumb-start-hover), var(--scrollbar-thumb-end-hover));
 }
 
 @keyframes pageEnter {

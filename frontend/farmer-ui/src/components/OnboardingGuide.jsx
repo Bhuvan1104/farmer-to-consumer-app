@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import "./OnboardingGuide.css";
 
@@ -263,10 +264,10 @@ const GUIDE_STEPS = {
   },
 };
 
-function OnboardingGuide({ role = "consumer" }) {
+function OnboardingGuide({ role = "consumer", initialLang = "en" }) {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
-  const [lang, setLang] = useState("en");
+  const [lang, setLang] = useState(initialLang || "en");
   const [stepIndex, setStepIndex] = useState(0);
   const [listening, setListening] = useState(false);
   const [transcript, setTranscript] = useState("");
@@ -283,6 +284,22 @@ function OnboardingGuide({ role = "consumer" }) {
 
   const currentStep = steps[stepIndex];
   const speechLang = LANG_OPTIONS.find((l) => l.code === lang)?.speech || "en-IN";
+  const progressPct = Math.round(((stepIndex + 1) / Math.max(1, steps.length)) * 100);
+
+  const compactBody = useMemo(() => {
+    const body = currentStep?.body || "";
+    if (body.length <= 96) return body;
+
+    const separators = [". ", "? ", "?", "."];
+    for (const sep of separators) {
+      const idx = body.indexOf(sep);
+      if (idx > 30 && idx < 120) {
+        return body.slice(0, idx + 1).trim();
+      }
+    }
+
+    return `${body.slice(0, 93).trim()}...`;
+  }, [currentStep]);
 
   useEffect(() => {
     try {
@@ -293,7 +310,54 @@ function OnboardingGuide({ role = "consumer" }) {
     }
   }, [seenKey]);
 
+  useEffect(() => {
+    if (!initialLang) return;
+    setLang(initialLang);
+  }, [initialLang]);
+
   useEffect(() => () => window.speechSynthesis.cancel(), []);
+
+  useEffect(() => {
+    if (!open) return undefined;
+
+    const previousBodyOverflow = document.body.style.overflow;
+    const previousHtmlOverflow = document.documentElement.style.overflow;
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousBodyOverflow;
+      document.documentElement.style.overflow = previousHtmlOverflow;
+    };
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return undefined;
+
+    const onKeyDown = (event) => {
+      if (event.key === "Escape") {
+        try {
+          localStorage.setItem(seenKey, "1");
+        } catch {
+          // ignore storage errors
+        }
+        setOpen(false);
+        setStepIndex(0);
+        setListening(false);
+        setTranscript("");
+        setError("");
+      }
+      if (event.key === "ArrowRight") {
+        setStepIndex((p) => Math.min(steps.length - 1, p + 1));
+      }
+      if (event.key === "ArrowLeft") {
+        setStepIndex((p) => Math.max(0, p - 1));
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [open, seenKey, steps.length]);
 
   const markSeenAndClose = () => {
     try {
@@ -304,6 +368,19 @@ function OnboardingGuide({ role = "consumer" }) {
     setOpen(false);
     setStepIndex(0);
     setListening(false);
+    setTranscript("");
+    setError("");
+  };
+
+  const remindLater = () => {
+    setOpen(false);
+    setListening(false);
+    setTranscript("");
+    setError("");
+  };
+
+  const restartGuide = () => {
+    setStepIndex(0);
     setTranscript("");
     setError("");
   };
@@ -359,7 +436,7 @@ function OnboardingGuide({ role = "consumer" }) {
         {text.open}
       </button>
 
-      {open && (
+      {open && createPortal(
         <div className="onb-overlay">
           <div className="onb-modal">
             <div className="onb-head">
@@ -367,48 +444,85 @@ function OnboardingGuide({ role = "consumer" }) {
                 <h3>{text.title}</h3>
                 <p>{text.subtitle}</p>
               </div>
-              <select value={lang} onChange={(e) => setLang(e.target.value)}>
-                {LANG_OPTIONS.map((item) => (
-                  <option key={item.code} value={item.code}>
-                    {item.label}
-                  </option>
-                ))}
-              </select>
+              <div className="onb-head-controls">
+                <select value={lang} onChange={(e) => setLang(e.target.value)}>
+                  {LANG_OPTIONS.map((item) => (
+                    <option key={item.code} value={item.code}>
+                      {item.label}
+                    </option>
+                  ))}
+                </select>
+                <button type="button" className="onb-head-close" onClick={markSeenAndClose}>
+                  {text.close}
+                </button>
+              </div>
             </div>
 
-            <div className="onb-step-card">
-              <span className="onb-step-index">
-                {text.step} {stepIndex + 1}/{steps.length}
-              </span>
-              <h4>{currentStep?.title}</h4>
-              <p>{currentStep?.body}</p>
-              <button type="button" className="onb-open-page" onClick={gotoStepPage}>
-                {currentStep?.cta}
-              </button>
+            <div className="onb-progress-wrap">
+              <div className="onb-progress-label">
+                <span>Progress</span>
+                <strong>{progressPct}%</strong>
+              </div>
+              <div className="onb-progress-track">
+                <div className="onb-progress-fill" style={{ width: `${progressPct}%` }} />
+              </div>
             </div>
 
-            <div className="onb-voice-row">
-              <button type="button" onClick={speakStep}>
-                {text.listen}
-              </button>
-              <button
-                type="button"
-                onClick={toggleMicPractice}
-                title={listening ? text.stopMic : text.mic}
-                aria-label={listening ? text.stopMic : text.mic}
-              >
-                {listening ? "■" : "🎤"}
-              </button>
-            </div>
+            <div className="onb-body">
+              <aside className="onb-steps-nav">
+                <h5>Tips</h5>
+                <div className="onb-steps-list">
+                  {steps.map((item, idx) => (
+                    <button
+                      type="button"
+                      key={`${item.title}-${idx}`}
+                      className={`onb-step-nav-item ${idx === stepIndex ? "active" : ""} ${idx < stepIndex ? "done" : ""}`}
+                      onClick={() => setStepIndex(idx)}
+                    >
+                      <span className="onb-step-nav-index">{idx + 1}</span>
+                      <span className="onb-step-nav-title">{item.title}</span>
+                    </button>
+                  ))}
+                </div>
+              </aside>
 
-            {transcript && <div className="onb-note">{text.heard} {transcript}</div>}
-            {error && <div className="onb-note onb-error">{error}</div>}
+              <section className="onb-step-card">
+                <span className="onb-step-index">
+                  {text.step} {stepIndex + 1}/{steps.length}
+                </span>
+                <h4>{currentStep?.title}</h4>
+                <p>{compactBody}</p>
+                <button type="button" className="onb-open-page" onClick={gotoStepPage}>
+                  {currentStep?.cta}
+                </button>
+
+                <div className="onb-voice-row">
+                  <button type="button" onClick={speakStep} title={text.listen} aria-label={text.listen}>
+                    🔊
+                  </button>
+                  <button
+                    type="button"
+                    onClick={toggleMicPractice}
+                    title={listening ? text.stopMic : text.mic}
+                    aria-label={listening ? text.stopMic : text.mic}
+                  >
+                    {listening ? "■" : "🎤"}
+                  </button>
+                </div>
+
+                {transcript && <div className="onb-note">{text.heard} {transcript}</div>}
+                {error && <div className="onb-note onb-error">{error}</div>}
+              </section>
+            </div>
 
             <div className="onb-actions">
-              <button type="button" onClick={markSeenAndClose}>
-                {text.close}
+              <button type="button" onClick={remindLater}>
+                Remind Later
               </button>
               <div>
+                <button type="button" onClick={restartGuide}>
+                  Restart
+                </button>
                 <button
                   type="button"
                   disabled={stepIndex === 0}
@@ -430,9 +544,10 @@ function OnboardingGuide({ role = "consumer" }) {
             </div>
           </div>
         </div>
-      )}
+      , document.body)}
     </>
   );
 }
 
 export default OnboardingGuide;
+

@@ -365,3 +365,101 @@
     box-shadow: 0 0 0 10px rgba(210, 54, 54, 0);
   }
 }
+
+[data-theme="dark"] .chat2-header h1 {
+  color: #dff3e7;
+}
+
+[data-theme="dark"] .chat2-header p,
+[data-theme="dark"] .chat2-empty,
+[data-theme="dark"] .chat2-contact p,
+[data-theme="dark"] .chat2-lang-controls label {
+  color: #9fb6a9;
+}
+
+[data-theme="dark"] .chat2-error {
+  background: #3a1f1f;
+  border-color: #6b3434;
+  color: #ffc2c2;
+}
+
+[data-theme="dark"] .chat2-contacts,
+[data-theme="dark"] .chat2-thread,
+[data-theme="dark"] .chat2-msg-menu-popover {
+  background: #1a2822;
+  border-color: #32483d;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.32);
+}
+
+[data-theme="dark"] .chat2-sidebar-head,
+[data-theme="dark"] .chat2-thread-head,
+[data-theme="dark"] .chat2-input {
+  border-bottom-color: #2f4339;
+  border-top-color: #2f4339;
+}
+
+[data-theme="dark"] .chat2-sidebar-head select,
+[data-theme="dark"] .chat2-edit-input,
+[data-theme="dark"] .chat2-input textarea {
+  background: #16231d;
+  border-color: #395347;
+  color: #d9ece0;
+}
+
+[data-theme="dark"] .chat2-contact {
+  background: #1e2e27;
+  border-color: #375045;
+}
+
+[data-theme="dark"] .chat2-contact.active {
+  background: #244234;
+  border-color: #4ab77f;
+}
+
+[data-theme="dark"] .chat2-unread {
+  background: #36a667;
+}
+
+[data-theme="dark"] .chat2-messages {
+  background: linear-gradient(180deg, #15211c 0%, #111a17 100%);
+}
+
+[data-theme="dark"] .chat2-bubble {
+  background: #203127;
+  border-color: #344c40;
+  color: #deefe5;
+}
+
+[data-theme="dark"] .chat2-row.mine .chat2-bubble {
+  background: #2a9659;
+  border-color: #2a9659;
+}
+
+[data-theme="dark"] .chat2-msg-menu-trigger {
+  color: #b9d5c8;
+}
+
+[data-theme="dark"] .chat2-msg-menu-popover button {
+  background: #1a2822;
+  color: #d6e9de;
+}
+
+[data-theme="dark"] .chat2-msg-menu-popover button:hover {
+  background: #23362d;
+}
+
+[data-theme="dark"] .chat2-edit-actions button {
+  background: #22362c;
+  color: #cbe2d6;
+  border-color: #3d5a4e;
+}
+
+[data-theme="dark"] .chat2-input button {
+  background: #2b9b5f;
+}
+
+[data-theme="dark"] .chat2-mic-btn {
+  background: #23362d !important;
+  color: #c0d9cd !important;
+  border-color: #3f5c4f !important;
+}

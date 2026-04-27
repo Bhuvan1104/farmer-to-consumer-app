@@ -20,6 +20,8 @@ import ProductDetail from "./pages/ProductDetail";
 import Products from "./pages/Products";
 import Profile from "./pages/Profile";
 import Register from "./pages/Register";
+import { LanguageProvider } from "./context/LanguageContext";
+import { ThemeProvider } from "./context/ThemeContext";
 
 function AppWrapper() {
   const location = useLocation();
@@ -67,9 +69,13 @@ function App() {
   }, []);
 
   return (
-    <BrowserRouter>
-      <AppWrapper />
-    </BrowserRouter>
+    <ThemeProvider>
+      <LanguageProvider>
+        <BrowserRouter>
+          <AppWrapper />
+        </BrowserRouter>
+      </LanguageProvider>
+    </ThemeProvider>
   );
 }
 

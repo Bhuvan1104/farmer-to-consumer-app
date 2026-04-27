@@ -1,12 +1,15 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
+import { useLanguage } from "../context/LanguageContext";
 
 import API from "../services/api";
 import "../styles/ProductDetail.css";
 import { isConsumer, isFarmer } from "../utils/auth";
 
 function ProductDetail() {
+  const { language } = useLanguage();
+  const te = language === "te";
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -71,7 +74,7 @@ function ProductDetail() {
     try {
       await API.post("orders/cart/add/", { product_id: product.id, quantity });
       window.dispatchEvent(new Event("cartUpdated"));
-      alert("Added to Cart");
+      alert(te ? "????????? ????????????" : "Added to Cart");
     } catch (err) {
       console.error(err);
     }
@@ -82,13 +85,13 @@ function ProductDetail() {
       await API.post("orders/cart/add/", { product_id: product.id, quantity });
       navigate("/cart");
     } catch {
-      alert("Failed to proceed");
+      alert(te ? "???????????????" : "Failed to proceed");
     }
   };
 
   const generateDescription = async () => {
     if (!form.name.trim()) {
-      setError("Enter product name first");
+      setError(te ? "??????? ???????? ???? ????? ??????" : "Enter product name first");
       return;
     }
 
@@ -144,7 +147,7 @@ function ProductDetail() {
       });
       setImageFile(null);
       setEditing(false);
-      setSuccess("Product updated successfully.");
+      setSuccess(te ? "???????? ?????????? ??????????????." : "Product updated successfully.");
     } catch (err) {
       setError(err.response?.data?.detail || JSON.stringify(err.response?.data || { error: "Update failed" }));
     } finally {
@@ -175,7 +178,7 @@ function ProductDetail() {
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
             <path d="M10 12L6 8L10 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
-          Back to Marketplace
+          {te ? "??????????? ?????? ??????" : "Back to Marketplace"}
         </button>
         <span className="pd-breadcrumb-sep">/</span>
         <span className="pd-breadcrumb-current">{product.name}</span>
@@ -194,7 +197,7 @@ function ProductDetail() {
                 <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
                   <path d="M24 4C12.954 4 4 12.954 4 24s8.954 20 20 20 20-8.954 20-20S35.046 4 24 4zm0 8c3.314 0 6 2.686 6 6s-2.686 6-6 6-6-2.686-6-6 2.686-6 6-6zm0 28c-5.007 0-9.449-2.457-12.182-6.238C12.26 30.649 17.866 28 24 28s11.74 2.649 12.182 5.762C33.449 37.543 29.007 40 24 40z" fill="currentColor" opacity="0.3"/>
                 </svg>
-                <span>No image</span>
+                <span>{te ? "?????? ????" : "No image"}</span>
               </div>
             )}
 
@@ -205,7 +208,7 @@ function ProductDetail() {
                   <path d="M10 3v10M5 8l5-5 5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                   <path d="M3 17h14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
                 </svg>
-                Replace Image
+                {te ? "?????? ??????" : "Replace Image"}
               </label>
             )}
           </div>
@@ -263,7 +266,7 @@ function ProductDetail() {
                     <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
                       <path d="M10.5 2.5l2 2-8 8H2.5v-2l8-8z" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
-                    Edit Listing
+                    {te ? "?????? ???????" : "Edit Listing"}
                   </button>
                 ) : (
                   <>
@@ -271,10 +274,10 @@ function ProductDetail() {
                       {saving ? (
                         <><span className="pd-btn-spinner"></span>Saving…</>
                       ) : (
-                        <><svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M2.5 8l4 4 6-7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>Save Changes</>
+                        <><svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M2.5 8l4 4 6-7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>{te ? "???????? ???? ??????" : "Save Changes"}</>
                       )}
                     </button>
-                    <button className="pd-btn pd-btn-cancel" onClick={resetEditForm}>Cancel</button>
+                    <button className="pd-btn pd-btn-cancel" onClick={resetEditForm}>{te ? "?????" : "Cancel"}</button>
                   </>
                 )}
               </div>
@@ -298,22 +301,22 @@ function ProductDetail() {
           {/* Key stats strip */}
           <div className="pd-stats-strip">
             <div className="pd-stat">
-              <span className="pd-stat-label">Category</span>
+              <span className="pd-stat-label">{te ? "?????" : "Category"}</span>
               <span className="pd-stat-value">{product.category || "—"}</span>
             </div>
             <div className="pd-stat-divider"></div>
             <div className="pd-stat">
-              <span className="pd-stat-label">Price per unit</span>
+              <span className="pd-stat-label">{te ? "????????? ??" : "Price per unit"}</span>
               <span className="pd-stat-value pd-stat-price">Rs. {priceNumber.toFixed(2)}</span>
             </div>
             <div className="pd-stat-divider"></div>
             <div className="pd-stat">
-              <span className="pd-stat-label">Units available</span>
+              <span className="pd-stat-label">{te ? "??????? ????????" : "Units available"}</span>
               <span className="pd-stat-value">{stockLevel}</span>
             </div>
             <div className="pd-stat-divider"></div>
             <div className="pd-stat">
-              <span className="pd-stat-label">Status</span>
+              <span className="pd-stat-label">{te ? "??????" : "Status"}</span>
               <span className={`pd-stock-badge ${stockTone}`}>{stockLabel}</span>
             </div>
           </div>
@@ -322,13 +325,13 @@ function ProductDetail() {
           {editing && (
             <div className="pd-edit-panel">
               <div className="pd-edit-panel-header">
-                <h3>Update Listing Details</h3>
+                <h3>{te ? "?????? ??????? ???????????" : "Update Listing Details"}</h3>
                 <p>Adjust pricing, stock, and presentation before the next order comes in.</p>
               </div>
 
               <div className="pd-edit-grid">
                 <div className="pd-field-group">
-                  <label className="pd-label">Category</label>
+                  <label className="pd-label">{te ? "?????" : "Category"}</label>
                   <select className="pd-input" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}>
                     <option value="">Select Category</option>
                     <option value="Vegetables">Vegetables</option>
@@ -358,7 +361,7 @@ function ProductDetail() {
                       <strong>Rs. {(Number(form.price || 0) * Number(form.quantity || 0)).toFixed(2)}</strong>
                     </div>
                     <div className="pd-summary-row">
-                      <span>Status</span>
+                      <span>{te ? "??????" : "Status"}</span>
                       <strong>{Number(form.quantity || 0) > 5 ? "✓ Healthy stock" : Number(form.quantity || 0) > 0 ? "⚠ Restock soon" : "✕ Needs replenishment"}</strong>
                     </div>
                   </div>
@@ -370,13 +373,13 @@ function ProductDetail() {
           {/* Description */}
           <div className="pd-description-section">
             <div className="pd-description-header">
-              <h3>Description</h3>
+              <h3>{te ? "?????" : "Description"}</h3>
               {canEdit && editing && (
                 <button className="pd-btn pd-btn-ai" onClick={generateDescription} disabled={generating}>
                   {generating ? (
                     <><span className="pd-btn-spinner"></span>Generating…</>
                   ) : (
-                    <><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v2M7 11v2M1 7h2M11 7h2M3.05 3.05l1.41 1.41M9.54 9.54l1.41 1.41M3.05 10.95l1.41-1.41M9.54 4.46l1.41-1.41" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/></svg>Generate with AI</>
+                    <><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v2M7 11v2M1 7h2M11 7h2M3.05 3.05l1.41 1.41M9.54 9.54l1.41 1.41M3.05 10.95l1.41-1.41M9.54 4.46l1.41-1.41" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/></svg>{te ? "AI ?? ??????????" : "Generate with AI"}</>
                   )}
                 </button>
               )}
@@ -384,7 +387,7 @@ function ProductDetail() {
 
             {editing ? (
               <div className="pd-field-group">
-                <label className="pd-label">Product Story</label>
+                <label className="pd-label">{te ? "???????? ?????" : "Product Story"}</label>
                 <textarea
                   className="pd-textarea"
                   maxLength={200}
@@ -439,3 +442,4 @@ function ProductDetail() {
 }
 
 export default ProductDetail;
+

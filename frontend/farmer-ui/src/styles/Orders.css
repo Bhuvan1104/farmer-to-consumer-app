@@ -218,3 +218,72 @@
     grid-template-columns: 1fr;
   }
 }
+
+[data-theme="dark"] .orders-header h1,
+[data-theme="dark"] .order-top h3 {
+  color: #e5f3eb;
+}
+
+[data-theme="dark"] .orders-header p,
+[data-theme="dark"] .order-body p,
+[data-theme="dark"] .loading-text,
+[data-theme="dark"] .step {
+  color: #a6bbb0;
+}
+
+[data-theme="dark"] .error-box {
+  background: #3b1f1f;
+  color: #ffc0c0;
+}
+
+[data-theme="dark"] .stat-card,
+[data-theme="dark"] .order-card,
+[data-theme="dark"] .empty-state-card {
+  background: #1a2822;
+  border-color: #334a3f;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.28);
+}
+
+[data-theme="dark"] .stat-card h3 {
+  color: #9fb6a9;
+}
+
+[data-theme="dark"] .stat-card p {
+  color: #8fe0b4;
+}
+
+[data-theme="dark"] .filter-btn {
+  background: #1c2c24;
+  color: #cfe5d9;
+  border-color: #3a5549;
+}
+
+[data-theme="dark"] .filter-btn.active {
+  background: linear-gradient(135deg, #257d51, #2ea667);
+  color: #fff;
+}
+
+[data-theme="dark"] .step {
+  border-bottom-color: #3b5147;
+}
+
+[data-theme="dark"] .step.active {
+  border-color: #55c088;
+  color: #7ad6a4;
+}
+
+[data-theme="dark"] .view-text {
+  color: #8fe0b4;
+}
+
+[data-theme="dark"] .rejected-card {
+  border-left-color: #e46868;
+}
+
+[data-theme="dark"] .rejected-msg {
+  color: #ff9f9f;
+}
+
+[data-theme="dark"] .stat-card.rejected {
+  background: linear-gradient(135deg, #3b2323, #352020);
+}
